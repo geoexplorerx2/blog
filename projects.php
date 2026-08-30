@@ -1379,6 +1379,98 @@ if ($db !== null) {
                 align-items: flex-start;
             }
         }
+
+        /* Responsive fixes */
+        @media (max-width: 768px) {
+            .projects-header {
+                padding: 2rem 1rem 2.5rem 1rem;
+            }
+            .projects-header h1 {
+                font-size: 1.7rem;
+            }
+            .projects-header p {
+                font-size: 0.95rem;
+            }
+            .container {
+                padding: 0 1rem;
+            }
+            .projects-grid {
+                grid-template-columns: 1fr;
+            }
+            .form-grid-2 {
+                grid-template-columns: 1fr;
+                gap: 0.75rem;
+            }
+            .controls-card {
+                padding: 1rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .projects-header {
+                padding: 1.5rem 1rem 2rem 1rem;
+            }
+            .projects-header h1 {
+                font-size: 1.4rem;
+            }
+            .projects-header p {
+                font-size: 0.88rem;
+            }
+            .search-box {
+                min-width: 100%;
+            }
+            .btn-add-project {
+                width: 100%;
+                justify-content: center;
+            }
+            .project-card {
+                padding: 1.15rem;
+            }
+            .project-title {
+                font-size: 1.15rem;
+            }
+            .project-actions-row {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .project-links {
+                flex-wrap: wrap;
+            }
+            .admin-item-controls {
+                margin-left: 0;
+                flex-wrap: wrap;
+            }
+            .modal-body {
+                padding: 1.1rem;
+            }
+            .modal-header {
+                padding: 0.9rem 1.1rem;
+            }
+            .modal-footer {
+                padding: 0.9rem 1.1rem;
+                flex-wrap: wrap;
+            }
+            .modal-footer .btn-link-action,
+            .modal-footer .btn-add-project {
+                flex: 1;
+                justify-content: center;
+            }
+            .toast-container {
+                left: 1rem;
+                right: 1rem;
+                bottom: 1rem;
+            }
+            .float-menu-fab {
+                bottom: 1rem;
+                right: 1rem;
+            }
+            .float-menu-panel {
+                bottom: 5rem;
+                right: 1rem;
+                left: 1rem;
+                width: auto;
+            }
+        }
     </style>
 </head>
 <body>
