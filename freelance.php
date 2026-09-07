@@ -686,6 +686,35 @@ if (isset($_GET['api_action'])) {
         exit;
     }
 
+    if ($apiAction === 'update_project_currency') {
+        $id = (int)($data['id'] ?? 0);
+        $currency = trim($data['currency'] ?? '$');
+        $hourlyRate = isset($data['hourly_rate']) ? (float)$data['hourly_rate'] : null;
+        $applyToTasks = !empty($data['apply_to_tasks']);
+
+        if ($id <= 0) {
+            http_response_code(400);
+            echo json_encode(['success' => false, 'error' => 'Valid Project ID is required.']);
+            exit;
+        }
+
+        if ($hourlyRate !== null && $hourlyRate >= 0) {
+            $stmt = $db->prepare("UPDATE freelance_projects SET currency = ?, hourly_rate = ? WHERE id = ?");
+            $stmt->execute([$currency, $hourlyRate, $id]);
+
+            if ($applyToTasks) {
+                $stmtTasks = $db->prepare("UPDATE freelance_tasks SET price_per_hour = ?, total_price = ROUND(duration_hours * ?, 2) WHERE project_id = ?");
+                $stmtTasks->execute([$hourlyRate, $hourlyRate, $id]);
+            }
+        } else {
+            $stmt = $db->prepare("UPDATE freelance_projects SET currency = ? WHERE id = ?");
+            $stmt->execute([$currency, $id]);
+        }
+
+        echo json_encode(['success' => true, 'message' => 'Project currency and rate updated successfully!']);
+        exit;
+    }
+
     if ($apiAction === 'delete_project') {
         $id = (int)($data['id'] ?? 0);
         if ($id <= 0) {
@@ -1769,6 +1798,110 @@ $isLoggedIn = Auth::isLoggedIn();
         .btn-minimal-secondary:active {
             transform: translateY(0);
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+        }
+
+        /* Dedicated Currency & Pricing Section */
+        .project-currency-section {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            flex-wrap: wrap;
+            background: #ffffff;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 12px 18px;
+            margin-top: 18px;
+            box-shadow: var(--shadow-subtle);
+        }
+
+        .currency-selector-group {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .currency-selector-label {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            font-size: 0.84rem;
+            font-weight: 600;
+            color: var(--brand-dark);
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .currency-selector-label svg {
+            color: var(--brand-primary);
+        }
+
+        .currency-pills {
+            display: inline-flex;
+            background: #f1f5f9;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 3px;
+            gap: 4px;
+        }
+
+        .currency-pill-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            border: none;
+            background: transparent;
+            padding: 6px 14px;
+            border-radius: 6px;
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.82rem;
+            font-weight: 500;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+            user-select: none;
+        }
+
+        .currency-pill-btn:hover {
+            color: var(--brand-primary);
+            background: rgba(255, 255, 255, 0.7);
+        }
+
+        .currency-pill-btn.active {
+            background: var(--brand-primary);
+            color: #ffffff;
+            font-weight: 600;
+            box-shadow: 0 2px 6px rgba(18, 70, 111, 0.25);
+        }
+
+        .currency-pill-btn .curr-flag {
+            font-size: 0.95rem;
+            line-height: 1;
+        }
+
+        .currency-rate-setter {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            flex-wrap: wrap;
+        }
+
+        .currency-rate-info {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.86rem;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .currency-rate-info .rate-label {
+            color: var(--text-muted);
+        }
+
+        .currency-rate-info .rate-value {
+            color: var(--brand-primary);
+            font-size: 0.96rem;
+            font-weight: 700;
         }
 
         /* -------------------------------------------------------------
@@ -3208,6 +3341,41 @@ $isLoggedIn = Auth::isLoggedIn();
                         </div>
                     </div>
 
+                    <!-- Dedicated Currency & Pricing Section -->
+                    <div class="project-currency-section">
+                        <div class="currency-selector-group">
+                            <span class="currency-selector-label">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="6" x2="12" y2="18"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>
+                                <span>Currency (واحد پول):</span>
+                            </span>
+                            <div class="currency-pills" id="projectCurrencyPills">
+                                <button type="button" class="currency-pill-btn active" data-currency="$" onclick="handleCurrencySelect('$')" title="Set currency to US Dollar ($)">
+                                    <span class="curr-flag">💵</span>
+                                    <span>Dollar ($)</span>
+                                </button>
+                                <button type="button" class="currency-pill-btn" data-currency="تومان" onclick="handleCurrencySelect('تومان')" title="Set currency to Iranian Toman (تومان)">
+                                    <span class="curr-flag">🇮🇷</span>
+                                    <span>Toman (تومان)</span>
+                                </button>
+                                <button type="button" class="currency-pill-btn" data-currency="€" onclick="handleCurrencySelect('€')" title="Set currency to Euro (€)">
+                                    <span class="curr-flag">💶</span>
+                                    <span>Euro (€)</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="currency-rate-setter">
+                            <span class="currency-rate-info">
+                                <span class="rate-label">Hourly Rate:</span>
+                                <strong class="rate-value" id="currencySectionRateDisplay">$0.00 / hr</strong>
+                            </span>
+                            <button type="button" class="btn btn-secondary btn-sm" onclick="openSetRateModal()" title="Set or adjust hourly rate according to selected currency">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                                <span>Set Price (تنظیم نرخ)</span>
+                            </button>
+                        </div>
+                    </div>
+
                     <!-- Metric Highlights Bar -->
                     <div class="project-stats-grid">
                         <div class="stat-card">
@@ -3370,17 +3538,25 @@ $isLoggedIn = Auth::isLoggedIn();
                         </div>
                         <div class="form-row">
                             <div class="form-group">
-                                <label for="projectHourlyRate">Default Hourly Rate (تومان / ساعت) *</label>
-                                <input type="number" step="10000" id="projectHourlyRate" class="form-control" required value="500000" placeholder="e.g. 500000">
-                            </div>
-                            <div class="form-group">
-                                <label for="projectStatus">Status</label>
-                                <select id="projectStatus" class="form-control">
-                                    <option value="in_progress">In Progress</option>
-                                    <option value="completed">Completed</option>
-                                    <option value="on_hold">On Hold</option>
+                                <label for="projectCurrency">Currency (واحد پول) *</label>
+                                <select id="projectCurrency" class="form-control" onchange="handleProjectModalCurrencyChange(this.value)">
+                                    <option value="$">💵 US Dollar ($ USD)</option>
+                                    <option value="تومان">🇮🇷 Iranian Toman (تومان)</option>
+                                    <option value="€">💶 Euro (€ EUR)</option>
                                 </select>
                             </div>
+                            <div class="form-group">
+                                <label for="projectHourlyRate" id="projectHourlyRateLabel">Default Hourly Rate ($ / hr) *</label>
+                                <input type="number" step="any" min="0" id="projectHourlyRate" class="form-control" required value="50" placeholder="e.g. 50.00">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="projectStatus">Project Status</label>
+                            <select id="projectStatus" class="form-control">
+                                <option value="in_progress">In Progress</option>
+                                <option value="completed">Completed</option>
+                                <option value="on_hold">On Hold</option>
+                            </select>
                         </div>
                         <div class="form-group">
                             <label for="projectDescription">Description &amp; Goals</label>
@@ -3390,6 +3566,50 @@ $isLoggedIn = Auth::isLoggedIn();
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" onclick="closeModal('projectModal')">Cancel</button>
                         <button type="submit" class="btn btn-primary" id="btnSaveProject">Save Project</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- 2.5 QUICK SET CURRENCY & RATE MODAL -->
+        <div class="modal-backdrop" id="setCurrencyRateModal">
+            <div class="modal-box" style="max-width: 480px;">
+                <div class="modal-header">
+                    <h3>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                        Select Currency &amp; Set Price
+                    </h3>
+                    <button type="button" class="modal-close-btn" onclick="closeModal('setCurrencyRateModal')">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                    </button>
+                </div>
+                <form id="setCurrencyRateForm">
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label for="quickCurrencySelect">Currency Type (نوع واحد پول) *</label>
+                            <select id="quickCurrencySelect" class="form-control" onchange="handleQuickCurrencyChange(this.value)">
+                                <option value="$">💵 US Dollar ($ USD)</option>
+                                <option value="تومان">🇮🇷 Iranian Toman (تومان)</option>
+                                <option value="€">💶 Euro (€ EUR)</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="quickHourlyRateInput" id="quickHourlyRateLabel">Hourly Rate ($ / hr) *</label>
+                            <input type="number" step="any" min="0" id="quickHourlyRateInput" class="form-control" required placeholder="e.g. 65">
+                            <small style="color:var(--text-muted); font-size:0.8rem; margin-top:4px; display:block;" id="quickRateHelpText">Set the hourly rate according to the selected currency.</small>
+                        </div>
+
+                        <div class="form-group" style="margin-top:14px; background:#f8fafc; padding:10px 12px; border-radius:8px; border:1px solid #e2e8f0;">
+                            <label style="display:flex; align-items:center; gap:8px; cursor:pointer; font-size:0.86rem; font-weight:500; margin-bottom:0;">
+                                <input type="checkbox" id="quickApplyToExistingTasks" checked style="width:16px; height:16px; cursor:pointer;">
+                                <span>Also update hourly price on all existing tasks in this project</span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" onclick="closeModal('setCurrencyRateModal')">Cancel</button>
+                        <button type="submit" class="btn btn-primary" id="btnSaveQuickCurrency">Apply Currency &amp; Price</button>
                     </div>
                 </form>
             </div>
@@ -3431,17 +3651,17 @@ $isLoggedIn = Auth::isLoggedIn();
                         <div class="form-row">
                             <div class="form-group">
                                 <label for="taskStartTime">Start Time *</label>
-                                <input type="time" id="taskStartTime" class="form-control" required value="09:00">
+                                <input type="time" step="any" id="taskStartTime" class="form-control" required value="09:00">
                             </div>
                             <div class="form-group">
                                 <label for="taskEndTime">End Time *</label>
-                                <input type="time" id="taskEndTime" class="form-control" required value="13:00">
+                                <input type="time" step="any" id="taskEndTime" class="form-control" required value="13:00">
                             </div>
                         </div>
 
                         <div class="form-group">
-                            <label for="taskPricePerHour">Price Per Hour (تومان / ساعت) *</label>
-                            <input type="number" step="10000" id="taskPricePerHour" class="form-control" required value="500000" placeholder="e.g. 500000">
+                            <label for="taskPricePerHour" id="taskPricePerHourLabel">Price Per Hour *</label>
+                            <input type="number" step="any" min="0" id="taskPricePerHour" class="form-control" required value="50" placeholder="e.g. 50">
                         </div>
 
                         <!-- Live Calculated Duration and Total Price preview -->
@@ -3700,13 +3920,48 @@ $isLoggedIn = Auth::isLoggedIn();
             if (el) el.classList.remove('open');
         }
 
+        function getCurrencySymbol(curr) {
+            if (!curr) return '$';
+            const c = String(curr).trim().toUpperCase();
+            if (c === 'TOMAN' || c === 'تومان' || c === 'TMN' || c === 'IRR') return 'تومان';
+            if (c === 'EUR' || c === '€') return '€';
+            return '$';
+        }
+
         function formatNumber(num) {
             const n = Math.round(Number(num) || 0);
             return n.toLocaleString('en-US');
         }
 
-        function formatToman(amount) {
-            return formatNumber(amount) + ' تومان';
+        function formatPrice(amount, currency = null) {
+            const curr = currency || (activeProjectData?.project?.currency) || '$';
+            const sym = getCurrencySymbol(curr);
+            const n = parseFloat(amount) || 0;
+
+            if (sym === 'تومان') {
+                return Math.round(n).toLocaleString('en-US') + ' تومان';
+            } else if (sym === '€') {
+                return '€' + n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            } else {
+                return '$' + n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            }
+        }
+
+        function formatRate(rate, currency = null) {
+            const curr = currency || (activeProjectData?.project?.currency) || '$';
+            const sym = getCurrencySymbol(curr);
+            const r = parseFloat(rate) || 0;
+            if (sym === 'تومان') {
+                return `${Math.round(r).toLocaleString('en-US')} تومان / ساعت`;
+            } else if (sym === '€') {
+                return `€${r.toFixed(2)} / hr`;
+            } else {
+                return `$${r.toFixed(2)} / hr`;
+            }
+        }
+
+        function formatToman(amount, curr = null) {
+            return formatPrice(amount, curr);
         }
 
         // --- Duration and Price Live Calculation in Task Modal ---
@@ -3732,10 +3987,11 @@ $isLoggedIn = Auth::isLoggedIn();
 
             const diffHours = (endDate - startDate) / (1000 * 60 * 60);
             const roundedHours = Math.round(diffHours * 100) / 100;
-            const totalPrice = Math.round(roundedHours * rateVal);
+            const totalPrice = Math.round(roundedHours * rateVal * 100) / 100;
 
+            const curr = activeProjectData?.project?.currency || '$';
             if (durationEl) durationEl.textContent = `${roundedHours.toFixed(2)} hrs`;
-            if (priceEl) priceEl.textContent = formatToman(totalPrice);
+            if (priceEl) priceEl.textContent = formatPrice(totalPrice, curr);
         }
 
         // Event listeners for task time calculation
@@ -3916,16 +4172,37 @@ $isLoggedIn = Auth::isLoggedIn();
             document.getElementById('heroProjectTitle').textContent = project.title;
             document.getElementById('heroProjectDesc').textContent = project.description || 'No specific description provided.';
 
+            const curr = project.currency || '$';
+            const sym = getCurrencySymbol(curr);
+
+            // Update Currency Pills in the Currency Section
+            const pills = document.querySelectorAll('#projectCurrencyPills .currency-pill-btn');
+            pills.forEach(pill => {
+                const pCurr = pill.getAttribute('data-currency');
+                if (getCurrencySymbol(pCurr) === sym) {
+                    pill.classList.add('active');
+                } else {
+                    pill.classList.remove('active');
+                }
+            });
+
+            // Update Rate Displays
+            const rateStr = formatRate(project.hourly_rate, curr);
+            const currencySectionRateDisplay = document.getElementById('currencySectionRateDisplay');
+            if (currencySectionRateDisplay) currencySectionRateDisplay.textContent = rateStr;
+
+            document.getElementById('statHourlyRate').textContent = rateStr;
+            document.getElementById('statTotalPrice').textContent = formatPrice(summary.total_price, curr);
             document.getElementById('statTaskCount').textContent = summary.total_tasks;
             document.getElementById('statTotalHours').textContent = `${summary.total_hours.toFixed(2)}h`;
-            document.getElementById('statHourlyRate').textContent = `${formatToman(project.hourly_rate)} / ساعت`;
-            document.getElementById('statTotalPrice').textContent = formatToman(summary.total_price);
         }
 
         // --- Render Collapsible Tasks List ---
         function renderTasksList(tasks) {
             const container = document.getElementById('tasksListContainer');
             if (!container) return;
+
+            const projectCurrency = activeProjectData?.project?.currency || '$';
 
             let filtered = tasks;
             if (activeFilter !== 'all') {
@@ -3947,8 +4224,8 @@ $isLoggedIn = Auth::isLoggedIn();
                 const formattedStart = formatTime(t.start_time);
                 const formattedEnd = formatTime(t.end_time);
                 const duration = parseFloat(t.duration_hours).toFixed(2);
-                const price = formatToman(t.total_price);
-                const rate = formatToman(t.price_per_hour);
+                const price = formatPrice(t.total_price, projectCurrency);
+                const rate = formatRate(t.price_per_hour, projectCurrency);
 
                 return `
                     <div class="task-card" id="taskCard_${t.id}">
@@ -3993,11 +4270,11 @@ $isLoggedIn = Auth::isLoggedIn();
                                 </div>
                                 <div class="metric-item">
                                     <span class="metric-label">Price Per Hour</span>
-                                    <span class="metric-value">${rate} / ساعت</span>
+                                    <span class="metric-value">${rate}</span>
                                 </div>
                                 <div class="metric-item">
                                     <span class="metric-label">Duration &amp; Price</span>
-                                    <span class="metric-value" style="color:var(--success);">${duration}h &times; ${formatNumber(t.price_per_hour)} = ${price}</span>
+                                    <span class="metric-value" style="color:var(--success);">${duration}h &times; ${formatPrice(t.price_per_hour, projectCurrency)} = ${price}</span>
                                 </div>
                             </div>
 
@@ -4163,15 +4440,54 @@ $isLoggedIn = Auth::isLoggedIn();
             });
         }
 
-        // --- MODAL HANDLERS: PROJECT ---
+        // --- MODAL HANDLERS: PROJECT & CURRENCY ---
+        function handleProjectModalCurrencyChange(curr) {
+            const sym = getCurrencySymbol(curr);
+            const label = document.getElementById('projectHourlyRateLabel');
+            const input = document.getElementById('projectHourlyRate');
+            if (!input) return;
+
+            input.step = 'any';
+            input.min = '0';
+
+            if (sym === 'تومان') {
+                if (label) label.textContent = 'Default Hourly Rate (تومان / ساعت) *';
+                input.placeholder = 'e.g. 500000';
+                if (parseFloat(input.value) <= 100) input.value = '500000';
+            } else if (sym === '€') {
+                if (label) label.textContent = 'Default Hourly Rate (€ / hr) *';
+                input.placeholder = 'e.g. 50.00';
+                if (parseFloat(input.value) > 1000) input.value = '50';
+            } else {
+                if (label) label.textContent = 'Default Hourly Rate ($ / hr) *';
+                input.placeholder = 'e.g. 65.00';
+                if (parseFloat(input.value) > 1000) input.value = '65';
+            }
+        }
+
         function openCreateProjectModal(companyId = null) {
             document.getElementById('projectModalTitle').textContent = 'Create Project';
             document.getElementById('projectId').value = '';
-            if (companyId) {
-                document.getElementById('projectCompanySelect').value = companyId;
+
+            const compSelect = document.getElementById('projectCompanySelect');
+            if (compSelect) {
+                if (compSelect.options.length === 0 && currentTreeData && currentTreeData.length > 0) {
+                    compSelect.innerHTML = currentTreeData.map(c => `<option value="${c.id}">${escapeHtml(c.name)}</option>`).join('');
+                }
+                if (companyId) {
+                    compSelect.value = companyId;
+                } else if (compSelect.options.length > 0 && !compSelect.value) {
+                    compSelect.selectedIndex = 0;
+                }
             }
+
             document.getElementById('projectTitle').value = '';
-            document.getElementById('projectHourlyRate').value = '500000';
+            const currEl = document.getElementById('projectCurrency');
+            if (currEl) {
+                currEl.value = '$';
+                handleProjectModalCurrencyChange('$');
+            }
+            document.getElementById('projectHourlyRate').value = '50';
             document.getElementById('projectStatus').value = 'in_progress';
             document.getElementById('projectDescription').value = '';
             openModal('projectModal');
@@ -4196,12 +4512,142 @@ $isLoggedIn = Auth::isLoggedIn();
 
             document.getElementById('projectModalTitle').textContent = 'Edit Project';
             document.getElementById('projectId').value = proj.id;
-            document.getElementById('projectCompanySelect').value = compId;
+            
+            const compSelect = document.getElementById('projectCompanySelect');
+            if (compSelect) {
+                if (compSelect.options.length === 0 && currentTreeData && currentTreeData.length > 0) {
+                    compSelect.innerHTML = currentTreeData.map(c => `<option value="${c.id}">${escapeHtml(c.name)}</option>`).join('');
+                }
+                compSelect.value = compId;
+            }
+
             document.getElementById('projectTitle').value = proj.title || '';
-            document.getElementById('projectHourlyRate').value = proj.hourly_rate || '500000';
+
+            const pCurr = proj.currency || '$';
+            const currEl = document.getElementById('projectCurrency');
+            if (currEl) {
+                currEl.value = getCurrencySymbol(pCurr) === 'تومان' ? 'تومان' : (getCurrencySymbol(pCurr) === '€' ? '€' : '$');
+                handleProjectModalCurrencyChange(currEl.value);
+            }
+
+            document.getElementById('projectHourlyRate').value = proj.hourly_rate || (getCurrencySymbol(pCurr) === 'تومان' ? '500000' : '50');
             document.getElementById('projectStatus').value = proj.status || 'in_progress';
             document.getElementById('projectDescription').value = proj.description || '';
             openModal('projectModal');
+        }
+
+        // --- QUICK SET CURRENCY & RATE MODAL HANDLERS ---
+        function openSetRateModal(curr = null) {
+            if (!activeProjectData || !activeProjectData.project) {
+                showToast('Please select a project first.', 'error');
+                return;
+            }
+            const p = activeProjectData.project;
+            const targetCurr = curr || p.currency || '$';
+
+            const selectEl = document.getElementById('quickCurrencySelect');
+            if (selectEl) {
+                selectEl.value = getCurrencySymbol(targetCurr) === 'تومان' ? 'تومان' : (getCurrencySymbol(targetCurr) === '€' ? '€' : '$');
+            }
+
+            const rateInput = document.getElementById('quickHourlyRateInput');
+            let rate = parseFloat(p.hourly_rate) || 0;
+
+            const oldSym = getCurrencySymbol(p.currency);
+            const newSym = getCurrencySymbol(targetCurr);
+            if (oldSym !== newSym) {
+                if (newSym === 'تومان' && rate < 1000) {
+                    rate = 500000;
+                } else if ((newSym === '$' || newSym === '€') && rate > 1000) {
+                    rate = 50;
+                }
+            }
+
+            if (rateInput) {
+                rateInput.step = 'any';
+                rateInput.min = '0';
+                rateInput.value = rate;
+            }
+
+            handleQuickCurrencyChange(selectEl ? selectEl.value : targetCurr);
+            openModal('setCurrencyRateModal');
+        }
+
+        function handleCurrencySelect(curr) {
+            openSetRateModal(curr);
+        }
+
+        function handleQuickCurrencyChange(curr) {
+            const sym = getCurrencySymbol(curr);
+            const labelEl = document.getElementById('quickHourlyRateLabel');
+            const inputEl = document.getElementById('quickHourlyRateInput');
+            const helpEl = document.getElementById('quickRateHelpText');
+
+            if (inputEl) {
+                inputEl.step = 'any';
+                inputEl.min = '0';
+            }
+
+            if (sym === 'تومان') {
+                if (labelEl) labelEl.textContent = 'Hourly Rate (تومان / ساعت) *';
+                if (inputEl) {
+                    inputEl.placeholder = 'e.g. 500000';
+                    if (parseFloat(inputEl.value) <= 100) inputEl.value = 500000;
+                }
+                if (helpEl) helpEl.textContent = 'Enter hourly rate in Iranian Toman (e.g. 500,000 تومان).';
+            } else if (sym === '€') {
+                if (labelEl) labelEl.textContent = 'Hourly Rate (€ / hr) *';
+                if (inputEl) {
+                    inputEl.placeholder = 'e.g. 50.00';
+                    if (parseFloat(inputEl.value) > 1000) inputEl.value = 50;
+                }
+                if (helpEl) helpEl.textContent = 'Enter hourly rate in Euros (e.g. 50.00 €).';
+            } else {
+                if (labelEl) labelEl.textContent = 'Hourly Rate ($ / hr) *';
+                if (inputEl) {
+                    inputEl.placeholder = 'e.g. 65.00';
+                    if (parseFloat(inputEl.value) > 1000) inputEl.value = 65;
+                }
+                if (helpEl) helpEl.textContent = 'Enter hourly rate in US Dollars (e.g. 65.00 $).';
+            }
+        }
+
+        const setCurrencyRateForm = document.getElementById('setCurrencyRateForm');
+        if (setCurrencyRateForm) {
+            setCurrencyRateForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                if (!activeProjectId) return;
+
+                const currency = document.getElementById('quickCurrencySelect').value;
+                const hourlyRate = parseFloat(document.getElementById('quickHourlyRateInput').value) || 0;
+                const applyToTasks = document.getElementById('quickApplyToExistingTasks').checked;
+                const btn = document.getElementById('btnSaveQuickCurrency');
+                if (btn) btn.disabled = true;
+
+                try {
+                    const res = await fetch(`${API_BASE}?api_action=update_project_currency`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            id: activeProjectId,
+                            currency: currency,
+                            hourly_rate: hourlyRate,
+                            apply_to_tasks: applyToTasks
+                        })
+                    });
+                    const json = await res.json();
+                    if (!json.success) throw new Error(json.error || 'Failed to update currency and price');
+
+                    closeModal('setCurrencyRateModal');
+                    showToast(json.message || 'Currency and price updated successfully!', 'success');
+                    await selectProject(activeProjectId);
+                    await loadCompaniesAndProjects(activeProjectId);
+                } catch (err) {
+                    showToast(err.message, 'error');
+                } finally {
+                    if (btn) btn.disabled = false;
+                }
+            });
         }
 
         async function deleteProject(projectId, projectTitle) {
@@ -4253,6 +4699,7 @@ $isLoggedIn = Auth::isLoggedIn();
                     id: id,
                     company_id: document.getElementById('projectCompanySelect').value,
                     title: document.getElementById('projectTitle').value.trim(),
+                    currency: document.getElementById('projectCurrency') ? document.getElementById('projectCurrency').value : '$',
                     hourly_rate: document.getElementById('projectHourlyRate').value,
                     status: document.getElementById('projectStatus').value,
                     description: document.getElementById('projectDescription').value.trim()
@@ -4382,11 +4829,11 @@ $isLoggedIn = Auth::isLoggedIn();
                                             <div>
                                                 <span class="manage-project-title">${escapeHtml(p.title)}</span>
                                                 <div class="manage-project-meta">
-                                                    <span>Rate: <strong>${formatToman(p.hourly_rate)}/h</strong></span>
+                                                    <span>Rate: <strong>${formatRate(p.hourly_rate, p.currency)}</strong></span>
                                                     <span>&bull;</span>
                                                     <span>${p.task_count || 0} tasks (${parseFloat(p.total_hours || 0).toFixed(1)}h)</span>
                                                     <span>&bull;</span>
-                                                    <span style="font-weight:700; color:var(--brand-primary);">${formatToman(p.total_price || 0)}</span>
+                                                    <span style="font-weight:700; color:var(--brand-primary);">${formatPrice(p.total_price || 0, p.currency)}</span>
                                                 </div>
                                             </div>
                                         </div>
@@ -4500,13 +4947,33 @@ $isLoggedIn = Auth::isLoggedIn();
                 showToast('Please select a project first.', 'error');
                 return;
             }
+            const curr = activeProjectData.project.currency || '$';
+            const sym = getCurrencySymbol(curr);
+            const rateLabel = document.getElementById('taskPricePerHourLabel');
+            const rateInput = document.getElementById('taskPricePerHour');
+
+            if (rateLabel) {
+                if (sym === 'تومان') {
+                    rateLabel.textContent = 'Price Per Hour (تومان / ساعت) *';
+                } else if (sym === '€') {
+                    rateLabel.textContent = 'Price Per Hour (€ / hr) *';
+                } else {
+                    rateLabel.textContent = 'Price Per Hour ($ / hr) *';
+                }
+            }
+            if (rateInput) {
+                rateInput.step = 'any';
+                rateInput.min = '0';
+                rateInput.placeholder = sym === 'تومان' ? 'e.g. 500000' : 'e.g. 50.00';
+                rateInput.value = activeProjectData.project.hourly_rate || (sym === 'تومان' ? '500000' : '50');
+            }
+
             document.getElementById('taskModalTitle').textContent = 'Create New Task';
             document.getElementById('taskId').value = '';
             document.getElementById('taskTitle').value = '';
             document.getElementById('taskDate').value = new Date().toISOString().split('T')[0];
             document.getElementById('taskStartTime').value = '09:00';
             document.getElementById('taskEndTime').value = '13:00';
-            document.getElementById('taskPricePerHour').value = activeProjectData.project.hourly_rate || '500000';
             document.getElementById('taskStatus').value = 'completed';
             document.getElementById('taskDescription').value = '';
 
@@ -4519,13 +4986,33 @@ $isLoggedIn = Auth::isLoggedIn();
             const task = activeProjectData.tasks.find(t => t.id === taskId);
             if (!task) return;
 
+            const curr = activeProjectData.project?.currency || '$';
+            const sym = getCurrencySymbol(curr);
+            const rateLabel = document.getElementById('taskPricePerHourLabel');
+            const rateInput = document.getElementById('taskPricePerHour');
+
+            if (rateLabel) {
+                if (sym === 'تومان') {
+                    rateLabel.textContent = 'Price Per Hour (تومان / ساعت) *';
+                } else if (sym === '€') {
+                    rateLabel.textContent = 'Price Per Hour (€ / hr) *';
+                } else {
+                    rateLabel.textContent = 'Price Per Hour ($ / hr) *';
+                }
+            }
+            if (rateInput) {
+                rateInput.step = 'any';
+                rateInput.min = '0';
+                rateInput.placeholder = sym === 'تومان' ? 'e.g. 500000' : 'e.g. 50.00';
+                rateInput.value = task.price_per_hour;
+            }
+
             document.getElementById('taskModalTitle').textContent = 'Edit Task';
             document.getElementById('taskId').value = task.id;
             document.getElementById('taskTitle').value = task.title;
             document.getElementById('taskDate').value = task.task_date;
             document.getElementById('taskStartTime').value = task.start_time.substring(0, 5);
             document.getElementById('taskEndTime').value = task.end_time.substring(0, 5);
-            document.getElementById('taskPricePerHour').value = task.price_per_hour;
             document.getElementById('taskStatus').value = task.status;
             document.getElementById('taskDescription').value = task.description || '';
 
@@ -4664,11 +5151,12 @@ $isLoggedIn = Auth::isLoggedIn();
                     const json = await res.json();
                     if (!json.success) throw new Error(json.error || 'Could not load shared project.');
 
+                    const pCurr = json.project.currency || '$';
                     document.getElementById('sharedTitle').textContent = json.project.title;
-                    document.getElementById('sharedSubtitle').textContent = `Company: ${json.project.company_name} • Rate: ${formatToman(json.project.hourly_rate)} / ساعت`;
+                    document.getElementById('sharedSubtitle').textContent = `Company: ${json.project.company_name} • Rate: ${formatRate(json.project.hourly_rate, pCurr)}`;
                     document.getElementById('sharedDescription').textContent = json.project.description || 'Project timesheet summary.';
                     document.getElementById('sharedTotalHours').textContent = `${json.summary.total_hours.toFixed(2)} hrs`;
-                    document.getElementById('sharedTotalPrice').textContent = formatToman(json.summary.total_price);
+                    document.getElementById('sharedTotalPrice').textContent = formatPrice(json.summary.total_price, pCurr);
 
                     const tbody = document.getElementById('sharedTasksTbody');
                     if (json.tasks.length === 0) {
@@ -4682,9 +5170,9 @@ $isLoggedIn = Auth::isLoggedIn();
                                 </td>
                                 <td style="font-family:'JetBrains Mono', monospace; font-size:0.82rem; color:var(--text-muted);">${formatDate(t.task_date)}</td>
                                 <td style="font-family:'JetBrains Mono', monospace; font-size:0.82rem; color:var(--text-muted);">${formatTime(t.start_time)} &ndash; ${formatTime(t.end_time)}</td>
-                                <td style="font-family:'JetBrains Mono', monospace; font-size:0.84rem;">${formatToman(t.price_per_hour)}</td>
+                                <td style="font-family:'JetBrains Mono', monospace; font-size:0.84rem;">${formatRate(t.price_per_hour, pCurr)}</td>
                                 <td style="font-family:'JetBrains Mono', monospace; font-weight:700; color:var(--brand-primary);">${parseFloat(t.duration_hours).toFixed(2)}h</td>
-                                <td style="font-family:'JetBrains Mono', monospace; font-weight:800; color:var(--brand-primary); text-align:right; font-size:0.94rem;">${formatToman(t.total_price)}</td>
+                                <td style="font-family:'JetBrains Mono', monospace; font-weight:800; color:var(--brand-primary); text-align:right; font-size:0.94rem;">${formatPrice(t.total_price, pCurr)}</td>
                             </tr>
                         `).join('');
                     }
@@ -4693,19 +5181,33 @@ $isLoggedIn = Auth::isLoggedIn();
                     const json = await res.json();
                     if (!json.success) throw new Error(json.error || 'Could not load company share report.');
 
+                    const currencies = [...new Set(json.projects.map(p => p.currency || '$'))];
+                    let totalSummaryStr = '';
+                    if (currencies.length <= 1) {
+                        totalSummaryStr = formatPrice(json.summary.overall_price, currencies[0] || '$');
+                    } else {
+                        const byCurr = {};
+                        json.projects.forEach(p => {
+                            const c = p.currency || '$';
+                            byCurr[c] = (byCurr[c] || 0) + (parseFloat(p.total_price) || 0);
+                        });
+                        totalSummaryStr = Object.entries(byCurr).map(([c, sum]) => formatPrice(sum, c)).join(' + ');
+                    }
+
                     document.getElementById('sharedTitle').textContent = `${json.company.name} — All Projects Timesheet`;
                     document.getElementById('sharedSubtitle').textContent = `Total Projects: ${json.summary.total_projects} • Client: ${json.company.client_name || 'N/A'}`;
                     document.getElementById('sharedDescription').textContent = `Consolidated timesheet and financial breakdown across all projects for ${json.company.name}.`;
                     document.getElementById('sharedTotalHours').textContent = `${json.summary.overall_hours.toFixed(2)} hrs`;
-                    document.getElementById('sharedTotalPrice').textContent = formatToman(json.summary.overall_price);
+                    document.getElementById('sharedTotalPrice').textContent = totalSummaryStr;
 
                     const tbody = document.getElementById('sharedTasksTbody');
                     let rowsHtml = '';
                     json.projects.forEach(p => {
+                        const pCurr = p.currency || '$';
                         rowsHtml += `
                             <tr style="background:#f1f5f9;">
                                 <td colspan="6" style="padding:10px 16px; font-weight:800; color:var(--brand-dark); font-size:0.92rem;">
-                                    Project: ${escapeHtml(p.title)} (Subtotal: ${formatToman(p.total_price)} &bull; ${p.total_hours.toFixed(2)} hrs)
+                                    Project: ${escapeHtml(p.title)} (Subtotal: ${formatPrice(p.total_price, pCurr)} &bull; ${p.total_hours.toFixed(2)} hrs)
                                 </td>
                             </tr>
                         `;
@@ -4721,9 +5223,9 @@ $isLoggedIn = Auth::isLoggedIn();
                                         </td>
                                         <td style="font-family:'JetBrains Mono', monospace; font-size:0.82rem; color:var(--text-muted);">${formatDate(t.task_date)}</td>
                                         <td style="font-family:'JetBrains Mono', monospace; font-size:0.82rem; color:var(--text-muted);">${formatTime(t.start_time)} &ndash; ${formatTime(t.end_time)}</td>
-                                        <td style="font-family:'JetBrains Mono', monospace; font-size:0.84rem;">${formatToman(t.price_per_hour)}</td>
+                                        <td style="font-family:'JetBrains Mono', monospace; font-size:0.84rem;">${formatRate(t.price_per_hour, pCurr)}</td>
                                         <td style="font-family:'JetBrains Mono', monospace; font-weight:700; color:var(--brand-primary);">${parseFloat(t.duration_hours).toFixed(2)}h</td>
-                                        <td style="font-family:'JetBrains Mono', monospace; font-weight:800; color:var(--brand-primary); text-align:right;">${formatToman(t.total_price)}</td>
+                                        <td style="font-family:'JetBrains Mono', monospace; font-weight:800; color:var(--brand-primary); text-align:right;">${formatPrice(t.total_price, pCurr)}</td>
                                     </tr>
                                 `;
                             });
