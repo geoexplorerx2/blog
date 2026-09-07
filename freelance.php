@@ -3608,10 +3608,10 @@ $isLoggedIn = Auth::isLoggedIn();
                         Companies &amp; Projects
                     </h2>
                     <div style="display:flex; align-items:center; gap:4px;">
-                        <button type="button" class="btn btn-ghost btn-sm" id="btnSidebarManageList" onclick="openManageListModal()" title="Manage Companies & Projects (List / Delete / Edit)">
+                        <button type="button" class="btn btn-ghost btn-sm" id="btnSidebarManageList" onclick="toggleMobileSidebar(false); openManageListModal();" title="Manage Companies & Projects (List / Delete / Edit)">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
                         </button>
-                        <button type="button" class="btn btn-ghost btn-sm" id="btnSidebarAddCompany" title="Add Company">
+                        <button type="button" class="btn btn-ghost btn-sm" id="btnSidebarAddCompany" onclick="toggleMobileSidebar(false); openCreateCompanyModal();" title="Add Company">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>
                         </button>
                         <button type="button" class="btn btn-ghost btn-sm btn-sidebar-close" id="btnSidebarClose" onclick="toggleMobileSidebar(false)" title="Close Menu" aria-label="Close Menu">
@@ -4284,6 +4284,9 @@ $isLoggedIn = Auth::isLoggedIn();
 
         // --- Modal Helpers ---
         function openModal(id) {
+            if (typeof toggleMobileSidebar === 'function') {
+                toggleMobileSidebar(false);
+            }
             const el = document.getElementById(id);
             if (el) el.classList.add('open');
         }
@@ -4756,6 +4759,9 @@ $isLoggedIn = Auth::isLoggedIn();
 
         // --- MODAL HANDLERS: COMPANY ---
         function openCreateCompanyModal() {
+            if (typeof toggleMobileSidebar === 'function') {
+                toggleMobileSidebar(false);
+            }
             document.getElementById('companyModalTitle').textContent = 'Create New Company';
             document.getElementById('companyId').value = '';
             document.getElementById('companyName').value = '';
@@ -4778,10 +4784,14 @@ $isLoggedIn = Auth::isLoggedIn();
         }
 
         async function deleteCompany(companyId, companyName) {
-            const nameStr = companyName || 'this company';
-            if (!confirm(`Are you sure you want to delete company "${nameStr}"?\n\nWARNING: All projects and logged tasks under this company will be permanently deleted!`)) {
-                return;
-            }
+            const confirmed = await openConfirmModal({
+                title: 'Delete Company',
+                message: `Are you sure you want to delete company <strong>${escapeHtml(companyName)}</strong>? All its projects and tasks will also be deleted permanently.`,
+                confirmText: 'Delete Company',
+                confirmClass: 'btn-danger'
+            });
+            if (!confirmed) return;
+
             try {
                 const res = await fetch(`${API_BASE}?api_action=delete_company`, {
                     method: 'POST',
@@ -4791,17 +4801,22 @@ $isLoggedIn = Auth::isLoggedIn();
                 const json = await res.json();
                 if (!json.success) throw new Error(json.error || 'Failed to delete company');
 
-                showToast(json.message || 'Company deleted successfully.', 'success');
+                showToast('Company deleted successfully', 'success');
                 if (activeProjectData && activeProjectData.project && activeProjectData.project.company_id == companyId) {
                     activeProjectId = null;
                     activeProjectData = null;
-                    document.getElementById('projectEmptyState').style.display = 'block';
-                    document.getElementById('projectHeroCard').style.display = 'none';
-                    document.getElementById('tasksListSection').style.display = 'none';
+                    const emptyState = document.getElementById('projectEmptyState');
+                    if (emptyState) emptyState.style.display = 'block';
+                    const heroCard = document.getElementById('projectHeroCard');
+                    if (heroCard) heroCard.style.display = 'none';
+                    const taskSec = document.getElementById('tasksListSection');
+                    if (taskSec) taskSec.style.display = 'none';
                 }
                 await loadCompaniesAndProjects();
-                const mModal = document.getElementById('manageListModal');
-                if (mModal && mModal.classList.contains('open')) {
+
+                // If manage modal is open, refresh its content
+                const manageModal = document.getElementById('manageListModal');
+                if (manageModal && manageModal.classList.contains('open')) {
                     const searchVal = document.getElementById('manageListSearchInput')?.value || '';
                     renderManageListModalContent(searchVal);
                 }
@@ -4813,7 +4828,14 @@ $isLoggedIn = Auth::isLoggedIn();
         const btnOpenAddComp = document.getElementById('btnOpenAddCompany');
         if (btnOpenAddComp) btnOpenAddComp.addEventListener('click', openCreateCompanyModal);
         const btnSidebarAddComp = document.getElementById('btnSidebarAddCompany');
-        if (btnSidebarAddComp) btnSidebarAddComp.addEventListener('click', openCreateCompanyModal);
+        if (btnSidebarAddComp) {
+            btnSidebarAddComp.addEventListener('click', () => {
+                if (typeof toggleMobileSidebar === 'function') {
+                    toggleMobileSidebar(false);
+                }
+                openCreateCompanyModal();
+            });
+        }
 
         const companyForm = document.getElementById('companyForm');
         if (companyForm) {
