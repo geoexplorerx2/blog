@@ -902,6 +902,34 @@ $isLoggedIn = Auth::isLoggedIn();
             -webkit-tap-highlight-color: transparent;
         }
 
+        /* =============================================================
+           CUSTOM VISIBLE SCROLLERS (Vertical & Horizontal)
+           ============================================================= */
+        ::-webkit-scrollbar {
+            width: 7px;
+            height: 7px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #94a3b8;
+            border-radius: 4px;
+            border: 1px solid #e2e8f0;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #64748b;
+        }
+
+        * {
+            scrollbar-width: thin;
+            scrollbar-color: #94a3b8 #f1f5f9;
+        }
+
         body {
             font-family: 'Poppins', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             background-color: var(--bg-page);
@@ -910,6 +938,10 @@ $isLoggedIn = Auth::isLoggedIn();
             display: flex;
             flex-direction: column;
             line-height: 1.5;
+        }
+
+        body.sidebar-open {
+            overflow: hidden !important;
         }
 
         /* Top App Navigation Bar */
@@ -1132,18 +1164,50 @@ $isLoggedIn = Auth::isLoggedIn();
             position: sticky;
             top: var(--topbar-height);
             height: calc(100vh - var(--topbar-height));
+            height: calc(100dvh - var(--topbar-height));
             overflow-y: auto;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            overscroll-behavior: contain;
+            touch-action: pan-y pan-x;
             z-index: 90;
-            transition: transform 0.25s ease;
+            transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
         .sidebar-header {
-            padding: 16px 20px;
+            padding: 14px 18px;
             border-bottom: 1px solid var(--border-subtle);
             background: #fafcff;
             display: flex;
             align-items: center;
             justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            flex-shrink: 0;
+        }
+
+        .btn-sidebar-close {
+            display: none;
+        }
+
+        .sidebar-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(10, 37, 64, 0.45);
+            backdrop-filter: blur(2px);
+            z-index: 1050;
+            display: none;
+            opacity: 0;
+            transition: opacity 0.22s ease;
+        }
+
+        .sidebar-backdrop.active {
+            display: block;
+            opacity: 1;
         }
 
         .sidebar-header h2 {
@@ -1157,9 +1221,14 @@ $isLoggedIn = Auth::isLoggedIn();
             gap: 8px;
         }
 
+        .sidebar-nav-section {
+            flex-shrink: 0;
+        }
+
         .sidebar-search {
             padding: 12px 16px;
             border-bottom: 1px solid var(--border-subtle);
+            flex-shrink: 0;
         }
 
         .search-input-wrapper {
@@ -1196,8 +1265,7 @@ $isLoggedIn = Auth::isLoggedIn();
         .companies-tree-list {
             list-style: none;
             padding: 12px 10px;
-            flex: 1;
-            overflow-y: auto;
+            overflow: visible;
         }
 
         .company-item {
@@ -2514,16 +2582,57 @@ $isLoggedIn = Auth::isLoggedIn();
 
             .freelance-sidebar {
                 position: fixed;
-                top: var(--topbar-height);
+                top: 0;
                 left: 0;
-                height: calc(100vh - var(--topbar-height));
-                box-shadow: var(--shadow-modal);
+                right: 0;
+                bottom: 0;
+                width: 100%;
+                max-width: 100%;
+                min-width: 100%;
+                height: 100vh;
+                height: 100dvh;
+                background-color: #ffffff;
+                box-shadow: none;
                 transform: translateX(-100%);
-                z-index: 1100;
+                z-index: 2500;
+                overflow-y: auto;
+                overflow-x: hidden;
+                -webkit-overflow-scrolling: touch;
+                overscroll-behavior: contain;
+                touch-action: pan-y;
             }
 
             .freelance-sidebar.mobile-open {
                 transform: translateX(0);
+            }
+
+            .freelance-sidebar .sidebar-header {
+                position: sticky;
+                top: 0;
+                z-index: 20;
+                background: #ffffff;
+                padding: 14px 18px;
+                border-bottom: 1px solid var(--border-color);
+            }
+
+            .btn-sidebar-close {
+                display: inline-flex !important;
+                align-items: center;
+                justify-content: center;
+                width: 34px;
+                height: 34px;
+                border-radius: var(--radius-md);
+                background: #f1f5f9;
+                color: var(--brand-dark);
+                border: 1px solid var(--border-color);
+                cursor: pointer;
+                transition: all 0.15s ease;
+            }
+
+            .btn-sidebar-close:hover {
+                background: #fee2e2;
+                color: var(--danger);
+                border-color: #fca5a5;
             }
 
             .freelance-main-content {
@@ -3487,6 +3596,9 @@ $isLoggedIn = Auth::isLoggedIn();
              ================================----------------------------- -->
         <div class="freelance-app-container">
 
+            <!-- Mobile Sidebar Backdrop Overlay -->
+            <div class="sidebar-backdrop" id="sidebarBackdrop" onclick="toggleMobileSidebar(false)"></div>
+
             <!-- ---------------------------------------------------------
                  LEFT SECTION: Company Dropdown & Projects List
                  --------------------------------------------------------- -->
@@ -3502,6 +3614,9 @@ $isLoggedIn = Auth::isLoggedIn();
                         </button>
                         <button type="button" class="btn btn-ghost btn-sm" id="btnSidebarAddCompany" title="Add Company">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>
+                        </button>
+                        <button type="button" class="btn btn-ghost btn-sm btn-sidebar-close" id="btnSidebarClose" onclick="toggleMobileSidebar(false)" title="Close Menu" aria-label="Close Menu">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
                         </button>
                     </div>
                 </div>
@@ -4259,23 +4374,51 @@ $isLoggedIn = Auth::isLoggedIn();
             }
         });
 
-        // --- Mobile Menu Toggle ---
+        // --- Mobile Menu Toggle & Backdrop Control ---
+        function toggleMobileSidebar(show = null) {
+            const sidebar = document.getElementById('appSidebar');
+            const backdrop = document.getElementById('sidebarBackdrop');
+            if (!sidebar) return;
+            const willOpen = (show !== null) ? show : !sidebar.classList.contains('mobile-open');
+            if (willOpen) {
+                sidebar.classList.add('mobile-open');
+                if (backdrop) backdrop.classList.add('active');
+                document.body.classList.add('sidebar-open');
+            } else {
+                sidebar.classList.remove('mobile-open');
+                if (backdrop) backdrop.classList.remove('active');
+                document.body.classList.remove('sidebar-open');
+            }
+        }
+
         const mobileMenuBtn = document.getElementById('mobileMenuToggle');
         const sidebarEl = document.getElementById('appSidebar');
-        if (mobileMenuBtn && sidebarEl) {
+        if (mobileMenuBtn) {
             mobileMenuBtn.addEventListener('click', (e) => {
                 e.stopPropagation();
-                sidebarEl.classList.toggle('mobile-open');
-            });
-
-            document.addEventListener('click', (e) => {
-                if (window.innerWidth <= 960 && sidebarEl.classList.contains('mobile-open')) {
-                    if (!sidebarEl.contains(e.target) && !mobileMenuBtn.contains(e.target)) {
-                        sidebarEl.classList.remove('mobile-open');
-                    }
-                }
+                toggleMobileSidebar();
             });
         }
+
+        document.addEventListener('click', (e) => {
+            if (window.innerWidth <= 960 && sidebarEl && sidebarEl.classList.contains('mobile-open')) {
+                if (!sidebarEl.contains(e.target) && (!mobileMenuBtn || !mobileMenuBtn.contains(e.target))) {
+                    toggleMobileSidebar(false);
+                }
+            }
+        });
+
+        window.addEventListener('resize', () => {
+            if (window.innerWidth > 960 && sidebarEl && sidebarEl.classList.contains('mobile-open')) {
+                toggleMobileSidebar(false);
+            }
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && sidebarEl && sidebarEl.classList.contains('mobile-open')) {
+                toggleMobileSidebar(false);
+            }
+        });
 
         // --- Fetch Tree (Companies & Projects) ---
         async function loadCompaniesAndProjects(preferredProjectId = null) {
@@ -4388,7 +4531,9 @@ $isLoggedIn = Auth::isLoggedIn();
         function handleProjectClick(e, projectId) {
             e.preventDefault();
             selectProject(projectId);
-            if (sidebarEl) sidebarEl.classList.remove('mobile-open');
+            if (window.innerWidth <= 960) {
+                toggleMobileSidebar(false);
+            }
         }
 
         // --- Select and Load Project Details (Right Section) ---
