@@ -124,6 +124,29 @@ class Auth
 }
 
 require_once __DIR__ . '/footer_component.php';
+require_once __DIR__ . '/lib/Parsedown.php';
+
+function renderMarkdown(string $text): string
+{
+    static $parsedown = null;
+    if ($parsedown === null) {
+        $parsedown = new Parsedown();
+        $parsedown->setBreaksEnabled(true);
+        $parsedown->setMarkupEscaped(true);
+    }
+
+    $html = $parsedown->text($text);
+
+    $html = preg_replace_callback(
+        '~<pre><code class="language-([^"]+)">~',
+        function ($m) {
+            return '<pre class="language-' . $m[1] . '"><button type="button" class="copy-code-btn" onclick="copyCodeBlock(this, event)">Copy</button><code class="language-' . $m[1] . '">';
+        },
+        $html
+    );
+
+    return $html;
+}
 
 class Question
 {
@@ -286,6 +309,30 @@ class QuestionRepository
         }
         $stmt = $this->db->prepare('DELETE FROM questions WHERE id = :id');
         return $stmt->execute([':id' => $id]);
+    }
+
+    public function deleteByCategory(string $category): int
+    {
+        if ($this->db === null) {
+            throw new RuntimeException('Database connection not available.');
+        }
+        if (trim($category) === '') return 0;
+        $stmt = $this->db->prepare('DELETE FROM questions WHERE COALESCE(NULLIF(category, ""), "General") = :category');
+        $stmt->execute([':category' => trim($category)]);
+        return $stmt->rowCount();
+    }
+
+    public function renameCategory(string $oldCategory, string $newCategory): int
+    {
+        if ($this->db === null) {
+            throw new RuntimeException('Database connection not available.');
+        }
+        $old = trim($oldCategory);
+        $new = trim($newCategory);
+        if ($old === '' || $new === '') return 0;
+        $stmt = $this->db->prepare('UPDATE questions SET category = :new WHERE COALESCE(NULLIF(category, ""), "General") = :old');
+        $stmt->execute([':new' => $new, ':old' => $old]);
+        return $stmt->rowCount();
     }
 
     public function countAll(): int
@@ -546,7 +593,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['api_action'])) {
                 'id' => $id,
                 'question' => $question,
                 'answer' => $answer,
-                'category' => $category ?: 'General'
+                'category' => $category ?: 'General',
+                'question_html' => renderMarkdown($question),
+                'answer_html' => renderMarkdown($answer)
             ]);
             exit;
         } elseif ($action === 'delete') {
@@ -557,6 +606,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['api_action'])) {
             }
             $repository->deleteQuestion($id);
             echo json_encode(['success' => true, 'id' => $id]);
+            exit;
+        } elseif ($action === 'delete_category') {
+            $category = trim($inputData['category'] ?? '');
+            if ($category === '') {
+                echo json_encode(['success' => false, 'error' => 'Category name is required.']);
+                exit;
+            }
+            $deleted = $repository->deleteByCategory($category);
+            echo json_encode(['success' => true, 'category' => $category, 'deleted' => $deleted]);
+            exit;
+        } elseif ($action === 'rename_category') {
+            $oldCategory = trim($inputData['old_category'] ?? '');
+            $newCategory = trim($inputData['new_category'] ?? '');
+            if ($oldCategory === '' || $newCategory === '') {
+                echo json_encode(['success' => false, 'error' => 'Category names are required.']);
+                exit;
+            }
+            $updated = $repository->renameCategory($oldCategory, $newCategory);
+            echo json_encode(['success' => true, 'old_category' => $oldCategory, 'new_category' => $newCategory, 'updated' => $updated]);
             exit;
         } elseif ($action === 'add') {
             $question = trim($inputData['question'] ?? '');
@@ -572,7 +640,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['api_action'])) {
                 'id' => $newId,
                 'question' => $question,
                 'answer' => $answer,
-                'category' => $category ?: 'General'
+                'category' => $category ?: 'General',
+                'question_html' => renderMarkdown($question),
+                'answer_html' => renderMarkdown($answer)
             ]);
             exit;
         } else {
@@ -692,6 +762,8 @@ $questionsJson = json_encode(array_map(fn($q) => [
     'question' => $q->question,
     'answer' => $q->answer,
     'category' => $q->category,
+    'question_html' => renderMarkdown($q->question),
+    'answer_html' => renderMarkdown($q->answer),
 ], $selectedCategory ? $questions : []), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT);
 ?>
 <!DOCTYPE html>
@@ -724,11 +796,30 @@ $questionsJson = json_encode(array_map(fn($q) => [
             --font-body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
             --font-mono: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
         }
+        /* Minimal light theme tokens */
+        :root {
+            --m-bg: #f7f8fa;
+            --m-surface: #ffffff;
+            --m-surface-2: #fbfbfd;
+            --m-border: #e7e9ee;
+            --m-border-strong: #d7dbe4;
+            --m-text: #1a1c23;
+            --m-text-muted: #6b7280;
+            --m-accent: #0a2540;
+            --m-accent-hover: #12466f;
+            --m-accent-soft: #eaf0f6;
+            --m-danger: #dc2626;
+            --m-danger-soft: #fef2f2;
+            --m-radius: 14px;
+            --m-shadow-sm: 0 1px 2px rgba(16, 24, 40, 0.05);
+            --m-shadow-md: 0 6px 24px rgba(16, 24, 40, 0.10);
+            --m-shadow-lg: 0 20px 60px rgba(16, 24, 40, 0.18);
+        }
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
             font-family: var(--font-body);
-            background: var(--bg);
-            color: var(--text-dark);
+            background: var(--m-bg);
+            color: var(--m-text);
             padding: 0;
             line-height: 1.65;
             font-size: 0.98rem;
@@ -741,11 +832,11 @@ $questionsJson = json_encode(array_map(fn($q) => [
             flex-direction: column;
         }
         .conference-header {
-            background: linear-gradient(135deg, var(--navy-900) 0%, var(--navy-700) 50%, var(--blue-600) 100%);
-            color: white;
-            padding: 2rem 1rem;
+            background: linear-gradient(135deg, #0a2540 0%, #0d3557 55%, #12466f 100%);
+            color: #ffffff;
+            padding: 3rem 1rem 2.25rem;
             text-align: center;
-            border-bottom: 4px solid var(--blue-500);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
             position: relative;
             overflow: hidden;
         }
@@ -753,24 +844,25 @@ $questionsJson = json_encode(array_map(fn($q) => [
             content: "";
             position: absolute;
             top: 0; left: 0; right: 0; bottom: 0;
-            background: radial-gradient(circle at 20% 30%, rgba(255,255,255,0.08) 0%, transparent 60%);
+            background: radial-gradient(circle at 50% -20%, rgba(255, 255, 255, 0.10) 0%, transparent 60%);
             pointer-events: none;
         }
         .conference-header h1 {
             font-family: var(--font-heading);
             font-size: 2.1rem;
             font-weight: 700;
-            letter-spacing: -0.01em;
-            line-height: 1.25;
-            margin-bottom: 0.4rem;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            letter-spacing: -0.02em;
+            line-height: 1.2;
+            margin-bottom: 0.6rem;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.18);
+            color: #ffffff;
             max-width: 850px;
             margin-left: auto;
             margin-right: auto;
         }
         .conference-header p {
             font-size: 1rem;
-            color: var(--blue-200);
+            color: #b8d8ee;
             max-width: 650px;
             margin: 0 auto;
         }
@@ -784,13 +876,13 @@ $questionsJson = json_encode(array_map(fn($q) => [
         .back-link {
             display: inline-block;
             margin-bottom: 1rem;
-            color: var(--blue-600);
+            color: var(--m-accent);
             text-decoration: none;
             font-weight: 600;
             font-size: 0.95rem;
         }
         .back-link:hover {
-            color: var(--navy-800);
+            color: var(--m-accent-hover);
             text-decoration: underline;
         }
         .data-management-grid {
@@ -800,18 +892,18 @@ $questionsJson = json_encode(array_map(fn($q) => [
             margin-bottom: 1.5rem;
         }
         .data-card {
-            background: var(--card-bg);
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
+            background: var(--m-surface);
+            border: 1px solid var(--m-border);
+            border-radius: var(--m-radius);
             padding: 1.5rem;
-            box-shadow: var(--shadow);
+            box-shadow: var(--m-shadow-sm);
             display: flex;
             flex-direction: column;
             justify-content: space-between;
         }
         .data-card h3 {
             font-family: var(--font-heading);
-            color: var(--navy-800);
+            color: var(--m-text);
             margin-bottom: 0.5rem;
             display: flex;
             align-items: center;
@@ -820,7 +912,7 @@ $questionsJson = json_encode(array_map(fn($q) => [
         }
         .data-card p {
             font-size: 0.85rem;
-            color: var(--text-muted);
+            color: var(--m-text-muted);
             margin-bottom: 1rem;
         }
         .data-card form {
@@ -863,9 +955,9 @@ $questionsJson = json_encode(array_map(fn($q) => [
             border-radius: 20px;
             font-size: 0.8rem;
             font-weight: 600;
-            background: var(--blue-100);
-            color: var(--navy-800);
-            border: 1px solid var(--blue-200);
+            background: var(--m-accent-soft);
+            color: var(--m-accent);
+            border: 1px solid var(--m-border);
             margin-bottom: 0.75rem;
             align-self: flex-start;
         }
@@ -927,14 +1019,14 @@ $questionsJson = json_encode(array_map(fn($q) => [
         }
         .btn {
             padding: 0.7rem 1.2rem;
-            border: 1px solid var(--blue-500);
-            border-radius: 6px;
-            background: white;
+            border: 1px solid var(--m-border-strong);
+            border-radius: 9px;
+            background: var(--m-surface);
             cursor: pointer;
             font-size: 0.9rem;
             font-weight: 600;
-            color: var(--blue-600);
-            transition: background 0.2s, color 0.2s, border-color 0.2s, transform 0.1s;
+            color: var(--m-text);
+            transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease, transform 0.1s ease;
             white-space: nowrap;
             text-decoration: none;
             display: inline-flex;
@@ -943,27 +1035,27 @@ $questionsJson = json_encode(array_map(fn($q) => [
             gap: 0.4rem;
         }
         .btn:hover {
-            background: var(--blue-100);
-            border-color: var(--navy-700);
-            color: var(--navy-900);
+            background: var(--m-accent-soft);
+            border-color: var(--m-accent);
+            color: var(--m-accent);
         }
         .btn.primary {
-            background: var(--navy-700);
+            background: var(--m-accent);
             color: white;
-            border-color: var(--navy-700);
+            border-color: var(--m-accent);
         }
         .btn.primary:hover {
-            background: var(--navy-900);
-            border-color: var(--navy-900);
+            background: var(--m-accent-hover);
+            border-color: var(--m-accent-hover);
         }
         .btn.export-btn {
-            background: var(--blue-600);
+            background: var(--m-accent);
             color: white;
-            border-color: var(--blue-600);
+            border-color: var(--m-accent);
         }
         .btn.export-btn:hover {
-            background: var(--blue-500);
-            border-color: var(--blue-500);
+            background: var(--m-accent-hover);
+            border-color: var(--m-accent-hover);
         }
         .stats {
             font-size: 0.85rem;
@@ -972,11 +1064,16 @@ $questionsJson = json_encode(array_map(fn($q) => [
             font-weight: 500;
         }
         .qa-list {
-            display: flex;
-            flex-direction: column;
-            gap: 0.75rem;
+            display: block;
+        }
+        .qa-list .qa-item-wrap + .qa-item-wrap {
+            margin-top: 0.75rem;
+        }
+        .qa-item-wrap {
+            position: relative;
         }
         .qa-item {
+            width: 100%;
             background: var(--card-bg);
             border: 1px solid var(--border);
             border-radius: var(--radius);
@@ -989,22 +1086,15 @@ $questionsJson = json_encode(array_map(fn($q) => [
             box-shadow: var(--shadow-hover);
         }
         .qa-question {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
             padding: 1rem 1.25rem;
             cursor: pointer;
             user-select: none;
             background: linear-gradient(to right, var(--blue-50), white);
-            gap: 0.75rem;
         }
         .qa-header-left {
-            display: flex;
-            align-items: flex-start;
-            gap: 0.75rem;
-            flex: 1 1 auto;
-            min-width: 0;
+            display: block;
             width: 100%;
+            box-sizing: border-box;
         }
         .qa-id-badge {
             font-size: 0.75rem;
@@ -1024,22 +1114,8 @@ $questionsJson = json_encode(array_map(fn($q) => [
             font-weight: 600;
             margin: 0;
             color: var(--navy-800);
-            flex: 1 1 auto;
-            min-width: 0;
             width: 100%;
             line-height: 1.45;
-        }
-        .qa-header-right {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            flex-shrink: 0;
-            margin-top: 0.15rem;
-        }
-        .qa-actions {
-            display: flex;
-            align-items: center;
-            gap: 0.35rem;
         }
         .action-btn {
             background: transparent;
@@ -1106,32 +1182,98 @@ $questionsJson = json_encode(array_map(fn($q) => [
             gap: 1rem;
             margin-top: 1.5rem;
         }
+        .category-card-wrap {
+            position: relative;
+        }
+        .category-card-wrap .category-card {
+            width: 100%;
+            height: 100%;
+            box-sizing: border-box;
+        }
+        .category-delete-btn {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 2rem;
+            height: 2rem;
+            padding: 0;
+            background: #fef2f2;
+            color: #b91c1c;
+            border: 1px solid #fecaca;
+            border-radius: 8px;
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity 0.2s, background 0.2s, border-color 0.2s, transform 0.2s;
+            z-index: 2;
+        }
+        .category-edit-btn {
+            position: absolute;
+            top: 0.5rem;
+            right: 2.75rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 2rem;
+            height: 2rem;
+            padding: 0;
+            background: #eaf0f6;
+            color: #0a2540;
+            border: 1px solid #c8d3de;
+            border-radius: 8px;
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity 0.2s, background 0.2s, border-color 0.2s, transform 0.2s;
+            z-index: 2;
+        }
+        .category-card-wrap:hover .category-edit-btn,
+        .category-edit-btn:focus-visible {
+            opacity: 1;
+        }
+        .category-edit-btn:hover {
+            background: #0a2540;
+            color: #fff;
+            border-color: #0a2540;
+            transform: scale(1.05);
+        }
+        .category-card-wrap:hover .category-delete-btn,
+        .category-delete-btn:focus-visible {
+            opacity: 1;
+        }
+        .category-delete-btn:hover {
+            background: #dc2626;
+            color: #fff;
+            border-color: #dc2626;
+            transform: scale(1.05);
+        }
         .category-card {
-            background: var(--card-bg);
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
+            background: var(--m-surface);
+            border: 1px solid var(--m-border);
+            border-radius: var(--m-radius);
             padding: 1.5rem;
             text-align: center;
-            box-shadow: var(--shadow);
-            transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+            box-shadow: var(--m-shadow-sm);
+            transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
             text-decoration: none;
-            color: var(--navy-800);
+            color: var(--m-text);
             display: block;
         }
         .category-card:hover {
-            transform: translateY(-3px);
-            box-shadow: var(--shadow-hover);
-            border-color: var(--blue-500);
+            transform: translateY(-2px);
+            box-shadow: var(--m-shadow-md);
+            border-color: var(--m-border-strong);
         }
         .category-card h2 {
             font-family: var(--font-heading);
-            font-size: 1.3rem;
+            font-size: 1.25rem;
             margin-bottom: 0.3rem;
-            color: var(--blue-600);
+            color: var(--m-text);
         }
         .category-card p {
             font-size: 0.9rem;
-            color: var(--text-muted);
+            color: var(--m-text-muted);
         }
         .conference-footer {
             background: var(--navy-900);
@@ -1151,36 +1293,9 @@ $questionsJson = json_encode(array_map(fn($q) => [
             border-color: #14532d;
         }
         .qa-header-left {
-            display: flex;
-            align-items: flex-start;
-            gap: 0.75rem;
-            flex: 1 1 auto;
-            min-width: 0;
+            display: block;
             width: 100%;
-        }
-        .qa-id-badge {
-            font-size: 0.75rem;
-            font-weight: 700;
-            background: var(--blue-100);
-            color: var(--navy-800);
-            border: 1px solid var(--blue-200);
-            padding: 0.25rem 0.55rem;
-            border-radius: 4px;
-            white-space: nowrap;
-            margin-top: 0.15rem;
-            flex-shrink: 0;
-        }
-        .qa-header-right {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            flex-shrink: 0;
-            margin-top: 0.15rem;
-        }
-        .qa-actions {
-            display: flex;
-            align-items: center;
-            gap: 0.35rem;
+            box-sizing: border-box;
         }
         .action-btn {
             background: transparent;
@@ -2158,6 +2273,134 @@ $questionsJson = json_encode(array_map(fn($q) => [
                 align-items: flex-start;
             }
         }
+
+        /* -------------------------------------------------------------
+           Minimal light theme — Edit / Login modal + question actions
+           ------------------------------------------------------------- */
+        #qaModal .modal-card,
+        #loginModal .modal-card {
+            background: var(--m-surface);
+            border: 1px solid var(--m-border);
+            border-radius: 18px;
+            box-shadow: var(--m-shadow-lg);
+        }
+        #qaModal .modal-header,
+        #loginModal .modal-header {
+            background: linear-gradient(135deg, #0a2540 0%, #0d3557 55%, #12466f 100%);
+            color: #ffffff;
+            padding: 1.4rem 1.6rem 1.1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        #qaModal .modal-header h3,
+        #loginModal .modal-header h3 {
+            color: #ffffff;
+            font-weight: 700;
+            letter-spacing: -0.01em;
+        }
+        #qaModal .modal-close,
+        #loginModal .modal-close {
+            color: #b8d8ee;
+        }
+        #qaModal .modal-close:hover,
+        #loginModal .modal-close:hover {
+            color: #ffffff;
+        }
+        #qaModal .modal-body,
+        #loginModal .modal-body {
+            padding: 1.5rem 1.6rem;
+        }
+        #qaModal .form-group label,
+        #loginModal .form-group label {
+            color: var(--m-text);
+            font-weight: 600;
+        }
+        #qaModal .form-group input[type="text"],
+        #qaModal .form-group input[type="password"],
+        #qaModal .form-group textarea,
+        #loginModal .form-group input[type="text"],
+        #loginModal .form-group input[type="password"],
+        #loginModal .form-group textarea {
+            background: var(--m-surface);
+            border: 1px solid var(--m-border-strong);
+            border-radius: 10px;
+            color: var(--m-text);
+        }
+        #qaModal .form-group input:focus,
+        #qaModal .form-group textarea:focus,
+        #loginModal .form-group input:focus,
+        #loginModal .form-group textarea:focus {
+            border-color: var(--m-accent);
+            box-shadow: 0 0 0 3px rgba(10, 37, 64, 0.18);
+            background: var(--m-surface);
+        }
+        #qaModal .modal-footer,
+        #loginModal .modal-footer {
+            background: var(--m-bg);
+            border-top: 1px solid var(--m-border);
+            padding: 1rem 1.6rem;
+        }
+        @media (max-width: 520px) {
+            #qaModal,
+            #loginModal {
+                align-items: flex-end;
+                padding: 0.75rem;
+            }
+            #qaModal .modal-card,
+            #loginModal .modal-card {
+                max-width: 100% !important;
+                border-radius: 16px !important;
+            }
+            #qaModal .modal-header,
+            #loginModal .modal-header {
+                padding: 1.1rem 1.1rem 0.9rem;
+            }
+            #qaModal .modal-body,
+            #loginModal .modal-body {
+                padding: 1.1rem 1.1rem;
+            }
+            #qaModal .modal-footer,
+            #loginModal .modal-footer {
+                padding: 0.85rem 1.1rem;
+            }
+        }
+
+        /* Question action row — moved outside the Q/A card frame */
+        .qa-item-actions {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 0.5rem;
+            margin-top: 0.45rem;
+            padding: 0 0.15rem;
+        }
+        .qa-item-actions .action-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            background: var(--m-surface);
+            border: 1px solid var(--m-border);
+            padding: 0.4rem 0.8rem;
+            border-radius: 9px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            font-family: inherit;
+            color: var(--m-text-muted);
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+        .qa-item-actions .action-btn:hover {
+            transform: translateY(-1px);
+        }
+        .qa-item-actions .action-btn.edit-btn:hover {
+            color: var(--m-accent);
+            border-color: var(--m-accent);
+            background: var(--m-accent-soft);
+        }
+        .qa-item-actions .action-btn.delete-btn:hover {
+            color: var(--m-danger);
+            border-color: var(--m-danger);
+            background: var(--m-danger-soft);
+        }
     </style>
 </head>
 <body>
@@ -2165,11 +2408,11 @@ $questionsJson = json_encode(array_map(fn($q) => [
     <?php if ($selectedCategory): ?>
         <h1><?php echo htmlspecialchars($selectedCategory); ?></h1>
         <p style="font-style: italic; opacity: 0.95; font-size: 1.02rem;">“The mind that opens to a new idea never returns to its original size.”</p>
-        <div style="font-size: 0.85rem; color: #93c5fd; font-weight: 600; margin-top: 0.35rem; letter-spacing: 0.04em;">— Albert Einstein</div>
+        <div style="font-size: 0.85rem; color: #b8d8ee; font-weight: 600; margin-top: 0.35rem; letter-spacing: 0.04em;">— Albert Einstein</div>
     <?php else: ?>
         <h1>Computer Science &amp; Software Development Knowledge Repository</h1>
         <p style="font-style: italic; opacity: 0.95; font-size: 1.05rem;">“The mind that opens to a new idea never returns to its original size.”</p>
-        <div style="font-size: 0.85rem; color: #93c5fd; font-weight: 600; margin-top: 0.35rem; letter-spacing: 0.04em;">— Albert Einstein</div>
+        <div style="font-size: 0.85rem; color: #b8d8ee; font-weight: 600; margin-top: 0.35rem; letter-spacing: 0.04em;">— Albert Einstein</div>
     <?php endif; ?>
 </div>
 
@@ -2252,13 +2495,31 @@ $questionsJson = json_encode(array_map(fn($q) => [
         </div>
         <?php endif; ?>
 
+        <?php if (Auth::isLoggedIn()): ?>
+        <div style="display: flex; justify-content: flex-end; margin-top: 1.5rem; margin-bottom: 20px; flex-wrap: wrap; gap: 0.5rem;">
+            <button class="btn add-btn" id="addQuestionBtn">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                Add Question
+            </button>
+        </div>
+        <?php endif; ?>
+
         <?php if (!empty($categories)): ?>
             <div class="category-grid">
                 <?php foreach ($categories as $cat): ?>
-                    <a href="index.php?category=<?php echo urlencode($cat); ?>" class="category-card">
-                        <h2><?php echo htmlspecialchars($cat); ?></h2>
-                        <p>Explore questions</p>
-                    </a>
+                    <div class="category-card-wrap">
+                        <a href="index.php?category=<?php echo urlencode($cat); ?>" class="category-card">
+                            <h2><?php echo htmlspecialchars($cat); ?></h2>
+                        </a>
+                        <?php if (Auth::isLoggedIn()): ?>
+                        <button type="button" class="category-edit-btn" data-category="<?php echo htmlspecialchars($cat); ?>" title="Rename this category" aria-label="Rename category <?php echo htmlspecialchars($cat); ?>">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                        </button>
+                        <button type="button" class="category-delete-btn" data-category="<?php echo htmlspecialchars($cat); ?>" title="Delete this category and all its questions" aria-label="Delete category <?php echo htmlspecialchars($cat); ?>">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+                        </button>
+                        <?php endif; ?>
+                    </div>
                 <?php endforeach; ?>
             </div>
         <?php else: ?>
@@ -2319,6 +2580,7 @@ $questionsJson = json_encode(array_map(fn($q) => [
                 <div class="form-group">
                     <label for="formAnswer">Answer <span class="required">*</span></label>
                     <textarea id="formAnswer" rows="6" required placeholder="Enter answer details..."></textarea>
+                    <small style="color: var(--text-muted); display: block; margin-top: 0.35rem;">Markdown supported: <code>**bold**</code>, <code>## heading</code>, <code>`code`</code>, and fenced code blocks with <code>```language</code>.</small>
                 </div>
                 <div class="form-group">
                     <label for="formCategory">Category</label>
@@ -2598,37 +2860,37 @@ $questionsJson = json_encode(array_map(fn($q) => [
         }
 
         if (noResults) noResults.style.display = 'none';
-        qaList.style.display = 'flex';
+        qaList.style.display = 'block';
 
         items.forEach((item, index) => {
             if (!item) return;
             const div = document.createElement('div');
-            div.className = 'qa-item';
-            div.dataset.id = item.id;
+            div.className = 'qa-item-wrap';
             div.dataset.index = index;
 
             div.innerHTML = `
-                <div class="qa-question" role="button" tabindex="0" aria-expanded="false">
-                    <div class="qa-header-left">
-                        <span class="qa-id-badge">${index + 1}</span>
-                        <h3 class="item-question-text">${formatContent(item.question || '')}</h3>
-                    </div>
-                    <div class="qa-header-right">
-                        ${isAuthenticated ? `
-                        <div class="qa-actions">
-                            <button type="button" class="action-btn edit-btn" title="Edit Question" data-id="${item.id}" aria-label="Edit Question">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
-                            </button>
-                            <button type="button" class="action-btn delete-btn" title="Delete Question" data-id="${item.id}" aria-label="Delete Question">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
-                            </button>
+                <div class="qa-item" data-id="${item.id}">
+                    <div class="qa-question" role="button" tabindex="0" aria-expanded="false">
+                        <div class="qa-header-left">
+                            <h3 class="item-question-text">${item.question_html || formatContent(item.question || '')}</h3>
                         </div>
-                        ` : ''}
+                    </div>
+                    <div class="qa-answer">
+                        <div class="item-answer-text">${item.answer_html || formatContent(item.answer || '')}</div>
                     </div>
                 </div>
-                <div class="qa-answer">
-                    <div class="item-answer-text">${formatContent(item.answer || '')}</div>
+                ${isAuthenticated ? `
+                <div class="qa-item-actions">
+                    <button type="button" class="action-btn edit-btn" title="Edit Question" data-id="${item.id}" aria-label="Edit Question">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                        <span>Edit</span>
+                    </button>
+                    <button type="button" class="action-btn delete-btn" title="Delete Question" data-id="${item.id}" aria-label="Delete Question">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+                        <span>Delete</span>
+                    </button>
                 </div>
+                ` : ''}
             `;
             qaList.appendChild(div);
         });
@@ -2752,17 +3014,33 @@ $questionsJson = json_encode(array_map(fn($q) => [
                     if (mode === 'edit') {
                         const idx = (qaData || []).findIndex(item => item && item.id == id);
                         if (idx !== -1) {
-                            qaData[idx] = { ...qaData[idx], ...payload };
+                            qaData[idx] = {
+                                ...qaData[idx],
+                                ...payload,
+                                question_html: result.question_html,
+                                answer_html: result.answer_html
+                            };
                         }
                         const domCard = document.querySelector(`.qa-item[data-id="${id}"]`);
                         if (domCard) {
-                            domCard.querySelector('.item-question-text').innerHTML = formatContent(payload.question);
-                            domCard.querySelector('.item-answer-text').innerHTML = formatContent(payload.answer);
+                            domCard.querySelector('.item-question-text').innerHTML = result.question_html || formatContent(payload.question);
+                            domCard.querySelector('.item-answer-text').innerHTML = result.answer_html || formatContent(payload.answer);
                             triggerHighlighting(domCard);
                         }
                         showToast('Updated successfully!', 'success');
                     } else {
-                        const newItem = { id: result.id, ...payload };
+                        if (!qaList) {
+                            showToast('Added successfully!', 'success');
+                            closeModal();
+                            window.location.reload();
+                            return;
+                        }
+                        const newItem = {
+                            id: result.id,
+                            ...payload,
+                            question_html: result.question_html,
+                            answer_html: result.answer_html
+                        };
                         qaData.unshift(newItem);
                         renderList(filterQuestions(searchInput.value));
                         showToast('Added successfully!', 'success');
@@ -2799,7 +3077,10 @@ $questionsJson = json_encode(array_map(fn($q) => [
             if (result && result.success) {
                 qaData = qaData.filter(item => item.id != id);
                 const domCard = document.querySelector(`.qa-item[data-id="${id}"]`);
-                if (domCard) domCard.remove();
+                if (domCard) {
+                    const wrap = domCard.closest('.qa-item-wrap') || domCard;
+                    wrap.remove();
+                }
                 updateStats(qaData.length);
                 showToast('Deleted successfully.', 'success');
             } else {
@@ -2809,6 +3090,81 @@ $questionsJson = json_encode(array_map(fn($q) => [
             showToast('Network error.', 'error');
         }
     }
+
+    async function deleteCategory(category) {
+        if (!confirm(`Are you sure you want to delete the entire category "${category}" and all of its questions? This cannot be undone.`)) return;
+        try {
+            const response = await fetch(`${apiEndpoint}?api_action=delete_category`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ category: category })
+            });
+
+            if (response.status === 401) {
+                showToast('Administrator login required.', 'error');
+                return;
+            }
+
+            const result = await response.json();
+            if (result && result.success) {
+                showToast(`Deleted category "${category}" (${result.deleted} question${result.deleted !== 1 ? 's' : ''} removed).`, 'success');
+                window.location.reload();
+            } else {
+                showToast((result && result.error) || 'Failed to delete category.', 'error');
+            }
+        } catch (err) {
+            showToast('Network error.', 'error');
+        }
+    }
+
+    document.querySelectorAll('.category-delete-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            deleteCategory(btn.dataset.category);
+        });
+    });
+
+    async function renameCategory(oldCategory) {
+        const newCategory = window.prompt(`Rename category "${oldCategory}" to:`, oldCategory);
+        if (newCategory === null) return;
+        const trimmed = (newCategory || '').trim();
+        if (!trimmed) {
+            showToast('Category name cannot be empty.', 'error');
+            return;
+        }
+        if (trimmed === oldCategory) return;
+        try {
+            const response = await fetch(`${apiEndpoint}?api_action=rename_category`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ old_category: oldCategory, new_category: trimmed })
+            });
+
+            if (response.status === 401) {
+                showToast('Administrator login required.', 'error');
+                return;
+            }
+
+            const result = await response.json();
+            if (result && result.success) {
+                showToast(`Renamed category "${oldCategory}" to "${trimmed}" (${result.updated} question${result.updated !== 1 ? 's' : ''} updated).`, 'success');
+                window.location.reload();
+            } else {
+                showToast((result && result.error) || 'Failed to rename category.', 'error');
+            }
+        } catch (err) {
+            showToast('Network error.', 'error');
+        }
+    }
+
+    document.querySelectorAll('.category-edit-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            renameCategory(btn.dataset.category);
+        });
+    });
 
     if (searchInput) {
         searchInput.addEventListener('input', (e) => renderList(filterQuestions(e.target.value)));
