@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3306
--- Generation Time: Aug 26, 2026 at 02:42 PM
+-- Generation Time: Sep 07, 2026 at 01:02 PM
 -- Server version: 9.1.0
 -- PHP Version: 8.3.14
 
@@ -20,6 +20,23 @@ SET time_zone = "+00:00";
 --
 -- Database: `q_db`
 --
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `categories`
+--
+
+DROP TABLE IF EXISTS `categories`;
+CREATE TABLE IF NOT EXISTS `categories` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `name` varchar(100) NOT NULL,
+  `description` text,
+  `image` varchar(500) DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `name` (`name`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- --------------------------------------------------------
 
@@ -52,7 +69,74 @@ CREATE TABLE IF NOT EXISTS `footer_settings` (
 --
 
 INSERT INTO `footer_settings` (`id`, `brand_initials`, `brand_name`, `brand_title`, `brand_bio`, `availability_status`, `nav_links`, `technologies`, `email`, `phone`, `location`, `contact_note`, `copyright_text`, `visible_sections`, `updated_at`) VALUES
-(1, 'FN', 'Farshad Nabizadeh', 'Full-Stack Software Engineer', 'Dedicated to architecting high-performance web applications, scalable APIs, reactive frontends, and comprehensive computer science knowledge bases.', '', '[{\"url\": \"index.php\", \"label\": \"Questions Base\"}, {\"url\": \"projects.php\", \"label\": \"Projects Portfolio\"}, {\"url\": \"profile.php\", \"label\": \"Resume & CV\"}, {\"url\": \"profile.php#skills\", \"label\": \"Technical Skills\"}, {\"url\": \"profile.php#experience\", \"label\": \"Career Timeline\"}]', '[\"React\", \"Next.js (SSR)\", \"TypeScript\", \"PHP & Laravel\", \"Node.js\", \"Tailwind CSS\", \"Redux Toolkit\", \"MySQL & Redis\", \"Docker & Nginx\", \"RESTful APIs\", \"Clean Code\"]', 'farshad.nabizade@gmail.com', '+98 912 345 6789', 'Tehran, Iran', 'Feel free to reach out for collaborations, technical inquiries, or consulting.', 'All rights reserved. • Engineered with modern web standards.', '{\"nav\": true, \"tech\": true, \"brand\": true, \"contact\": true}', '2026-08-19 13:59:54');
+(1, 'FN', 'Farshad Nabizadeh', 'Full-Stack Software Engineer', 'Dedicated to architecting high-performance web applications, scalable APIs, reactive frontends, and comprehensive computer science knowledge bases.', '', '[{\"url\": \"index.php\", \"label\": \"Questions Base\"}, {\"url\": \"projects.php\", \"label\": \"Projects Portfolio\"}, {\"url\": \"freelance.php\", \"label\": \"Freelance Hub\"}, {\"url\": \"profile.php\", \"label\": \"Resume & CV\"}, {\"url\": \"profile.php#skills\", \"label\": \"Technical Skills\"}, {\"url\": \"profile.php#experience\", \"label\": \"Career Timeline\"}]', '[\"React\", \"Next.js (SSR)\", \"TypeScript\", \"PHP & Laravel\", \"Node.js\", \"Tailwind CSS\", \"Redux Toolkit\", \"MySQL & Redis\", \"Docker & Nginx\", \"RESTful APIs\", \"Clean Code\"]', 'farshad.nabizade@gmail.com', '+98 912 345 6789', 'Tehran, Iran', 'Feel free to reach out for collaborations, technical inquiries, or consulting.', 'All rights reserved. • Engineered with modern web standards.', '{\"nav\": true, \"tech\": true, \"brand\": true, \"contact\": true}', '2026-09-07 10:26:24');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `freelance_companies`
+--
+
+DROP TABLE IF EXISTS `freelance_companies`;
+CREATE TABLE IF NOT EXISTS `freelance_companies` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) NOT NULL,
+  `client_name` varchar(255) DEFAULT NULL,
+  `client_email` varchar(255) DEFAULT NULL,
+  `color` varchar(30) DEFAULT '#12466f',
+  `share_token` varchar(64) DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `share_token` (`share_token`)
+) ENGINE=InnoDB AUTO_INCREMENT=23 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `freelance_projects`
+--
+
+DROP TABLE IF EXISTS `freelance_projects`;
+CREATE TABLE IF NOT EXISTS `freelance_projects` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `company_id` int NOT NULL,
+  `title` varchar(255) NOT NULL,
+  `description` text,
+  `hourly_rate` decimal(15,2) DEFAULT '500000.00',
+  `currency` varchar(20) DEFAULT 'تومان',
+  `status` varchar(50) DEFAULT 'in_progress',
+  `share_token` varchar(64) DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `share_token` (`share_token`),
+  KEY `idx_company` (`company_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=30 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `freelance_tasks`
+--
+
+DROP TABLE IF EXISTS `freelance_tasks`;
+CREATE TABLE IF NOT EXISTS `freelance_tasks` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `project_id` int NOT NULL,
+  `title` varchar(255) NOT NULL,
+  `task_date` date NOT NULL,
+  `start_time` time NOT NULL,
+  `end_time` time NOT NULL,
+  `price_per_hour` decimal(15,2) NOT NULL DEFAULT '500000.00',
+  `duration_hours` decimal(6,2) NOT NULL DEFAULT '0.00',
+  `total_price` decimal(15,2) NOT NULL DEFAULT '0.00',
+  `description` text,
+  `status` varchar(50) DEFAULT 'completed',
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `idx_project` (`project_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=52 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- --------------------------------------------------------
 
@@ -1124,7 +1208,7 @@ INSERT INTO `questions` (`id`, `question`, `answer`, `category`) VALUES
 (2253, 'How do Multi-Document ACID Transactions operate with client sessions in MongoDB 4.0+?', '### MongoDB Document Database Engineering\n\nUses session.startTransaction(), performs CRUD across collections, and commits atomically with session.commitTransaction().\n\n#### Core Architectural Principle:\nDesign schemas based on your application\'s data access patterns, and always verify index coverage with `explain(\'executionStats\')`.', 'MongoDB Document Database from Zero to Advanced'),
 (2254, 'What is the Bucket Pattern in MongoDB and how does it optimize high-frequency Time-Series data / IoT telemetry?', '### MongoDB Document Database Engineering\n\nAggregates minute/hour sensor readings into a single document containing array of measurements, avoiding collection bloat.\n\n#### Core Architectural Principle:\nDesign schemas based on your application\'s data access patterns, and always verify index coverage with `explain(\'executionStats\')`.', 'MongoDB Document Database from Zero to Advanced'),
 (2255, 'How does Schema Validation with $jsonSchema enforce type and field constraints on collections?', '### MongoDB Document Database Engineering\n\nConfigured on createCollection with validator: { $jsonSchema: { required: [\'email\'], properties: { email: { bsonType: \'string\' } } } }.\n\n#### Core Architectural Principle:\nDesign schemas based on your application\'s data access patterns, and always verify index coverage with `explain(\'executionStats\')`.', 'MongoDB Document Database from Zero to Advanced'),
-(2256, 'How does the WiredTiger storage engine manage memory between its internal cache and the OS page cache, and how does cache eviction operate?', '### WiredTiger Cache & Eviction Architecture\n\n```\n+--------------------------------------------------------------+\n|                         Total Server RAM                     |\n|  +--------------------------------+-----------------------+  |\n|  | WiredTiger Cache (50% RAM - 1G)| OS Page Cache (RAM)   |  |\n|  | - Uncompressed Pages           | - Compressed Disk I/O |  |\n|  | - Active Working Set           | - File System Blocks  |  |\n|  +--------------------------------+-----------------------+  |\n+--------------------------------------------------------------+\n```\n\n- **Eviction Triggers**: When dirty pages exceed `eviction_dirty_target` (default 5%) or total cache fills past `eviction_target` (default 80%), dedicated background eviction threads compress and write pages to disk.\n- **Application Thread Eviction**: If cache fills to 95%, client worker threads are forced to perform storage eviction, causing dramatic application latency spikes.', 'Advanced MongoDB & Distributed Architecture'),
+(2256, 'How does the WiredTiger storage engine manage memory between its internal cache and the OS page cache, and how does cache eviction operate?', '### WiredTiger Cache & Eviction Architecture\n\n```bash\n+--------------------------------------------------------------+\n|                         Total Server RAM                     |\n|  +--------------------------------+-----------------------+  |\n|  | WiredTiger Cache (50% RAM - 1G)| OS Page Cache (RAM)   |  |\n|  | - Uncompressed Pages           | - Compressed Disk I/O |  |\n|  | - Active Working Set           | - File System Blocks  |  |\n|  +--------------------------------+-----------------------+  |\n+--------------------------------------------------------------+\n```\n\n- **Eviction Triggers**: When dirty pages exceed `eviction_dirty_target` (default 5%) or total cache fills past `eviction_target` (default 80%), dedicated background eviction threads compress and write pages to disk.\n- **Application Thread Eviction**: If cache fills to 95%, client worker threads are forced to perform storage eviction, causing dramatic application latency spikes.', 'Advanced MongoDB & Distributed Architecture'),
 (2257, 'What are WiredTiger Read and Write Tickets, and what causes ticket exhaustion during traffic spikes?', '### WiredTiger Read/Write Tickets\n\nWiredTiger restricts concurrent storage engine operations using a ticket queue (default: **128 concurrent read tickets** and **128 concurrent write tickets**).\n\n```\nIncoming Operations ---> [Ticket Queue (128 Read / 128 Write)] ---> WiredTiger Engine\n```\n\n- **Ticket Exhaustion**: When long-running unindexed queries (`COLLSCAN`) hold tickets, all available 128 tickets are consumed. Subsequent client requests are blocked in a wait queue, causing connection pool exhaustion and application timeouts.\n- **Diagnosis**: Inspect `db.serverStatus().wiredTiger.concurrentTransactions`.', 'Advanced MongoDB & Distributed Architecture'),
 (2258, 'How do Chunk Migrations work in a Sharded MongoDB cluster and how does the Balancer avoid locking traffic?', '### Sharded Chunk Migration Lifecycle\n\n1. **Initialization**: The Balancer on the primary config server identifies an unbalanced chunk distribution and issues a `moveChunk` command to the donor shard.\n2. **Cloning Phase**: The recipient shard copies all documents in the chunk range from the donor shard via network stream.\n3. **Catch-Up Phase**: The recipient shard applies any live DML modifications that occurred on the donor shard during the cloning phase.\n4. **Critical Section (Brief Lock)**: The donor shard pauses writes to that specific chunk for milliseconds, transfers final metadata, and updates the Config Server routing table.\n5. **Cleanup**: The donor shard asynchronously deletes old chunk documents via garbage collection.', 'Advanced MongoDB & Distributed Architecture'),
 (2259, 'What causes Jumbo Chunks in MongoDB Sharding and how do you resolve them without downtime?', '### Jumbo Chunks & Remediation\n\n- **Cause**: A chunk exceeds the maximum chunk size (default: 64MB) and cannot be split because all documents in the chunk share the exact same shard key value (**Low Cardinality / High Frequency Key**).\n- **Impact**: The Balancer cannot move Jumbo chunks, creating permanent data skew and disk hot-spots.\n\n#### Remediation Strategy:\n1. Find chunk bounds with `sh.status(true)`.\n2. Use `sh.splitAt(\"database.collection\", { shardKey: value })` if distinct values exist.\n3. In modern MongoDB (5.0+), refine the shard key by adding a suffix field to increase cardinality: `sh.refineCollectionShardKey(\'db.coll\', { currentKey: 1, extraField: 1 })`.', 'Advanced MongoDB & Distributed Architecture'),

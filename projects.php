@@ -370,6 +370,7 @@ if ($db !== null) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Featured Projects &amp; Portfolio | Farshad Nabizade</title>
     <link rel="icon" type="image/png" href="https://uploads.neginsafareh-academy.ir/files/favicon_20260907_085955_27bd31cd.png">
+    <link rel="stylesheet" href="assets/fonts.css">
     <style>
         :root {
             --navy-900: #0a2540;
@@ -384,7 +385,7 @@ if ($db !== null) {
             --border: #e2e8f0;
             --text-dark: #0f172a;
             --text-muted: #64748b;
-            --font-main: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            --font-main: 'Poppins', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
         }
 
         * {
@@ -1705,6 +1706,11 @@ if ($db !== null) {
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>
             <span>Projects Showcase</span>
             <span class="float-menu-badge" style="background:#e0f2fe; color:#0369a1;">Active</span>
+        </a>
+        <a href="freelance.php" class="float-menu-item">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>
+            <span>Freelance Hub</span>
+            <span class="float-menu-badge" style="background:#eaf2f8; color:#12466f;">Tasks</span>
         </a>
         <a href="profile.php" class="float-menu-item">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>

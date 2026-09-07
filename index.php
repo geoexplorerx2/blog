@@ -917,7 +917,7 @@ $questionsJson = json_encode(array_map(fn($q) => [
             --blue-200: #b8d8ee;
             --blue-100: #e0eef8;
             --blue-50: #f0f7fc;
-            --text-dark: #102a3a;
+            --text-dark: #1e3b4f;
             --text-muted: #5b7385;
             --bg: #f5f9fc;
             --card-bg: #ffffff;
@@ -925,8 +925,8 @@ $questionsJson = json_encode(array_map(fn($q) => [
             --shadow: 0 2px 8px rgba(10,37,64,0.06);
             --shadow-hover: 0 4px 16px rgba(10,37,64,0.12);
             --radius: 10px;
-            --font-heading: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            --font-body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            --font-heading: 'Poppins', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            --font-body: 'Poppins', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
             --font-mono: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
         }
         /* Minimal light theme tokens */
@@ -936,7 +936,7 @@ $questionsJson = json_encode(array_map(fn($q) => [
             --m-surface-2: #fbfbfd;
             --m-border: #e7e9ee;
             --m-border-strong: #d7dbe4;
-            --m-text: #1a1c23;
+            --m-text: #1e3b4f;
             --m-text-muted: #6b7280;
             --m-accent: #0a2540;
             --m-accent-hover: #12466f;
@@ -952,7 +952,7 @@ $questionsJson = json_encode(array_map(fn($q) => [
         body {
             font-family: var(--font-body);
             background: var(--m-bg);
-            color: var(--m-text);
+            color: #1e3b4f;
             padding: 0;
             line-height: 1.65;
             font-size: 0.98rem;
@@ -963,6 +963,16 @@ $questionsJson = json_encode(array_map(fn($q) => [
             min-height: 100vh;
             display: flex;
             flex-direction: column;
+        }
+        /* Main page font color #1e3b4f */
+        .category-card,
+        .category-card h2,
+        .accordion-header,
+        .accordion-title,
+        .markdown-body,
+        .data-card h3,
+        .modal-body {
+            color: #1e3b4f;
         }
         .conference-header {
             background: linear-gradient(135deg, #0a2540 0%, #0d3557 55%, #12466f 100%);
@@ -3710,6 +3720,11 @@ $questionsJson = json_encode(array_map(fn($q) => [
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>
             <span>Projects Showcase</span>
             <span class="float-menu-badge" style="background:#e0f2fe; color:#0369a1;">Portfolio</span>
+        </a>
+        <a href="freelance.php" class="float-menu-item">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>
+            <span>Freelance Hub</span>
+            <span class="float-menu-badge" style="background:#eaf2f8; color:#12466f;">Tasks</span>
         </a>
         <a href="profile.php" class="float-menu-item">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>

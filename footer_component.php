@@ -48,6 +48,7 @@ class FooterManager
             $navLinks = [
                 ["label" => "Questions Base", "url" => "index.php"],
                 ["label" => "Projects Portfolio", "url" => "projects.php"],
+                ["label" => "Freelance Hub", "url" => "freelance.php"],
                 ["label" => "Resume & CV", "url" => "profile.php"],
                 ["label" => "Technical Skills", "url" => "profile.php#skills"],
                 ["label" => "Career Timeline", "url" => "profile.php#experience"]
@@ -129,6 +130,7 @@ class FooterManager
             'nav_links' => [
                 ["label" => "Questions Base", "url" => "index.php"],
                 ["label" => "Projects Portfolio", "url" => "projects.php"],
+                ["label" => "Freelance Hub", "url" => "freelance.php"],
                 ["label" => "Resume & CV", "url" => "profile.php"],
                 ["label" => "Technical Skills", "url" => "profile.php#skills"],
                 ["label" => "Career Timeline", "url" => "profile.php#experience"]
