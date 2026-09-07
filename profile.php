@@ -2195,6 +2195,11 @@ if ($profile) {
             <span>Projects Showcase</span>
             <span class="float-menu-badge" style="background:#e0f2fe; color:#0369a1;">Portfolio</span>
         </a>
+        <a href="freelance.php" class="float-menu-item">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>
+            <span>Freelance Hub</span>
+            <span class="float-menu-badge" style="background:#eaf2f8; color:#12466f;">Tasks</span>
+        </a>
         <a href="index.php" class="float-menu-item">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
             <span>Questions Base</span>
