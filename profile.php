@@ -360,6 +360,7 @@ if ($profile) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?php echo htmlspecialchars($profile['full_name'] ?? 'Farshad Nabizade'); ?> – Resume</title>
+    <link rel="icon" type="image/png" href="https://uploads.neginsafareh-academy.ir/files/favicon_20260907_085955_27bd31cd.png">
     <link rel="stylesheet" href="assets/fonts.css">
     <style>
         :root {

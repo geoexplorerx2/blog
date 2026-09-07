@@ -904,6 +904,7 @@ $questionsJson = json_encode(array_map(fn($q) => [
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?php echo $selectedCategory ? htmlspecialchars($selectedCategory) . ' – CS & Software Development Knowledge Repository' : 'Computer Science & Software Development Knowledge Repository'; ?></title>
+    <link rel="icon" type="image/png" href="https://uploads.neginsafareh-academy.ir/files/favicon_20260907_085955_27bd31cd.png">
     <link rel="stylesheet" href="assets/fonts.css">
     <link rel="stylesheet" href="assets/prism.min.css">
     <style>

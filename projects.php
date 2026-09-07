@@ -369,6 +369,7 @@ if ($db !== null) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Featured Projects &amp; Portfolio | Farshad Nabizade</title>
+    <link rel="icon" type="image/png" href="https://uploads.neginsafareh-academy.ir/files/favicon_20260907_085955_27bd31cd.png">
     <style>
         :root {
             --navy-900: #0a2540;
