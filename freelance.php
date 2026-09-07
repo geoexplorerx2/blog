@@ -883,6 +883,7 @@ $isLoggedIn = Auth::isLoggedIn();
             --radius-md: 10px;
             --radius-lg: 14px;
             --radius-xl: 20px;
+            --topbar-height: 68px;
             --shadow-subtle: 0 2px 4px rgba(0,0,0,0.03), 0 1px 2px rgba(0,0,0,0.02);
             --shadow-card: 0 4px 12px -2px rgba(18, 70, 111, 0.08), 0 2px 6px -1px rgba(0,0,0,0.04);
             --shadow-modal: 0 20px 40px -10px rgba(10, 41, 66, 0.3);
@@ -915,7 +916,8 @@ $isLoggedIn = Auth::isLoggedIn();
         .app-topbar {
             background-color: #ffffff;
             border-bottom: 1px solid var(--border-color);
-            height: 68px;
+            height: var(--topbar-height);
+            min-height: var(--topbar-height);
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -924,6 +926,18 @@ $isLoggedIn = Auth::isLoggedIn();
             top: 0;
             z-index: 100;
             box-shadow: var(--shadow-subtle);
+            box-sizing: border-box;
+            width: 100%;
+            gap: 12px;
+            transition: height 0.2s ease, padding 0.2s ease;
+        }
+
+        .topbar-brand-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-shrink: 0;
+            min-width: 0;
         }
 
         .brand-badge {
@@ -932,6 +946,8 @@ $isLoggedIn = Auth::isLoggedIn();
             gap: 12px;
             text-decoration: none;
             color: inherit;
+            flex-shrink: 0;
+            min-width: 0;
         }
 
         .brand-logo-icon {
@@ -944,6 +960,14 @@ $isLoggedIn = Auth::isLoggedIn();
             justify-content: center;
             color: #ffffff;
             box-shadow: 0 4px 10px rgba(18, 70, 111, 0.25);
+            flex-shrink: 0;
+            transition: all 0.2s ease;
+        }
+
+        .brand-title-group {
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
         }
 
         .brand-title-group h1 {
@@ -952,18 +976,55 @@ $isLoggedIn = Auth::isLoggedIn();
             color: var(--brand-dark);
             letter-spacing: -0.02em;
             line-height: 1.2;
+            white-space: nowrap;
         }
 
-        .brand-title-group p {
+        .brand-subtitle {
             font-size: 0.76rem;
             color: var(--text-muted);
             font-weight: 500;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            line-height: 1.3;
+            margin-top: 1px;
         }
 
         .topbar-actions {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 10px;
+            flex-shrink: 0;
+        }
+
+        .topbar-user-badge {
+            font-size: 0.82rem;
+            color: var(--text-muted);
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: #f8fafc;
+            padding: 5px 10px;
+            border-radius: var(--radius-sm);
+            border: 1px solid #e2e8f0;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        .user-status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--success);
+            flex-shrink: 0;
+            box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
+        }
+
+        .btn-topbar-action {
+            white-space: nowrap;
+            flex-shrink: 0;
+            transition: all 0.18s ease;
         }
 
         .btn {
@@ -2421,16 +2482,42 @@ $isLoggedIn = Auth::isLoggedIn();
         /* -------------------------------------------------------------
            RESPONSIVE DESIGN (Tablets & Mobile)
            ------------------------------------------------------------- */
+        @media (max-width: 1250px) {
+            .brand-subtitle {
+                display: none !important;
+            }
+            .topbar-nav-menu {
+                gap: 4px;
+                margin-left: 10px;
+            }
+            .topbar-nav-link {
+                padding: 6px 10px;
+                font-size: 0.8rem;
+                gap: 5px;
+            }
+        }
+
+        @media (max-width: 1100px) {
+            .topbar-nav-menu {
+                display: none !important;
+            }
+            .topbar-user-text {
+                display: none;
+            }
+        }
+
         @media (max-width: 960px) {
             .mobile-menu-btn {
                 display: flex;
+                align-items: center;
+                justify-content: center;
             }
 
             .freelance-sidebar {
                 position: fixed;
-                top: 68px;
+                top: var(--topbar-height);
                 left: 0;
-                height: calc(100vh - 68px);
+                height: calc(100vh - var(--topbar-height));
                 box-shadow: var(--shadow-modal);
                 transform: translateX(-100%);
             }
@@ -2451,6 +2538,67 @@ $isLoggedIn = Auth::isLoggedIn();
             }
             .share-invoice-card {
                 padding: 28px 24px;
+            }
+        }
+
+        @media (max-width: 860px) {
+            .topbar-user-badge {
+                display: none !important;
+            }
+            .app-topbar {
+                padding: 0 16px;
+                gap: 8px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            :root {
+                --topbar-height: 60px;
+            }
+
+            .app-topbar {
+                padding: 0 12px;
+                gap: 8px;
+            }
+
+            .topbar-brand-container {
+                gap: 8px;
+            }
+
+            .brand-badge {
+                gap: 8px;
+            }
+
+            .brand-logo-icon {
+                width: 36px;
+                height: 36px;
+                border-radius: 8px;
+            }
+
+            .brand-logo-icon svg {
+                width: 18px;
+                height: 18px;
+            }
+
+            .brand-title-group h1 {
+                font-size: 1.05rem;
+            }
+
+            .topbar-actions {
+                gap: 6px;
+            }
+
+            .btn-topbar-action {
+                padding: 7px 10px;
+                font-size: 0.82rem;
+            }
+
+            .btn-topbar-action .btn-text {
+                display: none !important;
+            }
+
+            .btn-topbar-action svg {
+                margin: 0;
             }
         }
 
@@ -2485,6 +2633,78 @@ $isLoggedIn = Auth::isLoggedIn();
             .share-invoice-card {
                 padding: 20px 14px;
                 border-radius: var(--radius-lg);
+            }
+        }
+
+        @media (max-width: 480px) {
+            :root {
+                --topbar-height: 56px;
+            }
+
+            .app-topbar {
+                padding: 0 10px;
+                gap: 6px;
+            }
+
+            .topbar-brand-container {
+                gap: 6px;
+            }
+
+            .mobile-menu-btn {
+                padding: 6px;
+                border-radius: 6px;
+            }
+
+            .mobile-menu-btn svg {
+                width: 18px;
+                height: 18px;
+            }
+
+            .brand-badge {
+                gap: 7px;
+            }
+
+            .brand-logo-icon {
+                width: 32px;
+                height: 32px;
+                border-radius: 7px;
+            }
+
+            .brand-logo-icon svg {
+                width: 16px;
+                height: 16px;
+            }
+
+            .brand-title-group h1 {
+                font-size: 0.94rem;
+            }
+
+            .topbar-actions {
+                gap: 4px;
+            }
+
+            .btn-topbar-action {
+                padding: 6px 8px;
+                border-radius: 6px;
+            }
+
+            .btn-topbar-action svg {
+                width: 14px;
+                height: 14px;
+            }
+        }
+
+        @media (max-width: 360px) {
+            .app-topbar {
+                padding: 0 6px;
+            }
+
+            .brand-title-group h1 {
+                font-size: 0.86rem;
+            }
+
+            .btn-topbar-action {
+                padding: 5px 6px;
             }
         }
 
@@ -3076,7 +3296,7 @@ $isLoggedIn = Auth::isLoggedIn();
 
     <!-- TOP HEADER -->
     <header class="app-topbar">
-        <div style="display: flex; align-items: center; gap: 14px;">
+        <div class="topbar-brand-container">
             <button type="button" class="mobile-menu-btn" id="mobileMenuToggle" title="Toggle Companies & Projects Menu">
                 <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
             </button>
@@ -3086,7 +3306,7 @@ $isLoggedIn = Auth::isLoggedIn();
                 </div>
                 <div class="brand-title-group">
                     <h1>Freelance Hub</h1>
-                    <p>Projects, Work Breakdown &amp; Hourly Timesheets</p>
+                    <p class="brand-subtitle">Projects, Work Breakdown &amp; Hourly Timesheets</p>
                 </div>
             </a>
         </div>
@@ -3113,27 +3333,30 @@ $isLoggedIn = Auth::isLoggedIn();
 
         <div class="topbar-actions">
             <?php if ($isLoggedIn): ?>
-                <span style="font-size:0.82rem; color:var(--text-muted); font-weight:600; display:flex; align-items:center; gap:6px;">
-                    <span style="width:8px; height:8px; border-radius:50%; background:var(--success);"></span>
-                    Logged in as <strong><?= htmlspecialchars(Auth::getCurrentUser()) ?></strong>
+                <span class="topbar-user-badge" title="Authenticated as <?= htmlspecialchars(Auth::getCurrentUser()) ?>">
+                    <span class="user-status-dot"></span>
+                    <span class="topbar-user-text"><span class="user-prefix">Logged in as </span><strong><?= htmlspecialchars(Auth::getCurrentUser()) ?></strong></span>
                 </span>
-                <button type="button" class="btn btn-secondary btn-sm" onclick="openManageListModal()" title="List to Manage Companies & Projects">
+                <button type="button" class="btn btn-secondary btn-sm btn-topbar-action" onclick="openManageListModal()" title="List to Manage Companies & Projects">
                     <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
-                    <span>Manage List</span>
+                    <span class="btn-text">Manage List</span>
                 </button>
-                <button type="button" class="btn btn-primary btn-sm" id="btnOpenAddCompany">
+                <button type="button" class="btn btn-primary btn-sm btn-topbar-action" id="btnOpenAddCompany" title="Create New Company">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-                    <span>New Company</span>
+                    <span class="btn-text">New Company</span>
                 </button>
-                <a href="freelance.php?action=logout" class="btn btn-secondary btn-sm" title="Sign Out">
+                <a href="freelance.php?action=logout" class="btn btn-secondary btn-sm btn-topbar-action" title="Sign Out">
                     <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
-                    <span>Logout</span>
+                    <span class="btn-text">Logout</span>
                 </a>
             <?php else: ?>
-                <a href="projects.php" class="btn btn-secondary btn-sm">Projects Showcase</a>
-                <button type="button" class="btn btn-primary btn-sm" id="btnOpenLoginModal">
+                <a href="projects.php" class="btn btn-secondary btn-sm btn-topbar-action" title="Projects Portfolio">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>
+                    <span class="btn-text">Projects</span>
+                </a>
+                <button type="button" class="btn btn-primary btn-sm btn-topbar-action" id="btnOpenLoginModal" title="Freelancer Login">
                     <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
-                    <span>Freelancer Login</span>
+                    <span class="btn-text">Freelancer Login</span>
                 </button>
             <?php endif; ?>
         </div>
@@ -4007,8 +4230,17 @@ $isLoggedIn = Auth::isLoggedIn();
         const mobileMenuBtn = document.getElementById('mobileMenuToggle');
         const sidebarEl = document.getElementById('appSidebar');
         if (mobileMenuBtn && sidebarEl) {
-            mobileMenuBtn.addEventListener('click', () => {
+            mobileMenuBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
                 sidebarEl.classList.toggle('mobile-open');
+            });
+
+            document.addEventListener('click', (e) => {
+                if (window.innerWidth <= 960 && sidebarEl.classList.contains('mobile-open')) {
+                    if (!sidebarEl.contains(e.target) && !mobileMenuBtn.contains(e.target)) {
+                        sidebarEl.classList.remove('mobile-open');
+                    }
+                }
             });
         }
 
