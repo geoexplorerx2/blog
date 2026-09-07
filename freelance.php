@@ -571,8 +571,9 @@ if (isset($_GET['api_action'])) {
         if (!empty($projIds)) {
             $inClause = implode(',', array_map('intval', $projIds));
             $db->exec("DELETE FROM freelance_tasks WHERE project_id IN ($inClause)");
-            $db->exec("DELETE FROM freelance_projects WHERE company_id = $id");
         }
+        $stmtDelProj = $db->prepare("DELETE FROM freelance_projects WHERE company_id = ?");
+        $stmtDelProj->execute([$id]);
 
         $stmt = $db->prepare("DELETE FROM freelance_companies WHERE id = ?");
         $stmt->execute([$id]);
@@ -4303,6 +4304,13 @@ $isLoggedIn = Auth::isLoggedIn();
             if (el) el.classList.remove('open');
         }
 
+        function openConfirmModal(options = {}) {
+            return new Promise((resolve) => {
+                const msg = (options.message || options.title || 'Are you sure?').replace(/<[^>]*>?/gm, '');
+                resolve(window.confirm(msg));
+            });
+        }
+
         function getCurrencySymbol(curr) {
             if (!curr) return '$';
             const c = String(curr).trim().toUpperCase();
@@ -4769,6 +4777,7 @@ $isLoggedIn = Auth::isLoggedIn();
             if (typeof toggleMobileSidebar === 'function') {
                 toggleMobileSidebar(false);
             }
+            closeModal('manageListModal');
             document.getElementById('companyModalTitle').textContent = 'Create New Company';
             document.getElementById('companyId').value = '';
             document.getElementById('companyName').value = '';
@@ -4781,6 +4790,7 @@ $isLoggedIn = Auth::isLoggedIn();
         function openEditCompanyModal(companyId) {
             const comp = currentTreeData.find(c => c.id == companyId);
             if (!comp) return;
+            closeModal('manageListModal');
             document.getElementById('companyModalTitle').textContent = 'Edit Company';
             document.getElementById('companyId').value = comp.id;
             document.getElementById('companyName').value = comp.name || '';
@@ -4791,13 +4801,10 @@ $isLoggedIn = Auth::isLoggedIn();
         }
 
         async function deleteCompany(companyId, companyName) {
-            const confirmed = await openConfirmModal({
-                title: 'Delete Company',
-                message: `Are you sure you want to delete company <strong>${escapeHtml(companyName)}</strong>? All its projects and tasks will also be deleted permanently.`,
-                confirmText: 'Delete Company',
-                confirmClass: 'btn-danger'
-            });
-            if (!confirmed) return;
+            const nameStr = companyName || 'this company';
+            if (!confirm(`Are you sure you want to delete company "${nameStr}"?\n\nWARNING: All projects and logged tasks under this company will be permanently deleted!`)) {
+                return;
+            }
 
             try {
                 const res = await fetch(`${API_BASE}?api_action=delete_company`, {
@@ -4907,6 +4914,7 @@ $isLoggedIn = Auth::isLoggedIn();
         }
 
         function openCreateProjectModal(companyId = null) {
+            closeModal('manageListModal');
             document.getElementById('projectModalTitle').textContent = 'Create Project';
             document.getElementById('projectId').value = '';
 
@@ -4951,6 +4959,7 @@ $isLoggedIn = Auth::isLoggedIn();
             }
             if (!proj) return;
 
+            closeModal('manageListModal');
             document.getElementById('projectModalTitle').textContent = 'Edit Project';
             document.getElementById('projectId').value = proj.id;
             
