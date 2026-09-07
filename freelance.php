@@ -1154,7 +1154,7 @@ $isLoggedIn = Auth::isLoggedIn();
             display: flex;
             flex: 1;
             position: relative;
-            align-items: flex-start;
+            align-items: stretch;
             min-height: calc(100vh - var(--topbar-height));
         }
 
@@ -1172,6 +1172,7 @@ $isLoggedIn = Auth::isLoggedIn();
             top: var(--topbar-height);
             height: calc(100vh - var(--topbar-height));
             height: calc(100dvh - var(--topbar-height));
+            max-height: calc(100vh - var(--topbar-height));
             overflow-y: auto;
             overflow-x: auto;
             -webkit-overflow-scrolling: touch;
@@ -2600,16 +2601,22 @@ $isLoggedIn = Auth::isLoggedIn();
             }
 
             .freelance-sidebar {
-                position: fixed;
-                top: 0;
-                left: 0;
-                right: 0;
-                bottom: 0;
-                width: 100%;
-                max-width: 100%;
-                min-width: 100%;
-                height: 100vh;
-                height: 100dvh;
+                position: fixed !important;
+                top: 0 !important;
+                left: 0 !important;
+                right: 0 !important;
+                bottom: 0 !important;
+                inset: 0 !important;
+                width: 100% !important;
+                max-width: 100vw !important;
+                min-width: 100% !important;
+                height: 100% !important;
+                height: 100vh !important;
+                height: 100dvh !important;
+                min-height: 100% !important;
+                min-height: 100vh !important;
+                min-height: 100dvh !important;
+                max-height: none !important;
                 background-color: #ffffff;
                 box-shadow: none;
                 transform: translateX(-100%);
@@ -2621,8 +2628,16 @@ $isLoggedIn = Auth::isLoggedIn();
                 touch-action: pan-y;
             }
 
+            .sidebar-backdrop {
+                inset: 0 !important;
+                height: 100% !important;
+                height: 100dvh !important;
+                max-height: none !important;
+                z-index: 2400 !important;
+            }
+
             .freelance-sidebar.mobile-open {
-                transform: translateX(0);
+                transform: translateX(0) !important;
             }
 
             .freelance-sidebar .sidebar-header {
@@ -3827,21 +3842,13 @@ $isLoggedIn = Auth::isLoggedIn();
                 </div>
 
                 </div> <!-- /.freelance-content-inner -->
-
-                <!-- Platform Global Footer for Authenticated Workspace -->
-                <?php
-                if (function_exists('renderGlobalFooter')) {
-                    renderGlobalFooter();
-                }
-                ?>
-
             </main>
         </div>
     <?php endif; ?>
 
-    <!-- Platform Global Footer for Public & Login Views -->
+    <!-- Platform Global Footer - Full Size Edge-to-Edge -->
     <?php
-    if (($isPublicMode || !$isLoggedIn) && function_exists('renderGlobalFooter')) {
+    if (function_exists('renderGlobalFooter')) {
         renderGlobalFooter();
     }
     ?>
