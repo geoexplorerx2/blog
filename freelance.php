@@ -825,9 +825,11 @@ $isLoggedIn = Auth::isLoggedIn();
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= $isPublicMode ? 'Timesheet & Project Breakdown' : 'Freelance Workspace & Task Management' ?> | Farshad Nabizadeh</title>
     <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <link rel="stylesheet" href="assets/fonts.css">
+    <link rel="stylesheet" href="assets/poppins.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400;1,600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
     
     <style>
         :root {
@@ -871,7 +873,7 @@ $isLoggedIn = Auth::isLoggedIn();
         }
 
         body {
-            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            font-family: 'Poppins', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             background-color: var(--bg-page);
             color: var(--text-main);
             min-height: 100vh;
@@ -1641,31 +1643,132 @@ $isLoggedIn = Auth::isLoggedIn();
         /* Empty State */
         .empty-state {
             text-align: center;
-            padding: 60px 20px;
-            background: #ffffff;
-            border: 2px dashed #cbd5e1;
+            padding: 56px 24px;
+            background: linear-gradient(180deg, #ffffff 0%, #fcfdfe 100%);
+            border: 1.5px dashed #cbd5e1;
             border-radius: var(--radius-lg);
             color: var(--text-muted);
+            box-shadow: 0 4px 16px -4px rgba(18, 70, 111, 0.04);
+            transition: all 0.25s ease;
         }
 
-        .empty-state svg {
-            width: 56px;
-            height: 56px;
-            color: #94a3b8;
-            margin-bottom: 14px;
+        .empty-state:hover {
+            border-color: #94a3b8;
+        }
+
+        .empty-state-icon-wrapper {
+            width: 64px;
+            height: 64px;
+            margin: 0 auto 16px auto;
+            border-radius: 50%;
+            background: linear-gradient(135deg, rgba(18, 70, 111, 0.08) 0%, rgba(29, 111, 165, 0.04) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid rgba(18, 70, 111, 0.12);
+        }
+
+        .empty-state-icon-wrapper svg {
+            width: 30px;
+            height: 30px;
+            color: var(--brand-primary);
+            margin-bottom: 0;
         }
 
         .empty-state h4 {
-            font-size: 1.15rem;
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.2rem;
             color: var(--brand-dark);
-            font-weight: 700;
-            margin-bottom: 6px;
+            font-weight: 600;
+            letter-spacing: -0.01em;
+            margin-bottom: 8px;
         }
 
         .empty-state p {
+            font-family: 'Poppins', sans-serif;
             font-size: 0.9rem;
-            max-width: 460px;
-            margin: 0 auto 18px auto;
+            font-weight: 400;
+            color: var(--text-muted);
+            max-width: 480px;
+            line-height: 1.6;
+            margin: 0 auto 20px auto;
+        }
+
+        /* Minimal & Beautiful Action Buttons */
+        .empty-state-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-top: 18px;
+        }
+
+        .btn-minimal-primary {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 10px 22px;
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.88rem;
+            font-weight: 500;
+            letter-spacing: 0.01em;
+            color: #ffffff;
+            background: linear-gradient(135deg, #12466f 0%, #1a5b8e 100%);
+            border: 1px solid #12466f;
+            border-radius: 10px;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(18, 70, 111, 0.18), 0 1px 2px rgba(18, 70, 111, 0.12);
+            transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+            text-decoration: none;
+            user-select: none;
+        }
+
+        .btn-minimal-primary:hover {
+            background: linear-gradient(135deg, #0f3c5f 0%, #164f7c 100%);
+            box-shadow: 0 6px 16px rgba(18, 70, 111, 0.28);
+            transform: translateY(-1.5px);
+            color: #ffffff;
+        }
+
+        .btn-minimal-primary:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 4px rgba(18, 70, 111, 0.18);
+        }
+
+        .btn-minimal-secondary {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 10px 20px;
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.88rem;
+            font-weight: 500;
+            letter-spacing: 0.01em;
+            color: #1e3b4f;
+            background: #ffffff;
+            border: 1px solid #d5e0ea;
+            border-radius: 10px;
+            cursor: pointer;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+            transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+            text-decoration: none;
+            user-select: none;
+        }
+
+        .btn-minimal-secondary:hover {
+            background: #f6f9fc;
+            border-color: #12466f;
+            color: #12466f;
+            box-shadow: 0 4px 14px rgba(18, 70, 111, 0.1);
+            transform: translateY(-1.5px);
+        }
+
+        .btn-minimal-secondary:active {
+            transform: translateY(0);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
         }
 
         /* -------------------------------------------------------------
@@ -3151,17 +3254,24 @@ $isLoggedIn = Auth::isLoggedIn();
 
                 <!-- Empty State (Shown before a project is selected) -->
                 <div class="empty-state" id="projectEmptyState">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-                    </svg>
+                    <div class="empty-state-icon-wrapper">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                        </svg>
+                    </div>
                     <h4>Select a Company Project</h4>
-                    <div style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin-top:16px;">
-                        <button type="button" class="btn btn-primary" onclick="openCreateCompanyModal()">+ Add New Company</button>
-                        <button type="button" class="btn btn-secondary" onclick="openManageListModal()">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
-                            <span>Manage Companies &amp; Projects List</span>
+                    <p>Choose a project from the left sidebar to view logged tasks, track billable hours, and generate client share links.</p>
+                    <div class="empty-state-actions" style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin-top:16px;">
+                        <button type="button" class="btn-minimal-primary" onclick="openCreateCompanyModal()">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                            <span>Add New Company</span>
+                        </button>
+                        <button type="button" class="btn-minimal-secondary" onclick="openManageListModal()">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+                            <span>Manage Companies &amp; Projects</span>
                         </button>
                     </div>
+                </div>
 
                 <!-- Task List Section -->
                 <div id="tasksListSection" style="display:none;">

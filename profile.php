@@ -380,8 +380,8 @@ if ($profile) {
             --shadow: 0 4px 12px rgba(15, 23, 42, 0.05);
             --shadow-hover: 0 8px 24px rgba(15, 23, 42, 0.09);
             --radius: 12px;
-            --font-heading: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            --font-body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            --font-heading: 'Poppins', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            --font-body: 'Poppins', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             --font-mono: 'JetBrains Mono', monospace;
         }
 

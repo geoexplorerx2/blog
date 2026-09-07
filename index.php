@@ -925,8 +925,8 @@ $questionsJson = json_encode(array_map(fn($q) => [
             --shadow: 0 2px 8px rgba(10,37,64,0.06);
             --shadow-hover: 0 4px 16px rgba(10,37,64,0.12);
             --radius: 10px;
-            --font-heading: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            --font-body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            --font-heading: 'Poppins', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            --font-body: 'Poppins', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
             --font-mono: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
         }
         /* Minimal light theme tokens */
