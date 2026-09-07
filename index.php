@@ -373,12 +373,12 @@ class QuestionRepository
             throw new RuntimeException('Database connection not available.');
         }
         if (trim($category) === '') return 0;
-        $stmt = $this->db->prepare('DELETE FROM questions WHERE COALESCE(NULLIF(category, ""), "General") = :category');
+        $stmt = $this->db->prepare('DELETE FROM questions WHERE LOWER(COALESCE(NULLIF(category, ""), "General")) = LOWER(:category)');
         $stmt->execute([':category' => trim($category)]);
         $deleted = $stmt->rowCount();
 
         $this->ensureCategoriesTableExists();
-        $catStmt = $this->db->prepare('DELETE FROM categories WHERE name = :category');
+        $catStmt = $this->db->prepare('DELETE FROM categories WHERE LOWER(name) = LOWER(:category)');
         $catStmt->execute([':category' => trim($category)]);
 
         return $deleted;
@@ -392,12 +392,12 @@ class QuestionRepository
         $old = trim($oldCategory);
         $new = trim($newCategory);
         if ($old === '' || $new === '') return 0;
-        $stmt = $this->db->prepare('UPDATE questions SET category = :new WHERE COALESCE(NULLIF(category, ""), "General") = :old');
+        $stmt = $this->db->prepare('UPDATE questions SET category = :new WHERE LOWER(COALESCE(NULLIF(category, ""), "General")) = LOWER(:old)');
         $stmt->execute([':new' => $new, ':old' => $old]);
         $updated = $stmt->rowCount();
 
         $this->ensureCategoriesTableExists();
-        $catStmt = $this->db->prepare('UPDATE categories SET name = :new WHERE name = :old');
+        $catStmt = $this->db->prepare('UPDATE categories SET name = :new WHERE LOWER(name) = LOWER(:old)');
         $catStmt->execute([':new' => $new, ':old' => $old]);
 
         return $updated;
@@ -412,7 +412,7 @@ class QuestionRepository
         $new = trim($newName);
         if ($old === '' || $new === '') return 0;
 
-        $stmt = $this->db->prepare('UPDATE questions SET category = :new WHERE COALESCE(NULLIF(category, ""), "General") = :old');
+        $stmt = $this->db->prepare('UPDATE questions SET category = :new WHERE LOWER(COALESCE(NULLIF(category, ""), "General")) = LOWER(:old)');
         $stmt->execute([':new' => $new, ':old' => $old]);
         $updated = $stmt->rowCount();
 
@@ -425,7 +425,7 @@ class QuestionRepository
         $catStmt->execute([':name' => $new, ':description' => $desc, ':image' => $img]);
 
         if ($old !== $new) {
-            $delStmt = $this->db->prepare('DELETE FROM categories WHERE name = :old');
+            $delStmt = $this->db->prepare('DELETE FROM categories WHERE LOWER(name) = LOWER(:old)');
             $delStmt->execute([':old' => $old]);
         }
 
