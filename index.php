@@ -167,6 +167,7 @@ class QuestionRepository
         $this->db = Database::getConnection();
         if ($this->db !== null) {
             $this->ensureTableExists();
+            $this->ensureCategoriesTableExists();
         }
     }
 
@@ -178,6 +179,19 @@ class QuestionRepository
             question TEXT NOT NULL,
             answer TEXT NOT NULL,
             category VARCHAR(100) DEFAULT NULL
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4";
+        $this->db->exec($sql);
+    }
+
+    private function ensureCategoriesTableExists(): void
+    {
+        if ($this->db === null) return;
+        $sql = "CREATE TABLE IF NOT EXISTS categories (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            name VARCHAR(100) NOT NULL UNIQUE,
+            description TEXT NULL,
+            image VARCHAR(500) NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4";
         $this->db->exec($sql);
     }
@@ -218,11 +232,53 @@ class QuestionRepository
     {
         if ($this->db === null) return [];
         try {
-            $stmt = $this->db->query('SELECT DISTINCT COALESCE(NULLIF(category, ""), "General") AS cat FROM questions ORDER BY cat');
-            return $stmt->fetchAll(PDO::FETCH_COLUMN);
+            $this->ensureCategoriesTableExists();
+
+            $meta = [];
+            $stmt = $this->db->query('SELECT name, description, image FROM categories ORDER BY name');
+            foreach ($stmt->fetchAll() as $row) {
+                $meta[$row['name']] = $row;
+            }
+
+            $result = [];
+            $seen = [];
+            $qStmt = $this->db->query('SELECT DISTINCT COALESCE(NULLIF(category, ""), "General") AS cat FROM questions ORDER BY cat');
+            foreach ($qStmt->fetchAll(PDO::FETCH_COLUMN) as $name) {
+                $seen[$name] = true;
+                $result[] = [
+                    'name' => $name,
+                    'description' => $meta[$name]['description'] ?? null,
+                    'image' => $meta[$name]['image'] ?? null,
+                ];
+            }
+            foreach ($meta as $name => $row) {
+                if (!isset($seen[$name])) {
+                    $result[] = [
+                        'name' => $name,
+                        'description' => $row['description'],
+                        'image' => $row['image'],
+                    ];
+                }
+            }
+            return $result;
         } catch (PDOException $e) {
             return [];
         }
+    }
+
+    public function addCategory(string $name, ?string $description, ?string $image): void
+    {
+        if ($this->db === null) {
+            throw new RuntimeException('Database connection not available.');
+        }
+        $this->ensureCategoriesTableExists();
+        $stmt = $this->db->prepare('INSERT INTO categories (name, description, image) VALUES (:name, :description, :image)
+            ON DUPLICATE KEY UPDATE description = VALUES(description), image = VALUES(image)');
+        $stmt->execute([
+            ':name' => trim($name),
+            ':description' => $description !== null && trim($description) !== '' ? trim($description) : null,
+            ':image' => $image !== null && trim($image) !== '' ? trim($image) : null,
+        ]);
     }
 
     public function importQuestions(array $questions): int
@@ -319,7 +375,13 @@ class QuestionRepository
         if (trim($category) === '') return 0;
         $stmt = $this->db->prepare('DELETE FROM questions WHERE COALESCE(NULLIF(category, ""), "General") = :category');
         $stmt->execute([':category' => trim($category)]);
-        return $stmt->rowCount();
+        $deleted = $stmt->rowCount();
+
+        $this->ensureCategoriesTableExists();
+        $catStmt = $this->db->prepare('DELETE FROM categories WHERE name = :category');
+        $catStmt->execute([':category' => trim($category)]);
+
+        return $deleted;
     }
 
     public function renameCategory(string $oldCategory, string $newCategory): int
@@ -332,7 +394,42 @@ class QuestionRepository
         if ($old === '' || $new === '') return 0;
         $stmt = $this->db->prepare('UPDATE questions SET category = :new WHERE COALESCE(NULLIF(category, ""), "General") = :old');
         $stmt->execute([':new' => $new, ':old' => $old]);
-        return $stmt->rowCount();
+        $updated = $stmt->rowCount();
+
+        $this->ensureCategoriesTableExists();
+        $catStmt = $this->db->prepare('UPDATE categories SET name = :new WHERE name = :old');
+        $catStmt->execute([':new' => $new, ':old' => $old]);
+
+        return $updated;
+    }
+
+    public function updateCategory(string $oldName, string $newName, ?string $description, ?string $image): int
+    {
+        if ($this->db === null) {
+            throw new RuntimeException('Database connection not available.');
+        }
+        $old = trim($oldName);
+        $new = trim($newName);
+        if ($old === '' || $new === '') return 0;
+
+        $stmt = $this->db->prepare('UPDATE questions SET category = :new WHERE COALESCE(NULLIF(category, ""), "General") = :old');
+        $stmt->execute([':new' => $new, ':old' => $old]);
+        $updated = $stmt->rowCount();
+
+        $this->ensureCategoriesTableExists();
+        $desc = $description !== null && trim($description) !== '' ? trim($description) : null;
+        $img = $image !== null && trim($image) !== '' ? trim($image) : null;
+
+        $catStmt = $this->db->prepare('INSERT INTO categories (name, description, image) VALUES (:name, :description, :image)
+            ON DUPLICATE KEY UPDATE description = VALUES(description), image = VALUES(image)');
+        $catStmt->execute([':name' => $new, ':description' => $desc, ':image' => $img]);
+
+        if ($old !== $new) {
+            $delStmt = $this->db->prepare('DELETE FROM categories WHERE name = :old');
+            $delStmt->execute([':old' => $old]);
+        }
+
+        return $updated;
     }
 
     public function countAll(): int
@@ -625,6 +722,41 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['api_action'])) {
             }
             $updated = $repository->renameCategory($oldCategory, $newCategory);
             echo json_encode(['success' => true, 'old_category' => $oldCategory, 'new_category' => $newCategory, 'updated' => $updated]);
+            exit;
+        } elseif ($action === 'update_category') {
+            $oldName = trim($inputData['old_name'] ?? '');
+            $newName = trim($inputData['name'] ?? '');
+            $description = trim($inputData['description'] ?? '');
+            $image = trim($inputData['image'] ?? '');
+            if ($oldName === '' || $newName === '') {
+                echo json_encode(['success' => false, 'error' => 'Card title is required.']);
+                exit;
+            }
+            $updated = $repository->updateCategory($oldName, $newName, $description !== '' ? $description : null, $image !== '' ? $image : null);
+            echo json_encode([
+                'success' => true,
+                'old_name' => $oldName,
+                'name' => $newName,
+                'description' => $description !== '' ? $description : null,
+                'image' => $image !== '' ? $image : null,
+                'updated' => $updated
+            ]);
+            exit;
+        } elseif ($action === 'add_category') {
+            $name = trim($inputData['name'] ?? '');
+            $description = trim($inputData['description'] ?? '');
+            $image = trim($inputData['image'] ?? '');
+            if ($name === '') {
+                echo json_encode(['success' => false, 'error' => 'Card title is required.']);
+                exit;
+            }
+            $repository->addCategory($name, $description !== '' ? $description : null, $image !== '' ? $image : null);
+            echo json_encode([
+                'success' => true,
+                'name' => $name,
+                'description' => $description !== '' ? $description : null,
+                'image' => $image !== '' ? $image : null
+            ]);
             exit;
         } elseif ($action === 'add') {
             $question = trim($inputData['question'] ?? '');
@@ -1275,6 +1407,21 @@ $questionsJson = json_encode(array_map(fn($q) => [
             font-size: 0.9rem;
             color: var(--m-text-muted);
         }
+        .category-card-thumb {
+            width: 100%;
+            height: 130px;
+            overflow: hidden;
+            border-radius: 10px;
+            margin-bottom: 0.9rem;
+            background: var(--m-surface-2);
+            border: 1px solid var(--m-border);
+        }
+        .category-card-thumb img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
         .conference-footer {
             background: var(--navy-900);
             color: var(--blue-200);
@@ -1428,7 +1575,8 @@ $questionsJson = json_encode(array_map(fn($q) => [
         }
         .form-group input[type="text"],
         .form-group input[type="password"],
-        .form-group textarea {
+        .form-group textarea,
+        .form-group select {
             width: 100%;
             padding: 0.7rem 0.9rem;
             border: 1px solid var(--border);
@@ -1441,7 +1589,8 @@ $questionsJson = json_encode(array_map(fn($q) => [
         }
         .form-group input[type="text"]:focus,
         .form-group input[type="password"]:focus,
-        .form-group textarea:focus {
+        .form-group textarea:focus,
+        .form-group select:focus {
             outline: none;
             border-color: var(--blue-500);
             box-shadow: 0 0 0 3px rgba(33,120,174,0.15);
@@ -2278,48 +2427,78 @@ $questionsJson = json_encode(array_map(fn($q) => [
            Minimal light theme — Edit / Login modal + question actions
            ------------------------------------------------------------- */
         #qaModal .modal-card,
-        #loginModal .modal-card {
+        #loginModal .modal-card,
+        #categoryModal .modal-card,
+        #editCategoryModal .modal-card {
             background: var(--m-surface);
             border: 1px solid var(--m-border);
             border-radius: 18px;
             box-shadow: var(--m-shadow-lg);
         }
         #qaModal .modal-header,
-        #loginModal .modal-header {
+        #loginModal .modal-header,
+        #categoryModal .modal-header,
+        #editCategoryModal .modal-header {
             background: linear-gradient(135deg, #0a2540 0%, #0d3557 55%, #12466f 100%);
             color: #ffffff;
             padding: 1.4rem 1.6rem 1.1rem;
             border-bottom: 1px solid rgba(255, 255, 255, 0.08);
         }
         #qaModal .modal-header h3,
-        #loginModal .modal-header h3 {
+        #loginModal .modal-header h3,
+        #categoryModal .modal-header h3,
+        #editCategoryModal .modal-header h3 {
             color: #ffffff;
             font-weight: 700;
             letter-spacing: -0.01em;
         }
+        #categoryModal .modal-header h3,
+        #editCategoryModal .modal-header h3 {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
         #qaModal .modal-close,
-        #loginModal .modal-close {
+        #loginModal .modal-close,
+        #categoryModal .modal-close,
+        #editCategoryModal .modal-close {
             color: #b8d8ee;
         }
         #qaModal .modal-close:hover,
-        #loginModal .modal-close:hover {
+        #loginModal .modal-close:hover,
+        #categoryModal .modal-close:hover,
+        #editCategoryModal .modal-close:hover {
             color: #ffffff;
         }
         #qaModal .modal-body,
-        #loginModal .modal-body {
+        #loginModal .modal-body,
+        #categoryModal .modal-body,
+        #editCategoryModal .modal-body {
             padding: 1.5rem 1.6rem;
         }
         #qaModal .form-group label,
-        #loginModal .form-group label {
+        #loginModal .form-group label,
+        #categoryModal .form-group label,
+        #editCategoryModal .form-group label {
             color: var(--m-text);
             font-weight: 600;
         }
         #qaModal .form-group input[type="text"],
         #qaModal .form-group input[type="password"],
         #qaModal .form-group textarea,
+        #qaModal .form-group select,
         #loginModal .form-group input[type="text"],
         #loginModal .form-group input[type="password"],
-        #loginModal .form-group textarea {
+        #loginModal .form-group textarea,
+        #loginModal .form-group select,
+        #categoryModal .form-group input[type="text"],
+        #categoryModal .form-group input[type="password"],
+        #categoryModal .form-group textarea,
+        #categoryModal .form-group select,
+        #editCategoryModal .form-group input[type="text"],
+        #editCategoryModal .form-group input[type="password"],
+        #editCategoryModal .form-group textarea,
+        #editCategoryModal .form-group select {
             background: var(--m-surface);
             border: 1px solid var(--m-border-strong);
             border-radius: 10px;
@@ -2327,39 +2506,59 @@ $questionsJson = json_encode(array_map(fn($q) => [
         }
         #qaModal .form-group input:focus,
         #qaModal .form-group textarea:focus,
+        #qaModal .form-group select:focus,
         #loginModal .form-group input:focus,
-        #loginModal .form-group textarea:focus {
+        #loginModal .form-group textarea:focus,
+        #loginModal .form-group select:focus,
+        #categoryModal .form-group input:focus,
+        #categoryModal .form-group textarea:focus,
+        #categoryModal .form-group select:focus,
+        #editCategoryModal .form-group input:focus,
+        #editCategoryModal .form-group textarea:focus,
+        #editCategoryModal .form-group select:focus {
             border-color: var(--m-accent);
             box-shadow: 0 0 0 3px rgba(10, 37, 64, 0.18);
             background: var(--m-surface);
         }
         #qaModal .modal-footer,
-        #loginModal .modal-footer {
+        #loginModal .modal-footer,
+        #categoryModal .modal-footer,
+        #editCategoryModal .modal-footer {
             background: var(--m-bg);
             border-top: 1px solid var(--m-border);
             padding: 1rem 1.6rem;
         }
         @media (max-width: 520px) {
             #qaModal,
-            #loginModal {
+            #loginModal,
+            #categoryModal,
+            #editCategoryModal {
                 align-items: flex-end;
                 padding: 0.75rem;
             }
             #qaModal .modal-card,
-            #loginModal .modal-card {
+            #loginModal .modal-card,
+            #categoryModal .modal-card,
+            #editCategoryModal .modal-card {
                 max-width: 100% !important;
                 border-radius: 16px !important;
             }
             #qaModal .modal-header,
-            #loginModal .modal-header {
+            #loginModal .modal-header,
+            #categoryModal .modal-header,
+            #editCategoryModal .modal-header {
                 padding: 1.1rem 1.1rem 0.9rem;
             }
             #qaModal .modal-body,
-            #loginModal .modal-body {
+            #loginModal .modal-body,
+            #categoryModal .modal-body,
+            #editCategoryModal .modal-body {
                 padding: 1.1rem 1.1rem;
             }
             #qaModal .modal-footer,
-            #loginModal .modal-footer {
+            #loginModal .modal-footer,
+            #categoryModal .modal-footer,
+            #editCategoryModal .modal-footer {
                 padding: 0.85rem 1.1rem;
             }
         }
@@ -2501,6 +2700,10 @@ $questionsJson = json_encode(array_map(fn($q) => [
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
                 Add Question
             </button>
+            <button class="btn add-btn" id="addCategoryBtn">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect><line x1="8" y1="6.5" x2="8" y2="6.5"></line></svg>
+                Add Category
+            </button>
         </div>
         <?php endif; ?>
 
@@ -2508,14 +2711,22 @@ $questionsJson = json_encode(array_map(fn($q) => [
             <div class="category-grid">
                 <?php foreach ($categories as $cat): ?>
                     <div class="category-card-wrap">
-                        <a href="index.php?category=<?php echo urlencode($cat); ?>" class="category-card">
-                            <h2><?php echo htmlspecialchars($cat); ?></h2>
+                        <a href="index.php?category=<?php echo urlencode($cat['name']); ?>" class="category-card">
+                            <?php if (!empty($cat['image'])): ?>
+                            <div class="category-card-thumb">
+                                <img src="<?php echo htmlspecialchars($cat['image']); ?>" alt="<?php echo htmlspecialchars($cat['name']); ?>" loading="lazy">
+                            </div>
+                            <?php endif; ?>
+                            <h2><?php echo htmlspecialchars($cat['name']); ?></h2>
+                            <?php if (!empty($cat['description'])): ?>
+                            <p><?php echo htmlspecialchars($cat['description']); ?></p>
+                            <?php endif; ?>
                         </a>
                         <?php if (Auth::isLoggedIn()): ?>
-                        <button type="button" class="category-edit-btn" data-category="<?php echo htmlspecialchars($cat); ?>" title="Rename this category" aria-label="Rename category <?php echo htmlspecialchars($cat); ?>">
+                        <button type="button" class="category-edit-btn" data-category="<?php echo htmlspecialchars($cat['name']); ?>" data-description="<?php echo htmlspecialchars($cat['description'] ?? ''); ?>" data-image="<?php echo htmlspecialchars($cat['image'] ?? ''); ?>" title="Edit this category" aria-label="Edit category <?php echo htmlspecialchars($cat['name']); ?>">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
                         </button>
-                        <button type="button" class="category-delete-btn" data-category="<?php echo htmlspecialchars($cat); ?>" title="Delete this category and all its questions" aria-label="Delete category <?php echo htmlspecialchars($cat); ?>">
+                        <button type="button" class="category-delete-btn" data-category="<?php echo htmlspecialchars($cat['name']); ?>" title="Delete this category and all its questions" aria-label="Delete category <?php echo htmlspecialchars($cat['name']); ?>">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
                         </button>
                         <?php endif; ?>
@@ -2584,17 +2795,87 @@ $questionsJson = json_encode(array_map(fn($q) => [
                 </div>
                 <div class="form-group">
                     <label for="formCategory">Category</label>
-                    <input type="text" id="formCategory" placeholder="e.g. GraphQL, JavaScript, General" list="categoryOptions">
-                    <datalist id="categoryOptions">
+                    <select id="formCategory">
                         <?php foreach ($categories as $cat): ?>
-                            <option value="<?php echo htmlspecialchars($cat); ?>"></option>
+                            <?php if (strcasecmp($cat['name'], 'General') !== 0): ?>
+                            <option value="<?php echo htmlspecialchars($cat['name']); ?>"><?php echo htmlspecialchars($cat['name']); ?></option>
+                            <?php endif; ?>
                         <?php endforeach; ?>
-                    </datalist>
+                    </select>
                 </div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn" id="modalCancelBtn">Cancel</button>
                 <button type="submit" class="btn primary" id="modalSaveBtn">Save Changes</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Add Category Card Modal -->
+<div class="modal-overlay" id="categoryModal" role="dialog" aria-modal="true" aria-labelledby="categoryModalTitle">
+    <div class="modal-card">
+        <div class="modal-header">
+            <h3 id="categoryModalTitle">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+                Add Category Card
+            </h3>
+            <button type="button" class="modal-close" id="categoryModalCloseBtn" aria-label="Close modal">&times;</button>
+        </div>
+        <form id="categoryForm">
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="categoryTitle">Card Title <span class="required">*</span></label>
+                    <input type="text" id="categoryTitle" required placeholder="Enter card title...">
+                </div>
+                <div class="form-group">
+                    <label for="categoryDescription">Card Description</label>
+                    <textarea id="categoryDescription" rows="4" placeholder="Enter card description..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="categoryImage">Card Image Thumbnail</label>
+                    <input type="text" id="categoryImage" placeholder="Paste image link (URL)..." inputmode="url">
+                    <small style="color: var(--text-muted); display: block; margin-top: 0.35rem;">Paste a direct image URL to use as the card thumbnail (optional).</small>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn" id="categoryModalCancelBtn">Cancel</button>
+                <button type="submit" class="btn primary" id="categoryModalSaveBtn">Add Card</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Edit Category Card Modal -->
+<div class="modal-overlay" id="editCategoryModal" role="dialog" aria-modal="true" aria-labelledby="editCategoryModalTitle">
+    <div class="modal-card">
+        <div class="modal-header">
+            <h3 id="editCategoryModalTitle">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                Edit Category Card
+            </h3>
+            <button type="button" class="modal-close" id="editCategoryModalCloseBtn" aria-label="Close modal">&times;</button>
+        </div>
+        <form id="editCategoryForm">
+            <div class="modal-body">
+                <input type="hidden" id="editCategoryOldName" value="">
+                <div class="form-group">
+                    <label for="editCategoryTitle">Card Title <span class="required">*</span></label>
+                    <input type="text" id="editCategoryTitle" required placeholder="Enter card title...">
+                </div>
+                <div class="form-group">
+                    <label for="editCategoryDescription">Card Description</label>
+                    <textarea id="editCategoryDescription" rows="4" placeholder="Enter card description..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="editCategoryImage">Card Image Thumbnail</label>
+                    <input type="text" id="editCategoryImage" placeholder="Paste image link (URL)..." inputmode="url">
+                    <small style="color: var(--text-muted); display: block; margin-top: 0.35rem;">Paste a direct image URL to use as the card thumbnail (optional).</small>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn" id="editCategoryModalCancelBtn">Cancel</button>
+                <button type="submit" class="btn primary" id="editCategoryModalSaveBtn">Save Changes</button>
             </div>
         </form>
     </div>
@@ -2790,6 +3071,17 @@ $questionsJson = json_encode(array_map(fn($q) => [
     const formCategory = document.getElementById('formCategory');
     const modalSaveBtn = document.getElementById('modalSaveBtn');
 
+    // Category Card Modal elements
+    const addCategoryBtn = document.getElementById('addCategoryBtn');
+    const categoryModal = document.getElementById('categoryModal');
+    const categoryModalCloseBtn = document.getElementById('categoryModalCloseBtn');
+    const categoryModalCancelBtn = document.getElementById('categoryModalCancelBtn');
+    const categoryForm = document.getElementById('categoryForm');
+    const categoryTitle = document.getElementById('categoryTitle');
+    const categoryDescription = document.getElementById('categoryDescription');
+    const categoryImage = document.getElementById('categoryImage');
+    const categoryModalSaveBtn = document.getElementById('categoryModalSaveBtn');
+
     function copyCodeBlock(btn, event) {
         if (event) {
             event.stopPropagation();
@@ -2930,6 +3222,20 @@ $questionsJson = json_encode(array_map(fn($q) => [
         });
     }
 
+    function setCategorySelectValue(value) {
+        if (!formCategory) return;
+        const desired = (value || '').trim();
+        if (!desired) return;
+        formCategory.value = desired;
+        if (formCategory.value !== desired) {
+            const opt = document.createElement('option');
+            opt.value = desired;
+            opt.textContent = desired;
+            formCategory.insertBefore(opt, formCategory.firstChild);
+            formCategory.value = desired;
+        }
+    }
+
     function openModal(mode, data = {}) {
         if (!qaModal) return;
         if (mode === 'edit') {
@@ -2937,14 +3243,14 @@ $questionsJson = json_encode(array_map(fn($q) => [
             formQuestionId.value = data.id || '';
             formQuestion.value = data.question || '';
             formAnswer.value = data.answer || '';
-            formCategory.value = data.category || currentCategoryName || 'General';
+            setCategorySelectValue(data.category || currentCategoryName);
             modalSaveBtn.textContent = 'Save Changes';
         } else {
             modalTitle.textContent = 'Add New Question';
             formQuestionId.value = '';
             formQuestion.value = '';
             formAnswer.value = '';
-            formCategory.value = currentCategoryName || 'General';
+            setCategorySelectValue(currentCategoryName);
             modalSaveBtn.textContent = 'Add Question';
         }
         qaModal.classList.add('active');
@@ -2970,6 +3276,82 @@ $questionsJson = json_encode(array_map(fn($q) => [
                 return;
             }
             openModal('add');
+        });
+    }
+
+    function openCategoryModal() {
+        if (!isAuthenticated) {
+            openLoginModal(openCategoryModal, 'Administrator authentication required to add category cards.');
+            return;
+        }
+        if (categoryForm) categoryForm.reset();
+        if (categoryModal) categoryModal.classList.add('active');
+        setTimeout(() => {
+            if (categoryTitle) categoryTitle.focus();
+        }, 50);
+    }
+
+    function closeCategoryModal() {
+        if (categoryModal) categoryModal.classList.remove('active');
+    }
+
+    if (addCategoryBtn) {
+        addCategoryBtn.addEventListener('click', openCategoryModal);
+    }
+    if (categoryModalCloseBtn) categoryModalCloseBtn.addEventListener('click', closeCategoryModal);
+    if (categoryModalCancelBtn) categoryModalCancelBtn.addEventListener('click', closeCategoryModal);
+    if (categoryModal) {
+        categoryModal.addEventListener('click', (e) => {
+            if (e.target === categoryModal) closeCategoryModal();
+        });
+    }
+
+    if (categoryForm) {
+        categoryForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const name = categoryTitle ? categoryTitle.value.trim() : '';
+            const description = categoryDescription ? categoryDescription.value.trim() : '';
+            const image = categoryImage ? categoryImage.value.trim() : '';
+
+            if (!name) {
+                showToast('Card title is required.', 'error');
+                return;
+            }
+
+            if (categoryModalSaveBtn) {
+                categoryModalSaveBtn.disabled = true;
+                categoryModalSaveBtn.textContent = 'Adding...';
+            }
+
+            try {
+                const response = await fetch(`${apiEndpoint}?api_action=add_category`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, description, image })
+                });
+
+                if (response.status === 401) {
+                    showToast('Administrator login required.', 'error');
+                    openLoginModal(() => categoryForm.dispatchEvent(new Event('submit')), 'Your session expired. Please log in again to save.');
+                    return;
+                }
+
+                const result = await response.json();
+                if (result && result.success) {
+                    showToast(`Category card "${name}" added successfully!`, 'success');
+                    closeCategoryModal();
+                    window.location.reload();
+                } else {
+                    showToast((result && result.error) || 'Failed to add category card.', 'error');
+                }
+            } catch (err) {
+                showToast('Network error.', 'error');
+            } finally {
+                if (categoryModalSaveBtn) {
+                    categoryModalSaveBtn.disabled = false;
+                    categoryModalSaveBtn.textContent = 'Add Card';
+                }
+            }
         });
     }
 
@@ -3125,46 +3507,100 @@ $questionsJson = json_encode(array_map(fn($q) => [
         });
     });
 
-    async function renameCategory(oldCategory) {
-        const newCategory = window.prompt(`Rename category "${oldCategory}" to:`, oldCategory);
-        if (newCategory === null) return;
-        const trimmed = (newCategory || '').trim();
-        if (!trimmed) {
-            showToast('Category name cannot be empty.', 'error');
+    const editCategoryModal = document.getElementById('editCategoryModal');
+    const editCategoryModalCloseBtn = document.getElementById('editCategoryModalCloseBtn');
+    const editCategoryModalCancelBtn = document.getElementById('editCategoryModalCancelBtn');
+    const editCategoryForm = document.getElementById('editCategoryForm');
+    const editCategoryOldName = document.getElementById('editCategoryOldName');
+    const editCategoryTitle = document.getElementById('editCategoryTitle');
+    const editCategoryDescription = document.getElementById('editCategoryDescription');
+    const editCategoryImage = document.getElementById('editCategoryImage');
+    const editCategoryModalSaveBtn = document.getElementById('editCategoryModalSaveBtn');
+
+    function openEditCategoryModal(category, description, image) {
+        if (!isAuthenticated) {
+            openLoginModal(() => openEditCategoryModal(category, description, image), 'Administrator authentication required to edit categories.');
             return;
         }
-        if (trimmed === oldCategory) return;
-        try {
-            const response = await fetch(`${apiEndpoint}?api_action=rename_category`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ old_category: oldCategory, new_category: trimmed })
-            });
+        if (editCategoryOldName) editCategoryOldName.value = category || '';
+        if (editCategoryTitle) editCategoryTitle.value = category || '';
+        if (editCategoryDescription) editCategoryDescription.value = description || '';
+        if (editCategoryImage) editCategoryImage.value = image || '';
+        if (editCategoryModal) editCategoryModal.classList.add('active');
+        setTimeout(() => {
+            if (editCategoryTitle) editCategoryTitle.focus();
+        }, 50);
+    }
 
-            if (response.status === 401) {
-                showToast('Administrator login required.', 'error');
-                return;
-            }
+    function closeEditCategoryModal() {
+        if (editCategoryModal) editCategoryModal.classList.remove('active');
+    }
 
-            const result = await response.json();
-            if (result && result.success) {
-                showToast(`Renamed category "${oldCategory}" to "${trimmed}" (${result.updated} question${result.updated !== 1 ? 's' : ''} updated).`, 'success');
-                window.location.reload();
-            } else {
-                showToast((result && result.error) || 'Failed to rename category.', 'error');
-            }
-        } catch (err) {
-            showToast('Network error.', 'error');
-        }
+    if (editCategoryModalCloseBtn) editCategoryModalCloseBtn.addEventListener('click', closeEditCategoryModal);
+    if (editCategoryModalCancelBtn) editCategoryModalCancelBtn.addEventListener('click', closeEditCategoryModal);
+    if (editCategoryModal) {
+        editCategoryModal.addEventListener('click', (e) => {
+            if (e.target === editCategoryModal) closeEditCategoryModal();
+        });
     }
 
     document.querySelectorAll('.category-edit-btn').forEach(btn => {
         btn.addEventListener('click', (e) => {
             e.preventDefault();
             e.stopPropagation();
-            renameCategory(btn.dataset.category);
+            openEditCategoryModal(btn.dataset.category, btn.dataset.description, btn.dataset.image);
         });
     });
+
+    if (editCategoryForm) {
+        editCategoryForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const oldName = editCategoryOldName ? editCategoryOldName.value.trim() : '';
+            const name = editCategoryTitle ? editCategoryTitle.value.trim() : '';
+            const description = editCategoryDescription ? editCategoryDescription.value.trim() : '';
+            const image = editCategoryImage ? editCategoryImage.value.trim() : '';
+
+            if (!oldName || !name) {
+                showToast('Card title is required.', 'error');
+                return;
+            }
+
+            if (editCategoryModalSaveBtn) {
+                editCategoryModalSaveBtn.disabled = true;
+                editCategoryModalSaveBtn.textContent = 'Saving...';
+            }
+
+            try {
+                const response = await fetch(`${apiEndpoint}?api_action=update_category`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ old_name: oldName, name, description, image })
+                });
+
+                if (response.status === 401) {
+                    showToast('Administrator login required.', 'error');
+                    openLoginModal(() => editCategoryForm.dispatchEvent(new Event('submit')), 'Your session expired. Please log in again to save.');
+                    return;
+                }
+
+                const result = await response.json();
+                if (result && result.success) {
+                    showToast(`Category card "${name}" updated successfully!`, 'success');
+                    closeEditCategoryModal();
+                    window.location.reload();
+                } else {
+                    showToast((result && result.error) || 'Failed to update category card.', 'error');
+                }
+            } catch (err) {
+                showToast('Network error.', 'error');
+            } finally {
+                if (editCategoryModalSaveBtn) {
+                    editCategoryModalSaveBtn.disabled = false;
+                    editCategoryModalSaveBtn.textContent = 'Save Changes';
+                }
+            }
+        });
+    }
 
     if (searchInput) {
         searchInput.addEventListener('input', (e) => renderList(filterQuestions(e.target.value)));
