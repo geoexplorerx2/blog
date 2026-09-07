@@ -930,6 +930,11 @@ $isLoggedIn = Auth::isLoggedIn();
             scrollbar-color: #94a3b8 #f1f5f9;
         }
 
+        html {
+            overflow-x: hidden;
+            max-width: 100vw;
+        }
+
         body {
             font-family: 'Poppins', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             background-color: var(--bg-page);
@@ -938,6 +943,8 @@ $isLoggedIn = Auth::isLoggedIn();
             display: flex;
             flex-direction: column;
             line-height: 1.5;
+            overflow-x: hidden;
+            max-width: 100vw;
         }
 
         body.sidebar-open {
@@ -1433,13 +1440,25 @@ $isLoggedIn = Auth::isLoggedIn();
            ------------------------------------------------------------- */
         .freelance-main-content {
             flex: 1;
-            padding: 28px 36px 0 36px;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            min-width: 0;
+            min-height: calc(100vh - var(--topbar-height));
+            overflow-x: hidden;
+        }
+
+        .freelance-content-inner {
+            padding: 28px 36px;
             display: flex;
             flex-direction: column;
             gap: 24px;
             width: 100%;
-            min-width: 0;
-            min-height: calc(100vh - var(--topbar-height));
+            max-width: 1300px;
+            margin: 0 auto;
+            flex: 1;
         }
 
         /* Project Banner Card */
@@ -2635,15 +2654,8 @@ $isLoggedIn = Auth::isLoggedIn();
                 border-color: #fca5a5;
             }
 
-            .freelance-main-content {
-                padding: 20px 16px 0 16px;
-            }
-
-            .freelance-main-content .app-global-footer {
-                margin-left: -16px;
-                margin-right: -16px;
-                margin-bottom: 0;
-                width: calc(100% + 32px);
+            .freelance-content-inner {
+                padding: 20px 16px;
             }
 
             .project-stats-grid {
@@ -2750,14 +2762,8 @@ $isLoggedIn = Auth::isLoggedIn();
                 padding: 20px 14px;
                 border-radius: var(--radius-lg);
             }
-            .freelance-main-content {
-                padding: 16px 12px 0 12px;
-            }
-            .freelance-main-content .app-global-footer {
-                margin-left: -12px;
-                margin-right: -12px;
-                margin-bottom: 0;
-                width: calc(100% + 24px);
+            .freelance-content-inner {
+                padding: 16px 12px;
             }
         }
 
@@ -2892,16 +2898,9 @@ $isLoggedIn = Auth::isLoggedIn();
             position: relative;
             font-size: 0.9rem;
             width: 100%;
-            z-index: 10;
-        }
-
-        .freelance-main-content .app-global-footer {
-            margin-top: auto;
-            margin-left: -36px;
-            margin-right: -36px;
-            margin-bottom: 0;
-            width: calc(100% + 72px);
-            border-radius: 0;
+            max-width: 100%;
+            box-sizing: border-box;
+            overflow-x: hidden;
             z-index: 10;
         }
 
@@ -3666,6 +3665,7 @@ $isLoggedIn = Auth::isLoggedIn();
                  RIGHT SECTION: Project Details, Actions & Task Accordion
                  --------------------------------------------------------- -->
             <main class="freelance-main-content">
+                <div class="freelance-content-inner">
                 
                 <!-- Project Hero Card -->
                 <div class="project-hero-card" id="projectHeroCard" style="display:none;">
@@ -3825,6 +3825,8 @@ $isLoggedIn = Auth::isLoggedIn();
                         <!-- Dynamically populated task cards -->
                     </div>
                 </div>
+
+                </div> <!-- /.freelance-content-inner -->
 
                 <!-- Platform Global Footer for Authenticated Workspace -->
                 <?php
