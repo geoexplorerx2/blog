@@ -1116,7 +1116,7 @@ $isLoggedIn = Auth::isLoggedIn();
             flex: 1;
             position: relative;
             align-items: flex-start;
-            min-height: calc(100vh - 68px);
+            min-height: calc(100vh - var(--topbar-height));
         }
 
         /* -------------------------------------------------------------
@@ -1130,10 +1130,10 @@ $isLoggedIn = Auth::isLoggedIn();
             display: flex;
             flex-direction: column;
             position: sticky;
-            top: 68px;
-            height: calc(100vh - 68px);
+            top: var(--topbar-height);
+            height: calc(100vh - var(--topbar-height));
             overflow-y: auto;
-            z-index: 50;
+            z-index: 90;
             transition: transform 0.25s ease;
         }
 
@@ -1365,14 +1365,13 @@ $isLoggedIn = Auth::isLoggedIn();
            ------------------------------------------------------------- */
         .freelance-main-content {
             flex: 1;
-            padding: 28px 36px;
+            padding: 28px 36px 0 36px;
             display: flex;
             flex-direction: column;
             gap: 24px;
-            max-width: 1300px;
-            margin: 0 auto;
             width: 100%;
             min-width: 0;
+            min-height: calc(100vh - var(--topbar-height));
         }
 
         /* Project Banner Card */
@@ -2520,6 +2519,7 @@ $isLoggedIn = Auth::isLoggedIn();
                 height: calc(100vh - var(--topbar-height));
                 box-shadow: var(--shadow-modal);
                 transform: translateX(-100%);
+                z-index: 1100;
             }
 
             .freelance-sidebar.mobile-open {
@@ -2527,7 +2527,14 @@ $isLoggedIn = Auth::isLoggedIn();
             }
 
             .freelance-main-content {
-                padding: 20px 16px;
+                padding: 20px 16px 0 16px;
+            }
+
+            .freelance-main-content .app-global-footer {
+                margin-left: -16px;
+                margin-right: -16px;
+                margin-bottom: 0;
+                width: calc(100% + 32px);
             }
 
             .project-stats-grid {
@@ -2633,6 +2640,15 @@ $isLoggedIn = Auth::isLoggedIn();
             .share-invoice-card {
                 padding: 20px 14px;
                 border-radius: var(--radius-lg);
+            }
+            .freelance-main-content {
+                padding: 16px 12px 0 12px;
+            }
+            .freelance-main-content .app-global-footer {
+                margin-left: -12px;
+                margin-right: -12px;
+                margin-bottom: 0;
+                width: calc(100% + 24px);
             }
         }
 
@@ -2767,7 +2783,17 @@ $isLoggedIn = Auth::isLoggedIn();
             position: relative;
             font-size: 0.9rem;
             width: 100%;
-            z-index: 60;
+            z-index: 10;
+        }
+
+        .freelance-main-content .app-global-footer {
+            margin-top: auto;
+            margin-left: -36px;
+            margin-right: -36px;
+            margin-bottom: 0;
+            width: calc(100% + 72px);
+            border-radius: 0;
+            z-index: 10;
         }
 
         .footer-inner-container {
@@ -3685,13 +3711,20 @@ $isLoggedIn = Auth::isLoggedIn();
                     </div>
                 </div>
 
+                <!-- Platform Global Footer for Authenticated Workspace -->
+                <?php
+                if (function_exists('renderGlobalFooter')) {
+                    renderGlobalFooter();
+                }
+                ?>
+
             </main>
         </div>
     <?php endif; ?>
 
-    <!-- Platform Global Footer - Full Size like Main Page -->
+    <!-- Platform Global Footer for Public & Login Views -->
     <?php
-    if (function_exists('renderGlobalFooter')) {
+    if (($isPublicMode || !$isLoggedIn) && function_exists('renderGlobalFooter')) {
         renderGlobalFooter();
     }
     ?>
