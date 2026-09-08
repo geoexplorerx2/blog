@@ -1229,7 +1229,7 @@ $questionsJson = json_encode(array_map(fn($q) => [
             box-shadow: var(--shadow-hover);
         }
         .qa-question {
-            padding: 1rem 1.25rem;
+            padding: 1rem 2.25rem;
             cursor: pointer;
             user-select: none;
             background: linear-gradient(to right, var(--blue-50), white);
@@ -1290,23 +1290,30 @@ $questionsJson = json_encode(array_map(fn($q) => [
             max-height: 0;
             overflow: hidden;
             transition: max-height 0.4s ease;
-            padding: 0 1.25rem;
+            padding: 0 2.25rem;
             border-top: 1px solid transparent;
         }
         .qa-item.open .qa-answer {
             max-height: 5000px;
             border-top-color: var(--border);
-            padding: 1.1rem 1.25rem;
+            padding: 1.25rem 2.25rem;
         }
         .item-answer-text {
             color: #1e3b4f;
             font-size: 0.95rem;
-            line-height: 1.6;
+            line-height: 1.65;
             width: 100%;
+            padding: 0.25rem 0;
+            box-sizing: border-box;
+        }
+        .item-answer-text p {
+            margin-bottom: 0.75rem;
+        }
+        .item-answer-text p:last-child {
+            margin-bottom: 0;
         }
         .qa-answer p {
             color: #1e3b4f;
-            white-space: pre-wrap;
             word-break: break-word;
             font-size: 0.95rem;
         }
