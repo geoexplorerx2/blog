@@ -1321,8 +1321,8 @@ $questionsJson = json_encode(array_map(fn($q) => [
         }
         .category-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-            gap: 1rem;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.25rem;
             margin-top: 1.5rem;
         }
         .category-card-wrap {
@@ -1420,7 +1420,7 @@ $questionsJson = json_encode(array_map(fn($q) => [
         }
         .category-card-thumb {
             width: 100%;
-            height: 130px;
+            height: 340px;
             overflow: hidden;
             border-radius: 10px;
             margin-bottom: 0.9rem;
@@ -1845,11 +1845,14 @@ $questionsJson = json_encode(array_map(fn($q) => [
                 padding: 1rem;
             }
             .category-grid {
-                grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-                gap: 0.85rem;
+                grid-template-columns: repeat(2, 1fr);
+                gap: 1rem;
             }
             .category-card {
                 padding: 1.25rem 1rem;
+            }
+            .category-card-thumb {
+                height: 200px;
             }
             .toast-container {
                 left: 1rem;
@@ -1903,6 +1906,9 @@ $questionsJson = json_encode(array_map(fn($q) => [
             }
             .category-grid {
                 grid-template-columns: 1fr;
+            }
+            .category-card-thumb {
+                height: 170px;
             }
             .qa-question {
                 padding: 0.75rem 0.85rem;
