@@ -154,6 +154,8 @@ class FreelanceManager
             project_id INT NOT NULL,
             title VARCHAR(255) NOT NULL,
             task_date DATE NOT NULL,
+            start_date DATE DEFAULT NULL,
+            end_date DATE DEFAULT NULL,
             start_time TIME NOT NULL,
             end_time TIME NOT NULL,
             price_per_hour DECIMAL(15,2) NOT NULL DEFAULT 500000.00,
@@ -166,6 +168,21 @@ class FreelanceManager
             INDEX idx_project (project_id)
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
 
+        // Dynamically add start_date / end_date columns if upgrading existing table
+        try {
+            $cols = $db->query("SHOW COLUMNS FROM freelance_tasks LIKE 'start_date'")->fetchAll();
+            if (empty($cols)) {
+                $db->exec("ALTER TABLE freelance_tasks ADD COLUMN start_date DATE DEFAULT NULL AFTER task_date");
+                $db->exec("UPDATE freelance_tasks SET start_date = task_date WHERE start_date IS NULL");
+            }
+            $cols2 = $db->query("SHOW COLUMNS FROM freelance_tasks LIKE 'end_date'")->fetchAll();
+            if (empty($cols2)) {
+                $db->exec("ALTER TABLE freelance_tasks ADD COLUMN end_date DATE DEFAULT NULL AFTER start_date");
+                $db->exec("UPDATE freelance_tasks SET end_date = COALESCE(start_date, task_date) WHERE end_date IS NULL");
+            }
+        } catch (Exception $e) {
+            // Ignore column upgrade errors
+        }
     }
 
     public static function generateToken(): string
@@ -173,16 +190,31 @@ class FreelanceManager
         return bin2hex(random_bytes(16));
     }
 
-    public static function calculateDurationAndPrice(string $startTime, string $endTime, float $hourlyRate): array
+    public static function calculateDurationAndPrice(string $startDate, string $endDate, string $startTime, string $endTime, float $hourlyRate): array
     {
-        $start = strtotime("1970-01-01 $startTime");
-        $end = strtotime("1970-01-01 $endTime");
-        if ($end <= $start) {
-            // Handle cross-midnight or zero
-            $diffSeconds = (24 * 3600 - $start) + $end;
+        if (empty($startDate)) $startDate = date('Y-m-d');
+        if (empty($endDate)) $endDate = $startDate;
+
+        $startStr = "$startDate $startTime";
+        $endStr = "$endDate $endTime";
+        $start = strtotime($startStr);
+        $end = strtotime($endStr);
+
+        if ($start === false || $end === false) {
+            $diffSeconds = 0;
+        } elseif ($end <= $start) {
+            if ($startDate === $endDate) {
+                // Cross midnight on single day
+                $startOnly = strtotime("1970-01-01 $startTime");
+                $endOnly = strtotime("1970-01-01 $endTime");
+                $diffSeconds = (24 * 3600 - $startOnly) + $endOnly;
+            } else {
+                $diffSeconds = 0;
+            }
         } else {
             $diffSeconds = $end - $start;
         }
+
         $hours = round($diffSeconds / 3600, 2);
         $total = round($hours * $hourlyRate, 2);
         return [
@@ -240,13 +272,16 @@ class FreelanceManager
         $p3 = (int)$db->lastInsertId();
 
         // Tasks for Project 1.1
-        $stmtTask = $db->prepare("INSERT INTO freelance_tasks (project_id, title, task_date, start_time, end_time, price_per_hour, duration_hours, total_price, description, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+        $stmtTask = $db->prepare("INSERT INTO freelance_tasks (project_id, title, task_date, start_date, end_date, start_time, end_time, price_per_hour, duration_hours, total_price, description, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
         
-        $cTime1 = self::calculateDurationAndPrice('09:00:00', '12:30:00', 65.00);
+        $d1 = date('Y-m-d', strtotime('-4 days'));
+        $cTime1 = self::calculateDurationAndPrice($d1, $d1, '09:00:00', '12:30:00', 65.00);
         $stmtTask->execute([
             $p1,
             'Setup Redis Clustering & Caching Layer',
-            date('Y-m-d', strtotime('-4 days')),
+            $d1,
+            $d1,
+            $d1,
             '09:00:00',
             '12:30:00',
             65.00,
@@ -256,11 +291,14 @@ class FreelanceManager
             'completed'
         ]);
 
-        $cTime2 = self::calculateDurationAndPrice('13:30:00', '17:45:00', 65.00);
+        $d2 = date('Y-m-d', strtotime('-2 days'));
+        $cTime2 = self::calculateDurationAndPrice($d2, $d2, '13:30:00', '17:45:00', 65.00);
         $stmtTask->execute([
             $p1,
             'JWT Token Refresh & RBAC Middleware',
-            date('Y-m-d', strtotime('-2 days')),
+            $d2,
+            $d2,
+            $d2,
             '13:30:00',
             '17:45:00',
             65.00,
@@ -270,11 +308,14 @@ class FreelanceManager
             'completed'
         ]);
 
-        $cTime3 = self::calculateDurationAndPrice('10:00:00', '14:15:00', 65.00);
+        $d3 = date('Y-m-d');
+        $cTime3 = self::calculateDurationAndPrice($d3, $d3, '10:00:00', '14:15:00', 65.00);
         $stmtTask->execute([
             $p1,
             'Rate Limiting & DDoS Shield Integration',
-            date('Y-m-d'),
+            $d3,
+            $d3,
+            $d3,
             '10:00:00',
             '14:15:00',
             65.00,
@@ -285,11 +326,14 @@ class FreelanceManager
         ]);
 
         // Tasks for Project 1.2
-        $cTime4 = self::calculateDurationAndPrice('08:30:00', '12:00:00', 70.00);
+        $d4 = date('Y-m-d', strtotime('-6 days'));
+        $cTime4 = self::calculateDurationAndPrice($d4, $d4, '08:30:00', '12:00:00', 70.00);
         $stmtTask->execute([
             $p2,
             'Helm Charts & Multi-Stage Dockerfiles',
-            date('Y-m-d', strtotime('-6 days')),
+            $d4,
+            $d4,
+            $d4,
             '08:30:00',
             '12:00:00',
             70.00,
@@ -300,11 +344,14 @@ class FreelanceManager
         ]);
 
         // Tasks for Project 2.1
-        $cTime5 = self::calculateDurationAndPrice('09:30:00', '13:00:00', 60.00);
+        $d5 = date('Y-m-d', strtotime('-1 days'));
+        $cTime5 = self::calculateDurationAndPrice($d5, $d5, '09:30:00', '13:00:00', 60.00);
         $stmtTask->execute([
             $p3,
             'WebRTC Signaling & Video Stream Encryption',
-            date('Y-m-d', strtotime('-1 days')),
+            $d5,
+            $d5,
+            $d5,
             '09:30:00',
             '13:00:00',
             60.00,
@@ -735,7 +782,9 @@ if (isset($_GET['api_action'])) {
     if ($apiAction === 'create_task') {
         $projectId = (int)($data['project_id'] ?? 0);
         $title = trim($data['title'] ?? '');
-        $taskDate = trim($data['task_date'] ?? date('Y-m-d'));
+        $startDate = trim($data['start_date'] ?? $data['task_date'] ?? date('Y-m-d'));
+        $endDate = trim($data['end_date'] ?? $startDate);
+        $taskDate = $startDate; // For backwards compatibility
         $startTime = trim($data['start_time'] ?? '09:00');
         $endTime = trim($data['end_time'] ?? '17:00');
         $rate = (float)($data['price_per_hour'] ?? 50.00);
@@ -752,15 +801,17 @@ if (isset($_GET['api_action'])) {
         if (strlen($startTime) === 5) $startTime .= ':00';
         if (strlen($endTime) === 5) $endTime .= ':00';
 
-        $calc = FreelanceManager::calculateDurationAndPrice($startTime, $endTime, $rate);
+        $calc = FreelanceManager::calculateDurationAndPrice($startDate, $endDate, $startTime, $endTime, $rate);
 
         $stmt = $db->prepare("INSERT INTO freelance_tasks 
-            (project_id, title, task_date, start_time, end_time, price_per_hour, duration_hours, total_price, description, status) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+            (project_id, title, task_date, start_date, end_date, start_time, end_time, price_per_hour, duration_hours, total_price, description, status) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
         $stmt->execute([
             $projectId,
             $title,
             $taskDate,
+            $startDate,
+            $endDate,
             $startTime,
             $endTime,
             $rate,
@@ -778,7 +829,9 @@ if (isset($_GET['api_action'])) {
     if ($apiAction === 'update_task') {
         $id = (int)($data['id'] ?? 0);
         $title = trim($data['title'] ?? '');
-        $taskDate = trim($data['task_date'] ?? date('Y-m-d'));
+        $startDate = trim($data['start_date'] ?? $data['task_date'] ?? date('Y-m-d'));
+        $endDate = trim($data['end_date'] ?? $startDate);
+        $taskDate = $startDate; // For backwards compatibility
         $startTime = trim($data['start_time'] ?? '09:00');
         $endTime = trim($data['end_time'] ?? '17:00');
         $rate = (float)($data['price_per_hour'] ?? 50.00);
@@ -794,15 +847,17 @@ if (isset($_GET['api_action'])) {
         if (strlen($startTime) === 5) $startTime .= ':00';
         if (strlen($endTime) === 5) $endTime .= ':00';
 
-        $calc = FreelanceManager::calculateDurationAndPrice($startTime, $endTime, $rate);
+        $calc = FreelanceManager::calculateDurationAndPrice($startDate, $endDate, $startTime, $endTime, $rate);
 
         $stmt = $db->prepare("UPDATE freelance_tasks SET 
-            title = ?, task_date = ?, start_time = ?, end_time = ?, price_per_hour = ?, 
+            title = ?, task_date = ?, start_date = ?, end_date = ?, start_time = ?, end_time = ?, price_per_hour = ?, 
             duration_hours = ?, total_price = ?, description = ?, status = ? 
             WHERE id = ?");
         $stmt->execute([
             $title,
             $taskDate,
+            $startDate,
+            $endDate,
             $startTime,
             $endTime,
             $rate,
@@ -2051,6 +2106,39 @@ $isLoggedIn = Auth::isLoggedIn();
             color: var(--brand-primary);
             font-size: 0.96rem;
             font-weight: 700;
+        }
+
+        /* -------------------------------------------------------------
+           SKELETON & PAGE LOAD LOADER
+           ------------------------------------------------------------- */
+        .project-loading-state {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .skeleton-pulse {
+            background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
+            background-size: 200% 100%;
+            animation: skeletonPulse 1.4s infinite ease-in-out;
+            border-radius: var(--radius-md);
+        }
+
+        @keyframes skeletonPulse {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        .skeleton-hero {
+            height: 190px;
+            width: 100%;
+            border-radius: var(--radius-lg);
+        }
+
+        .skeleton-task-card {
+            height: 64px;
+            width: 100%;
+            border-radius: var(--radius-md);
         }
 
         /* -------------------------------------------------------------
@@ -3671,8 +3759,10 @@ $isLoggedIn = Auth::isLoggedIn();
 
                 <ul class="companies-tree-list" id="companiesTreeList">
                     <!-- Populated dynamically via JS API -->
-                    <li style="text-align:center; padding:20px; color:var(--text-muted); font-size:0.86rem;">
-                        Loading workspaces...
+                    <li style="padding: 14px 16px;">
+                        <div class="skeleton-pulse" style="height: 38px; margin-bottom: 8px;"></div>
+                        <div class="skeleton-pulse" style="height: 30px; margin-bottom: 6px; width: 85%;"></div>
+                        <div class="skeleton-pulse" style="height: 30px; width: 70%;"></div>
                     </li>
                 </ul>
             </aside>
@@ -3682,6 +3772,18 @@ $isLoggedIn = Auth::isLoggedIn();
                  --------------------------------------------------------- -->
             <main class="freelance-main-content">
                 <div class="freelance-content-inner">
+
+                <!-- Initial Project Loading Skeleton -->
+                <div class="project-loading-state" id="projectMainLoader">
+                    <div class="skeleton-pulse skeleton-hero"></div>
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-top:6px;">
+                        <div class="skeleton-pulse" style="height:22px; width:180px;"></div>
+                        <div class="skeleton-pulse" style="height:26px; width:130px;"></div>
+                    </div>
+                    <div class="skeleton-pulse skeleton-task-card"></div>
+                    <div class="skeleton-pulse skeleton-task-card"></div>
+                    <div class="skeleton-pulse skeleton-task-card"></div>
+                </div>
                 
                 <!-- Project Hero Card -->
                 <div class="project-hero-card" id="projectHeroCard" style="display:none;">
@@ -3800,8 +3902,8 @@ $isLoggedIn = Auth::isLoggedIn();
                     </div>
                 </div>
 
-                <!-- Empty State (Shown before a project is selected) -->
-                <div class="empty-state" id="projectEmptyState">
+                <!-- Empty State (Shown only when no project exists or is selected) -->
+                <div class="empty-state" id="projectEmptyState" style="display:none;">
                     <div class="empty-state-icon-wrapper">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
@@ -4016,16 +4118,12 @@ $isLoggedIn = Auth::isLoggedIn();
 
                         <div class="form-row">
                             <div class="form-group">
-                                <label for="taskDate">Date *</label>
-                                <input type="date" id="taskDate" class="form-control" required value="<?= date('Y-m-d') ?>">
+                                <label for="taskStartDate">Start Date *</label>
+                                <input type="date" id="taskStartDate" class="form-control" required value="<?= date('Y-m-d') ?>">
                             </div>
                             <div class="form-group">
-                                <label for="taskStatus">Task Status</label>
-                                <select id="taskStatus" class="form-control">
-                                    <option value="completed">Completed</option>
-                                    <option value="in_progress">In Progress</option>
-                                    <option value="pending">Pending</option>
-                                </select>
+                                <label for="taskEndDate">End Date *</label>
+                                <input type="date" id="taskEndDate" class="form-control" required value="<?= date('Y-m-d') ?>">
                             </div>
                         </div>
 
@@ -4040,9 +4138,19 @@ $isLoggedIn = Auth::isLoggedIn();
                             </div>
                         </div>
 
-                        <div class="form-group">
-                            <label for="taskPricePerHour" id="taskPricePerHourLabel">Price Per Hour *</label>
-                            <input type="number" step="any" min="0" id="taskPricePerHour" class="form-control" required value="50" placeholder="e.g. 50">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="taskStatus">Task Status</label>
+                                <select id="taskStatus" class="form-control">
+                                    <option value="completed">Completed</option>
+                                    <option value="in_progress">In Progress</option>
+                                    <option value="pending">Pending</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="taskPricePerHour" id="taskPricePerHourLabel">Price Per Hour *</label>
+                                <input type="number" step="any" min="0" id="taskPricePerHour" class="form-control" required value="50" placeholder="e.g. 50">
+                            </div>
                         </div>
 
                         <!-- Live Calculated Duration and Total Price preview -->
@@ -4359,6 +4467,8 @@ $isLoggedIn = Auth::isLoggedIn();
         function updateTaskCalculations() {
             const startInput = document.getElementById('taskStartTime');
             const endInput = document.getElementById('taskEndTime');
+            const startDateInput = document.getElementById('taskStartDate');
+            const endDateInput = document.getElementById('taskEndDate');
             const rateInput = document.getElementById('taskPricePerHour');
             const durationEl = document.getElementById('calcDurationPreview');
             const priceEl = document.getElementById('calcPricePreview');
@@ -4367,16 +4477,21 @@ $isLoggedIn = Auth::isLoggedIn();
 
             const startVal = startInput.value || '09:00';
             const endVal = endInput.value || '13:00';
+            const startDateVal = startDateInput ? (startDateInput.value || new Date().toISOString().split('T')[0]) : new Date().toISOString().split('T')[0];
+            const endDateVal = endDateInput ? (endDateInput.value || startDateVal) : startDateVal;
             const rateVal = parseFloat(rateInput.value) || 0;
 
-            const startDate = new Date(`1970-01-01T${startVal}:00`);
-            let endDate = new Date(`1970-01-01T${endVal}:00`);
-            if (endDate <= startDate) {
-                // handle overnight
-                endDate = new Date(`1970-01-02T${endVal}:00`);
+            const startDateTime = new Date(`${startDateVal}T${startVal}:00`);
+            let endDateTime = new Date(`${endDateVal}T${endVal}:00`);
+
+            if (endDateTime <= startDateTime) {
+                if (startDateVal === endDateVal) {
+                    // handle overnight on same date
+                    endDateTime = new Date(startDateTime.getTime() + 24 * 3600 * 1000);
+                }
             }
 
-            const diffHours = (endDate - startDate) / (1000 * 60 * 60);
+            const diffHours = Math.max(0, (endDateTime - startDateTime) / (1000 * 60 * 60));
             const roundedHours = Math.round(diffHours * 100) / 100;
             const totalPrice = Math.round(roundedHours * rateVal * 100) / 100;
 
@@ -4385,8 +4500,8 @@ $isLoggedIn = Auth::isLoggedIn();
             if (priceEl) priceEl.textContent = formatPrice(totalPrice, curr);
         }
 
-        // Event listeners for task time calculation
-        ['taskStartTime', 'taskEndTime', 'taskPricePerHour'].forEach(id => {
+        // Event listeners for task time and date calculation
+        ['taskStartDate', 'taskEndDate', 'taskStartTime', 'taskEndTime', 'taskPricePerHour'].forEach(id => {
             const el = document.getElementById(id);
             if (el) {
                 el.addEventListener('input', updateTaskCalculations);
@@ -4442,6 +4557,7 @@ $isLoggedIn = Auth::isLoggedIn();
 
         // --- Fetch Tree (Companies & Projects) ---
         async function loadCompaniesAndProjects(preferredProjectId = null) {
+            const mainLoader = document.getElementById('projectMainLoader');
             try {
                 const res = await fetch(`${API_BASE}?api_action=get_tree`);
                 const json = await res.json();
@@ -4461,12 +4577,13 @@ $isLoggedIn = Auth::isLoggedIn();
                 const requestedId = preferredProjectId || urlParams.get('project_id');
 
                 if (requestedId) {
-                    selectProject(parseInt(requestedId, 10));
+                    await selectProject(parseInt(requestedId, 10));
                 } else if (currentTreeData.length > 0 && currentTreeData[0].projects && currentTreeData[0].projects.length > 0) {
-                    selectProject(currentTreeData[0].projects[0].id);
+                    await selectProject(currentTreeData[0].projects[0].id);
                 } else {
                     activeProjectId = null;
                     activeProjectData = null;
+                    if (mainLoader) mainLoader.style.display = 'none';
                     const emptyState = document.getElementById('projectEmptyState');
                     if (emptyState) emptyState.style.display = 'block';
                     const heroCard = document.getElementById('projectHeroCard');
@@ -4476,6 +4593,7 @@ $isLoggedIn = Auth::isLoggedIn();
                 }
             } catch (err) {
                 console.error('Tree load error:', err);
+                if (mainLoader) mainLoader.style.display = 'none';
             }
         }
 
@@ -4559,6 +4677,7 @@ $isLoggedIn = Auth::isLoggedIn();
         // --- Select and Load Project Details (Right Section) ---
         async function selectProject(projectId) {
             activeProjectId = projectId;
+            const mainLoader = document.getElementById('projectMainLoader');
 
             // Highlight active link in sidebar
             document.querySelectorAll('.project-item-link').forEach(el => {
@@ -4586,13 +4705,25 @@ $isLoggedIn = Auth::isLoggedIn();
                 renderProjectHero(json.project, json.summary);
                 renderTasksList(json.tasks);
 
+                if (mainLoader) mainLoader.style.display = 'none';
                 document.getElementById('projectEmptyState').style.display = 'none';
                 document.getElementById('projectHeroCard').style.display = 'block';
                 document.getElementById('tasksListSection').style.display = 'block';
             } catch (err) {
                 console.error(err);
+                if (mainLoader) mainLoader.style.display = 'none';
                 showToast(err.message, 'error');
             }
+        }
+
+        function formatDateRange(startDateStr, endDateStr) {
+            if (!startDateStr && !endDateStr) return '';
+            const s = startDateStr || endDateStr;
+            const e = endDateStr || startDateStr;
+            const sFormatted = formatDate(s);
+            if (!e || s === e) return sFormatted;
+            const eFormatted = formatDate(e);
+            return `${sFormatted} – ${eFormatted}`;
         }
 
         // --- Render Project Header & Stats ---
@@ -4650,12 +4781,19 @@ $isLoggedIn = Auth::isLoggedIn();
             }
 
             container.innerHTML = filtered.map(t => {
-                const formattedDate = formatDate(t.task_date);
+                const formattedDateRange = formatDateRange(t.start_date || t.task_date, t.end_date || t.start_date || t.task_date);
+                const formattedStartDate = formatDate(t.start_date || t.task_date);
+                const formattedEndDate = formatDate(t.end_date || t.start_date || t.task_date);
                 const formattedStart = formatTime(t.start_time);
                 const formattedEnd = formatTime(t.end_time);
                 const duration = parseFloat(t.duration_hours).toFixed(2);
                 const price = formatPrice(t.total_price, projectCurrency);
                 const rate = formatRate(t.price_per_hour, projectCurrency);
+
+                const dateRangeMetricsHtml = (t.start_date && t.end_date && t.start_date !== t.end_date)
+                    ? `<div class="metric-item"><span class="metric-label">Start Date</span><span class="metric-value">${formattedStartDate}</span></div>
+                       <div class="metric-item"><span class="metric-label">End Date</span><span class="metric-value">${formattedEndDate}</span></div>`
+                    : `<div class="metric-item"><span class="metric-label">Date</span><span class="metric-value">${formattedStartDate}</span></div>`;
 
                 return `
                     <div class="task-card" id="taskCard_${t.id}">
@@ -4669,7 +4807,7 @@ $isLoggedIn = Auth::isLoggedIn();
                             <div class="task-summary-badges">
                                 <span class="task-badge">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
-                                    ${formattedDate}
+                                    ${formattedDateRange}
                                 </span>
                                 <span class="task-badge task-badge-hours">
                                     ${duration} hrs
@@ -4694,10 +4832,7 @@ $isLoggedIn = Auth::isLoggedIn();
                                     <span class="metric-label">End Time</span>
                                     <span class="metric-value">${formattedEnd}</span>
                                 </div>
-                                <div class="metric-item">
-                                    <span class="metric-label">Date</span>
-                                    <span class="metric-value">${formattedDate}</span>
-                                </div>
+                                ${dateRangeMetricsHtml}
                                 <div class="metric-item">
                                     <span class="metric-label">Price Per Hour</span>
                                     <span class="metric-value">${rate}</span>
@@ -5418,10 +5553,12 @@ $isLoggedIn = Auth::isLoggedIn();
                 rateInput.value = activeProjectData.project.hourly_rate || (sym === 'تومان' ? '500000' : '50');
             }
 
+            const today = new Date().toISOString().split('T')[0];
             document.getElementById('taskModalTitle').textContent = 'Create New Task';
             document.getElementById('taskId').value = '';
             document.getElementById('taskTitle').value = '';
-            document.getElementById('taskDate').value = new Date().toISOString().split('T')[0];
+            document.getElementById('taskStartDate').value = today;
+            document.getElementById('taskEndDate').value = today;
             document.getElementById('taskStartTime').value = '09:00';
             document.getElementById('taskEndTime').value = '13:00';
             document.getElementById('taskStatus').value = 'completed';
@@ -5460,7 +5597,8 @@ $isLoggedIn = Auth::isLoggedIn();
             document.getElementById('taskModalTitle').textContent = 'Edit Task';
             document.getElementById('taskId').value = task.id;
             document.getElementById('taskTitle').value = task.title;
-            document.getElementById('taskDate').value = task.task_date;
+            document.getElementById('taskStartDate').value = task.start_date || task.task_date;
+            document.getElementById('taskEndDate').value = task.end_date || task.start_date || task.task_date;
             document.getElementById('taskStartTime').value = task.start_time.substring(0, 5);
             document.getElementById('taskEndTime').value = task.end_time.substring(0, 5);
             document.getElementById('taskStatus').value = task.status;
@@ -5475,11 +5613,16 @@ $isLoggedIn = Auth::isLoggedIn();
             taskForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
                 const id = document.getElementById('taskId').value;
+                const startDate = document.getElementById('taskStartDate').value;
+                const endDate = document.getElementById('taskEndDate').value || startDate;
+
                 const payload = {
                     id: id,
                     project_id: activeProjectId,
                     title: document.getElementById('taskTitle').value.trim(),
-                    task_date: document.getElementById('taskDate').value,
+                    task_date: startDate,
+                    start_date: startDate,
+                    end_date: endDate,
                     start_time: document.getElementById('taskStartTime').value,
                     end_time: document.getElementById('taskEndTime').value,
                     price_per_hour: document.getElementById('taskPricePerHour').value,
@@ -5618,7 +5761,7 @@ $isLoggedIn = Auth::isLoggedIn();
                                     <strong style="color:var(--brand-dark); font-size:0.94rem;">${escapeHtml(t.title)}</strong>
                                     <div style="font-size:0.82rem; color:#475569; margin-top:4px;">${escapeHtml(t.description || '')}</div>
                                 </td>
-                                <td style="font-family:'JetBrains Mono', monospace; font-size:0.82rem; color:var(--text-muted);">${formatDate(t.task_date)}</td>
+                                <td style="font-family:'JetBrains Mono', monospace; font-size:0.82rem; color:var(--text-muted);">${formatDateRange(t.start_date || t.task_date, t.end_date || t.start_date || t.task_date)}</td>
                                 <td style="font-family:'JetBrains Mono', monospace; font-size:0.82rem; color:var(--text-muted);">${formatTime(t.start_time)} &ndash; ${formatTime(t.end_time)}</td>
                                 <td style="font-family:'JetBrains Mono', monospace; font-size:0.84rem;">${formatRate(t.price_per_hour, pCurr)}</td>
                                 <td style="font-family:'JetBrains Mono', monospace; font-weight:700; color:var(--brand-primary);">${parseFloat(t.duration_hours).toFixed(2)}h</td>
@@ -5671,7 +5814,7 @@ $isLoggedIn = Auth::isLoggedIn();
                                             <strong style="color:var(--brand-dark); font-size:0.92rem;">${escapeHtml(t.title)}</strong>
                                             <div style="font-size:0.82rem; color:#475569; margin-top:3px;">${escapeHtml(t.description || '')}</div>
                                         </td>
-                                        <td style="font-family:'JetBrains Mono', monospace; font-size:0.82rem; color:var(--text-muted);">${formatDate(t.task_date)}</td>
+                                        <td style="font-family:'JetBrains Mono', monospace; font-size:0.82rem; color:var(--text-muted);">${formatDateRange(t.start_date || t.task_date, t.end_date || t.start_date || t.task_date)}</td>
                                         <td style="font-family:'JetBrains Mono', monospace; font-size:0.82rem; color:var(--text-muted);">${formatTime(t.start_time)} &ndash; ${formatTime(t.end_time)}</td>
                                         <td style="font-family:'JetBrains Mono', monospace; font-size:0.84rem;">${formatRate(t.price_per_hour, pCurr)}</td>
                                         <td style="font-family:'JetBrains Mono', monospace; font-weight:700; color:var(--brand-primary);">${parseFloat(t.duration_hours).toFixed(2)}h</td>
