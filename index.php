@@ -1229,6 +1229,10 @@ $questionsJson = json_encode(array_map(fn($q) => [
             box-shadow: var(--shadow-hover);
         }
         .qa-question {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 0.75rem;
             padding: 1rem 2.25rem;
             cursor: pointer;
             user-select: none;
@@ -1236,7 +1240,8 @@ $questionsJson = json_encode(array_map(fn($q) => [
         }
         .qa-header-left {
             display: block;
-            width: 100%;
+            flex: 1;
+            min-width: 0;
             box-sizing: border-box;
         }
         .qa-id-badge {
@@ -2624,6 +2629,119 @@ $questionsJson = json_encode(array_map(fn($q) => [
             border-color: var(--m-danger);
             background: var(--m-danger-soft);
         }
+        .qa-header-actions {
+            display: flex;
+            align-items: center;
+            gap: 0.35rem;
+            flex-shrink: 0;
+        }
+        .copy-btn-header {
+            opacity: 0.7;
+            transition: all 0.2s ease;
+            padding: 0.25rem 0.55rem;
+            border-radius: 6px;
+            font-size: 0.78rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            background: var(--m-surface);
+            border: 1px solid var(--m-border);
+            color: var(--m-text-muted);
+            cursor: pointer;
+            font-family: inherit;
+            font-weight: 500;
+        }
+        .qa-item:hover .copy-btn-header,
+        .copy-btn-header:hover {
+            opacity: 1;
+            color: var(--blue-600);
+            border-color: var(--blue-200);
+            background: var(--blue-50);
+        }
+        .qa-answer-footer {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 0.5rem;
+            margin-top: 1rem;
+            padding-top: 0.85rem;
+            border-top: 1px dashed var(--border);
+        }
+        .qa-subcopy-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            background: var(--blue-50);
+            border: 1px solid var(--blue-200);
+            color: var(--navy-800);
+            padding: 0.32rem 0.65rem;
+            border-radius: 6px;
+            font-size: 0.78rem;
+            font-weight: 600;
+            font-family: inherit;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+        .qa-subcopy-btn:hover {
+            background: var(--blue-100);
+            border-color: var(--blue-500);
+            color: var(--navy-900);
+            transform: translateY(-1px);
+        }
+        .qa-subcopy-btn.copied,
+        .copy-btn-header.copied,
+        .action-btn.copied {
+            background: #dcfce7 !important;
+            border-color: #86efac !important;
+            color: #166534 !important;
+        }
+        .field-paste-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+            background: var(--m-surface-2);
+            border: 1px solid var(--m-border-strong);
+            color: var(--navy-700);
+            padding: 0.2rem 0.55rem;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            font-family: inherit;
+        }
+        .field-paste-btn:hover {
+            background: var(--blue-50);
+            border-color: var(--blue-500);
+            color: var(--blue-600);
+        }
+        .modal-paste-toolbar {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            margin-bottom: 0.85rem;
+            padding-bottom: 0.65rem;
+            border-bottom: 1px solid var(--m-border);
+        }
+        .modal-paste-toolbar .btn {
+            padding: 0.35rem 0.75rem;
+            font-size: 0.8rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            background: var(--m-surface-2);
+            border: 1px solid var(--m-border-strong);
+            color: var(--navy-800);
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+        .modal-paste-toolbar .btn:hover {
+            background: var(--blue-50);
+            border-color: var(--blue-500);
+            color: var(--blue-600);
+        }
     </style>
 </head>
 <body>
@@ -2666,9 +2784,17 @@ $questionsJson = json_encode(array_map(fn($q) => [
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
                 Add Question
             </button>
+            <button class="btn" id="quickPasteBtn" title="Paste question/answer from clipboard &amp; open form" style="display:inline-flex; align-items:center; gap:0.4rem;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg>
+                Paste &amp; Add
+            </button>
             <?php endif; ?>
             <button class="btn primary" id="expandAllBtn">Expand All</button>
             <button class="btn" id="collapseAllBtn">Collapse All</button>
+            <button class="btn" id="copyAllQaBtn" title="Copy all visible questions and answers in this category" style="display:inline-flex; align-items:center; gap:0.4rem;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                Copy All Q&amp;A
+            </button>
             <span class="stats" id="stats"></span>
         </div>
         <div class="qa-list" id="qaList"></div>
@@ -2808,12 +2934,30 @@ $questionsJson = json_encode(array_map(fn($q) => [
         <form id="qaForm">
             <div class="modal-body">
                 <input type="hidden" id="formQuestionId" value="">
+                <div class="modal-paste-toolbar">
+                    <button type="button" class="btn" id="smartPasteBtn" title="Auto-detect Question and Answer from clipboard">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg>
+                        <span>Smart Paste (Auto-Split Q&amp;A)</span>
+                    </button>
+                </div>
                 <div class="form-group">
-                    <label for="formQuestion">Question <span class="required">*</span></label>
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.35rem;">
+                        <label for="formQuestion" style="margin-bottom:0;">Question <span class="required">*</span></label>
+                        <button type="button" class="field-paste-btn" id="pasteQuestionBtn" title="Paste clipboard into Question">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg>
+                            <span>Paste</span>
+                        </button>
+                    </div>
                     <textarea id="formQuestion" rows="3" required placeholder="Enter question text..."></textarea>
                 </div>
                 <div class="form-group">
-                    <label for="formAnswer">Answer <span class="required">*</span></label>
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.35rem;">
+                        <label for="formAnswer" style="margin-bottom:0;">Answer <span class="required">*</span></label>
+                        <button type="button" class="field-paste-btn" id="pasteAnswerBtn" title="Paste clipboard into Answer">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg>
+                            <span>Paste</span>
+                        </button>
+                    </div>
                     <textarea id="formAnswer" rows="6" required placeholder="Enter answer details..."></textarea>
                     <small style="color: var(--text-muted); display: block; margin-top: 0.35rem;">Markdown supported: <code>**bold**</code>, <code>## heading</code>, <code>`code`</code>, and fenced code blocks with <code>```language</code>.</small>
                 </div>
@@ -3113,14 +3257,147 @@ $questionsJson = json_encode(array_map(fn($q) => [
         const pre = btn.parentElement;
         const codeEl = pre ? pre.querySelector('code') : null;
         if (!codeEl) return;
-        navigator.clipboard.writeText(codeEl.textContent).then(() => {
-            const originalText = btn.textContent;
-            btn.textContent = 'Copied!';
-            setTimeout(() => { btn.textContent = originalText; }, 1500);
-        }).catch(() => {
-            btn.textContent = 'Copied!';
-            setTimeout(() => { btn.textContent = 'Copy'; }, 1500);
-        });
+        copyTextToClipboard(codeEl.textContent, btn, 'Code copied to clipboard!');
+    }
+
+    function fallbackCopy(text, callback) {
+        let successful = false;
+        try {
+            const textArea = document.createElement('textarea');
+            textArea.value = text;
+            textArea.setAttribute('readonly', '');
+            textArea.style.position = 'fixed';
+            textArea.style.top = '0';
+            textArea.style.left = '0';
+            textArea.style.width = '2em';
+            textArea.style.height = '2em';
+            textArea.style.padding = '0';
+            textArea.style.border = 'none';
+            textArea.style.outline = 'none';
+            textArea.style.boxShadow = 'none';
+            textArea.style.background = 'transparent';
+            textArea.style.opacity = '0.01';
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            textArea.setSelectionRange(0, text.length);
+            successful = document.execCommand('copy');
+            document.body.removeChild(textArea);
+        } catch (err) {
+            successful = false;
+        }
+
+        if (successful) {
+            if (typeof callback === 'function') callback();
+        } else {
+            showToast('Unable to copy automatically. Please select and copy manually.', 'error');
+        }
+    }
+
+    function copyTextToClipboard(text, btnElement = null, successMsg = 'Copied to clipboard!') {
+        if (!text) {
+            showToast('Nothing to copy.', 'error');
+            return;
+        }
+
+        const doSuccessFeedback = () => {
+            if (btnElement) {
+                const originalHtml = btnElement.innerHTML;
+                btnElement.classList.add('copied');
+                const span = btnElement.querySelector('span');
+                if (span) {
+                    span.textContent = 'Copied!';
+                } else {
+                    btnElement.textContent = 'Copied!';
+                }
+                setTimeout(() => {
+                    btnElement.classList.remove('copied');
+                    btnElement.innerHTML = originalHtml;
+                }, 1500);
+            }
+            showToast(successMsg, 'success');
+        };
+
+        if (navigator.clipboard && window.isSecureContext && typeof navigator.clipboard.writeText === 'function') {
+            navigator.clipboard.writeText(text).then(doSuccessFeedback).catch(() => {
+                fallbackCopy(text, doSuccessFeedback);
+            });
+        } else {
+            fallbackCopy(text, doSuccessFeedback);
+        }
+    }
+
+    function getQuestionText(id, btn) {
+        const item = (qaData || []).find(q => q && q.id == id);
+        if (item && item.question) return item.question;
+        const card = (btn && btn.closest('.qa-item-wrap')) || document.querySelector(`.qa-item[data-id="${id}"]`);
+        if (card) {
+            const qEl = card.querySelector('.item-question-text');
+            if (qEl) return qEl.innerText.trim();
+        }
+        return '';
+    }
+
+    function getAnswerText(id, btn) {
+        const item = (qaData || []).find(q => q && q.id == id);
+        if (item && item.answer) return item.answer;
+        const card = (btn && btn.closest('.qa-item-wrap')) || document.querySelector(`.qa-item[data-id="${id}"]`);
+        if (card) {
+            const aEl = card.querySelector('.item-answer-text');
+            if (aEl) return aEl.innerText.trim();
+        }
+        return '';
+    }
+
+    async function readTextFromClipboard() {
+        if (navigator.clipboard && navigator.clipboard.readText) {
+            try {
+                const text = await navigator.clipboard.readText();
+                if (text && text.trim()) return text.trim();
+            } catch (e) {
+                // Clipboard read permission might not be granted
+            }
+        }
+        const manualText = prompt('Paste your text / Q&A content here:');
+        return (manualText || '').trim();
+    }
+
+    function parseQaSnippet(rawText) {
+        if (!rawText) return { question: '', answer: '' };
+        let text = rawText.trim();
+
+        // Pattern 1: Explicit Q: / Question: and A: / Answer:
+        const qMatch = text.match(/(?:^|\n)\s*(?:Q|Question)\s*:\s*([\s\S]*?)(?=(?:\n\s*(?:A|Answer)\s*:|\n\s*---|\$))/i);
+        const aMatch = text.match(/(?:^|\n)\s*(?:A|Answer)\s*:\s*([\s\S]*)/i);
+
+        if (qMatch && aMatch) {
+            return {
+                question: qMatch[1].trim(),
+                answer: aMatch[1].trim()
+            };
+        }
+
+        // Pattern 2: Markdown headers # Question ... # Answer ...
+        const mdQMatch = text.match(/(?:^|\n)#+\s*(?:Question|Q)\s*:?\s*([\s\S]*?)(?=(?:\n#+\s*(?:Answer|A)|\n---|\$))/i);
+        const mdAMatch = text.match(/(?:^|\n)#+\s*(?:Answer|A)\s*:?\s*([\s\S]*)/i);
+        if (mdQMatch && mdAMatch) {
+            return {
+                question: mdQMatch[1].trim(),
+                answer: mdAMatch[1].trim()
+            };
+        }
+
+        // Pattern 3: Split by double newline if first part is a question / ends with '?'
+        const parts = text.split(/\n\s*\n/);
+        if (parts.length >= 2) {
+            const first = parts[0].trim();
+            const rest = parts.slice(1).join('\n\n').trim();
+            if (first.endsWith('?') || first.length < 250) {
+                return { question: first, answer: rest };
+            }
+        }
+
+        return { question: text, answer: '' };
     }
 
     function formatContent(text) {
@@ -3190,13 +3467,49 @@ $questionsJson = json_encode(array_map(fn($q) => [
                         <div class="qa-header-left">
                             <h3 class="item-question-text">${item.question_html || formatContent(item.question || '')}</h3>
                         </div>
+                        <div class="qa-header-actions">
+                            <button type="button" class="copy-btn-header copy-q-btn" title="Copy Question" data-id="${item.id}">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+                                <span>Copy Question</span>
+                            </button>
+                            <button type="button" class="copy-btn-header copy-qa-btn" title="Copy Question &amp; Answer" data-id="${item.id}">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                                <span>Copy Q&amp;A</span>
+                            </button>
+                        </div>
                     </div>
                     <div class="qa-answer">
                         <div class="item-answer-text">${item.answer_html || formatContent(item.answer || '')}</div>
+                        <div class="qa-answer-footer">
+                            <button type="button" class="qa-subcopy-btn copy-q-btn" data-id="${item.id}" title="Copy Question only">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+                                <span>Copy Question</span>
+                            </button>
+                            <button type="button" class="qa-subcopy-btn copy-a-btn" data-id="${item.id}" title="Copy Answer only">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+                                <span>Copy Answer</span>
+                            </button>
+                            <button type="button" class="qa-subcopy-btn copy-qa-btn" data-id="${item.id}" title="Copy Question &amp; Answer">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                                <span>Copy Q&amp;A</span>
+                            </button>
+                        </div>
                     </div>
                 </div>
-                ${isAuthenticated ? `
                 <div class="qa-item-actions">
+                    <button type="button" class="action-btn copy-q-btn" title="Copy Question" data-id="${item.id}">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+                        <span>Copy Question</span>
+                    </button>
+                    <button type="button" class="action-btn copy-a-btn" title="Copy Answer" data-id="${item.id}">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+                        <span>Copy Answer</span>
+                    </button>
+                    <button type="button" class="action-btn copy-qa-btn" title="Copy Question &amp; Answer" data-id="${item.id}">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                        <span>Copy Q&amp;A</span>
+                    </button>
+                    ${isAuthenticated ? `
                     <button type="button" class="action-btn edit-btn" title="Edit Question" data-id="${item.id}" aria-label="Edit Question">
                         <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
                         <span>Edit</span>
@@ -3205,8 +3518,8 @@ $questionsJson = json_encode(array_map(fn($q) => [
                         <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
                         <span>Delete</span>
                     </button>
+                    ` : ''}
                 </div>
-                ` : ''}
             `;
             qaList.appendChild(div);
         });
@@ -3630,13 +3943,138 @@ $questionsJson = json_encode(array_map(fn($q) => [
         searchInput.addEventListener('input', (e) => renderList(filterQuestions(e.target.value)));
     }
 
+    const copyAllQaBtn = document.getElementById('copyAllQaBtn');
+    const floatCopyAllQaBtn = document.getElementById('floatCopyAllQaBtn');
+    const quickPasteBtn = document.getElementById('quickPasteBtn');
+    const floatQuickPasteBtn = document.getElementById('floatQuickPasteBtn');
+    const smartPasteBtn = document.getElementById('smartPasteBtn');
+    const pasteQuestionBtn = document.getElementById('pasteQuestionBtn');
+    const pasteAnswerBtn = document.getElementById('pasteAnswerBtn');
+
+    function copyAllCategoryQuestions(btn = null) {
+        const visibleItems = filterQuestions(searchInput ? searchInput.value : '');
+        if (!visibleItems || visibleItems.length === 0) {
+            showToast('No questions to copy.', 'error');
+            return;
+        }
+
+        const formatted = visibleItems.map((item, idx) => {
+            return `## Question ${idx + 1}:\n${item.question}\n\n### Answer:\n${item.answer}`;
+        }).join('\n\n---\n\n');
+
+        const header = currentCategoryName ? `# Category: ${currentCategoryName}\n\n` : '';
+        copyTextToClipboard(header + formatted, btn, `Copied ${visibleItems.length} questions & answers to clipboard!`);
+    }
+
+    if (copyAllQaBtn) {
+        copyAllQaBtn.addEventListener('click', () => copyAllCategoryQuestions(copyAllQaBtn));
+    }
+    if (floatCopyAllQaBtn) {
+        floatCopyAllQaBtn.addEventListener('click', () => copyAllCategoryQuestions(floatCopyAllQaBtn));
+    }
+
+    async function handleQuickPasteAndAdd() {
+        if (!isAuthenticated) {
+            openLoginModal(() => handleQuickPasteAndAdd(), 'Administrator authentication required to paste and add questions.');
+            return;
+        }
+        const text = await readTextFromClipboard();
+        if (!text) return;
+        const parsed = parseQaSnippet(text);
+        openModal('add', {
+            question: parsed.question,
+            answer: parsed.answer,
+            category: currentCategoryName
+        });
+        showToast('Pasted & parsed question and answer from clipboard!', 'success');
+    }
+
+    if (quickPasteBtn) {
+        quickPasteBtn.addEventListener('click', handleQuickPasteAndAdd);
+    }
+    if (floatQuickPasteBtn) {
+        floatQuickPasteBtn.addEventListener('click', handleQuickPasteAndAdd);
+    }
+
+    if (smartPasteBtn) {
+        smartPasteBtn.addEventListener('click', async () => {
+            const text = await readTextFromClipboard();
+            if (!text) return;
+            const parsed = parseQaSnippet(text);
+            if (formQuestion) formQuestion.value = parsed.question;
+            if (formAnswer) formAnswer.value = parsed.answer;
+            showToast('Auto-split Question and Answer from clipboard!', 'success');
+        });
+    }
+
+    if (pasteQuestionBtn && formQuestion) {
+        pasteQuestionBtn.addEventListener('click', async () => {
+            const text = await readTextFromClipboard();
+            if (!text) return;
+            formQuestion.value = formQuestion.value ? formQuestion.value + '\n' + text : text;
+            formQuestion.focus();
+            showToast('Pasted into Question.', 'success');
+        });
+    }
+
+    if (pasteAnswerBtn && formAnswer) {
+        pasteAnswerBtn.addEventListener('click', async () => {
+            const text = await readTextFromClipboard();
+            if (!text) return;
+            formAnswer.value = formAnswer.value ? formAnswer.value + '\n' + text : text;
+            formAnswer.focus();
+            showToast('Pasted into Answer.', 'success');
+        });
+    }
+
     if (qaList) {
         qaList.addEventListener('click', (e) => {
+            const copyQBtn = e.target.closest('.copy-q-btn');
+            if (copyQBtn) {
+                e.stopPropagation();
+                const id = parseInt(copyQBtn.dataset.id, 10);
+                const qText = getQuestionText(id, copyQBtn);
+                if (qText) {
+                    copyTextToClipboard(qText, copyQBtn, 'Copied Question to clipboard!');
+                } else {
+                    showToast('Question text is empty.', 'error');
+                }
+                return;
+            }
+
+            const copyABtn = e.target.closest('.copy-a-btn');
+            if (copyABtn) {
+                e.stopPropagation();
+                const id = parseInt(copyABtn.dataset.id, 10);
+                const aText = getAnswerText(id, copyABtn);
+                if (aText) {
+                    copyTextToClipboard(aText, copyABtn, 'Copied Answer to clipboard!');
+                } else {
+                    showToast('Answer text is empty.', 'error');
+                }
+                return;
+            }
+
+            const copyQaBtn = e.target.closest('.copy-qa-btn');
+            if (copyQaBtn) {
+                e.stopPropagation();
+                const id = parseInt(copyQaBtn.dataset.id, 10);
+                const qText = getQuestionText(id, copyQaBtn);
+                const aText = getAnswerText(id, copyQaBtn);
+                if (qText || aText) {
+                    const text = `### Question:\n${qText}\n\n### Answer:\n${aText}`;
+                    copyTextToClipboard(text, copyQaBtn, 'Copied Question & Answer!');
+                } else {
+                    showToast('Nothing to copy.', 'error');
+                }
+                return;
+            }
+
             const editBtn = e.target.closest('.edit-btn');
             if (editBtn) {
                 e.stopPropagation();
                 const id = parseInt(editBtn.dataset.id, 10);
-                const item = (qaData || []).find(q => q.id == id);
+                const item = (qaData || []).find(q => q && q.id == id);
                 if (item) {
                     if (!isAuthenticated) {
                         openLoginModal(() => openModal('edit', item), 'Administrator authentication required to edit questions.');
@@ -3657,7 +4095,7 @@ $questionsJson = json_encode(array_map(fn($q) => [
                 deleteQuestion(id);
                 return;
             }
-            if (e.target.closest('.copy-code-btn')) return;
+            if (e.target.closest('.copy-code-btn') || e.target.closest('.qa-answer-footer') || e.target.closest('.qa-header-actions') || e.target.closest('.qa-item-actions')) return;
             const questionDiv = e.target.closest('.qa-question');
             if (questionDiv) toggleItem(questionDiv.parentElement);
         });
@@ -3758,7 +4196,15 @@ $questionsJson = json_encode(array_map(fn($q) => [
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>
                 <span>Add New Question</span>
             </button>
+            <button type="button" class="float-menu-item" id="floatQuickPasteBtn">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg>
+                <span>Paste &amp; Add Question</span>
+            </button>
             <?php endif; ?>
+            <button type="button" class="float-menu-item" id="floatCopyAllQaBtn">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                <span>Copy All Q&amp;A</span>
+            </button>
             <button type="button" class="float-menu-item" id="floatSearchBtn">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
                 <span>Search Questions</span>
