@@ -1400,7 +1400,10 @@
 </div>
 
 <script>
-    let allProjects = <?php echo json_encode($initialProjects, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT); ?> || [];
+    let allProjects = <?php 
+        $projectsData = $initialProjects ?? (isset($projects) ? array_map(fn($p) => is_array($p) ? $p : $p->toArray(), $projects) : []);
+        echo json_encode($projectsData, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT); 
+    ?> || [];
     let activeFilter = 'all';
     let deleteTargetId = null;
     const isAuthenticated = <?php echo Auth::isLoggedIn() ? 'true' : 'false'; ?>;

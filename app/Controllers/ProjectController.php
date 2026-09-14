@@ -110,6 +110,7 @@ class ProjectController extends BaseController
         $projects = $this->projectService->getAllProjects();
         $this->render('projects/index', [
             'projects' => $projects,
+            'initialProjects' => $this->projectService->getAllProjectsArray(),
             'projectService' => $this->projectService
         ]);
     }
