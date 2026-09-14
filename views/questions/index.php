@@ -97,6 +97,7 @@
             border-bottom: 1px solid rgba(255, 255, 255, 0.08);
             position: relative;
             overflow: hidden;
+            line-height: 1.75;
         }
         .conference-header::after {
             content: "";
@@ -110,8 +111,8 @@
             font-size: 2.1rem;
             font-weight: 700;
             letter-spacing: -0.02em;
-            line-height: 1.2;
-            margin-bottom: 0.6rem;
+            line-height: 1.5;
+            margin-bottom: 0.85rem;
             text-shadow: 0 1px 2px rgba(0, 0, 0, 0.18);
             color: #ffffff;
             max-width: 850px;
@@ -119,7 +120,8 @@
             margin-right: auto;
         }
         .conference-header p {
-            font-size: 1rem;
+            font-size: 1.05rem;
+            line-height: 1.8;
             color: #b8d8ee;
             max-width: 650px;
             margin: 0 auto;
@@ -930,13 +932,15 @@
         @media (max-width: 768px) {
             .conference-header {
                 padding: 1.75rem 1rem 1.25rem 1rem;
+                line-height: 1.65;
             }
             .conference-header h1 {
                 font-size: 1.65rem;
-                line-height: 1.3;
+                line-height: 1.45;
             }
             .conference-header p {
-                font-size: 0.92rem;
+                font-size: 0.95rem;
+                line-height: 1.7;
             }
             .data-management-grid {
                 grid-template-columns: 1fr;
@@ -997,13 +1001,16 @@
         @media (max-width: 520px) {
             .conference-header {
                 padding: 1.25rem 0.75rem 1rem 0.75rem;
+                line-height: 1.55;
             }
             .conference-header h1 {
                 font-size: 1.35rem;
                 letter-spacing: -0.02em;
+                line-height: 1.4;
             }
             .conference-header p {
-                font-size: 0.85rem;
+                font-size: 0.88rem;
+                line-height: 1.6;
             }
             .auth-bar-top {
                 justify-content: center;
@@ -1901,17 +1908,9 @@
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
                 <?= __('add_question') ?>
             </button>
-            <button class="btn" id="quickPasteBtn" title="Paste question/answer from clipboard &amp; open form" style="display:inline-flex; align-items:center; gap:0.4rem;">
-                <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg>
-                <?= __('paste_and_add') ?>
-            </button>
             <?php endif; ?>
             <button class="btn primary" id="expandAllBtn"><?= __('expand_all') ?></button>
             <button class="btn" id="collapseAllBtn"><?= __('collapse_all') ?></button>
-            <button class="btn" id="copyAllQaBtn" title="Copy all visible questions and answers in this category" style="display:inline-flex; align-items:center; gap:0.4rem;">
-                <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
-                <?= __('copy_all_qa') ?>
-            </button>
             <span class="stats" id="stats"></span>
         </div>
         <div class="qa-list" id="qaList"></div>
@@ -2583,16 +2582,6 @@
                     <div class="qa-question" role="button" tabindex="0" aria-expanded="false">
                         <div class="qa-header-left">
                             <h3 class="item-question-text">${item.question_html || formatContent(item.question || '')}</h3>
-                        </div>
-                        <div class="qa-header-actions">
-                            <button type="button" class="copy-btn-header copy-q-btn" title="Copy Question" data-id="${item.id}">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
-                                <span>Copy Question</span>
-                            </button>
-                            <button type="button" class="copy-btn-header copy-qa-btn" title="Copy Question &amp; Answer" data-id="${item.id}">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
-                                <span>Copy Q&amp;A</span>
-                            </button>
                         </div>
                     </div>
                     <div class="qa-answer">
@@ -3313,15 +3302,7 @@
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>
                 <span>Add New Question</span>
             </button>
-            <button type="button" class="float-menu-item" id="floatQuickPasteBtn">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg>
-                <span>Paste &amp; Add Question</span>
-            </button>
             <?php endif; ?>
-            <button type="button" class="float-menu-item" id="floatCopyAllQaBtn">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
-                <span>Copy All Q&amp;A</span>
-            </button>
             <button type="button" class="float-menu-item" id="floatSearchBtn">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
                 <span>Search Questions</span>
