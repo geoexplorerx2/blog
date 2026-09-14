@@ -1429,9 +1429,10 @@
 
         .currency-selector-group {
             display: flex;
-            align-items: center;
-            gap: 12px;
-            flex-wrap: wrap;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 8px;
+            width: 100%;
         }
 
         .currency-selector-label {
@@ -1449,21 +1450,27 @@
         }
 
         .currency-pills {
-            display: inline-flex;
+            display: flex;
+            flex-wrap: wrap;
+            width: 100%;
             background: #f1f5f9;
             border: 1px solid #e2e8f0;
             border-radius: 8px;
-            padding: 3px;
+            padding: 4px;
             gap: 4px;
+            box-sizing: border-box;
         }
 
         .currency-pill-btn {
+            flex: 1 1 auto;
+            min-width: 90px;
             display: inline-flex;
             align-items: center;
+            justify-content: center;
             gap: 6px;
             border: none;
             background: transparent;
-            padding: 6px 14px;
+            padding: 7px 12px;
             border-radius: 6px;
             font-family: 'Poppins', sans-serif;
             font-size: 0.82rem;
@@ -1472,6 +1479,7 @@
             cursor: pointer;
             transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
             user-select: none;
+            white-space: nowrap;
         }
 
         .currency-pill-btn:hover {
@@ -1563,7 +1571,7 @@
             display: none;
             align-items: center;
             justify-content: center;
-            z-index: 1000;
+            z-index: 3500;
             padding: 20px;
         }
 
@@ -1908,12 +1916,12 @@
         }
 
         /* -------------------------------------------------------------
-           PUBLIC SHARE / INVOICE VIEW (Full Width)
+           PUBLIC SHARE / INVOICE VIEW (Full Width & Multi-Device Responsive)
            ------------------------------------------------------------- */
         .public-share-wrapper {
             max-width: 100%;
             margin: 0;
-            padding: 30px 40px 60px 40px;
+            padding: 32px 40px 64px 40px;
             width: 100%;
             flex: 1;
             box-sizing: border-box;
@@ -1928,6 +1936,20 @@
             border-top: 8px solid var(--brand-primary);
             width: 100%;
             box-sizing: border-box;
+        }
+
+        .share-header-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            flex-wrap: wrap;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .share-header-info {
+            flex: 1;
+            min-width: 260px;
         }
 
         .share-badge-pill {
@@ -1945,15 +1967,69 @@
             letter-spacing: 0.05em;
         }
 
+        .shared-title {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: var(--brand-dark);
+            letter-spacing: -0.02em;
+            line-height: 1.3;
+            word-break: break-word;
+        }
+
+        .shared-subtitle {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            margin-top: 6px;
+            line-height: 1.5;
+            word-break: break-word;
+        }
+
+        .share-print-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 18px;
+            font-weight: 600;
+            font-size: 0.88rem;
+            white-space: nowrap;
+        }
+
+        .shared-description-box {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: var(--radius-md);
+            padding: 16px 20px;
+            font-size: 0.92rem;
+            color: #334155;
+            line-height: 1.6;
+            margin-bottom: 24px;
+            word-break: break-word;
+        }
+
+        .shared-section-header {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: var(--brand-dark);
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
         .share-table-wrapper {
             overflow-x: auto;
-            margin-top: 24px;
+            -webkit-overflow-scrolling: touch;
+            margin-top: 16px;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border-color);
+            background: #ffffff;
         }
 
         .share-table {
             width: 100%;
             border-collapse: collapse;
             font-size: 0.88rem;
+            min-width: 650px;
         }
 
         .share-table th {
@@ -1966,6 +2042,7 @@
             font-size: 0.78rem;
             text-transform: uppercase;
             letter-spacing: 0.04em;
+            white-space: nowrap;
         }
 
         .share-table td {
@@ -1974,8 +2051,97 @@
             vertical-align: top;
         }
 
+        .share-table tr:last-child td {
+            border-bottom: none;
+        }
+
         .share-table tr:hover td {
             background: #fafcff;
+        }
+
+        .task-row-title {
+            color: var(--brand-dark);
+            font-size: 0.94rem;
+            display: block;
+            margin-bottom: 4px;
+            word-break: break-word;
+        }
+
+        .task-row-desc {
+            font-size: 0.84rem;
+            color: #475569;
+            line-height: 1.5;
+            word-break: break-word;
+        }
+
+        .hours-badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 6px;
+            background: #eaf2f8;
+            color: var(--brand-primary);
+            font-weight: 700;
+            font-size: 0.82rem;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .subtotal-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 6px;
+            background: rgba(18, 70, 111, 0.08);
+            color: var(--brand-primary);
+            font-weight: 800;
+            font-size: 0.92rem;
+            font-family: 'JetBrains Mono', monospace;
+            white-space: nowrap;
+        }
+
+        .company-project-header-cell {
+            background: #f1f5f9;
+            padding: 12px 16px !important;
+            border-bottom: 2px solid var(--border-color) !important;
+        }
+
+        .company-project-header-flex {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .company-project-title {
+            font-weight: 800;
+            color: var(--brand-dark);
+            font-size: 0.95rem;
+        }
+
+        .company-project-badges {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .badge-subtotal {
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 800;
+            color: var(--brand-primary);
+            font-size: 0.88rem;
+            background: #eaf2f8;
+            padding: 3px 8px;
+            border-radius: 6px;
+        }
+
+        .badge-hours {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.82rem;
+            color: var(--text-muted);
+            background: #e2e8f0;
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-weight: 600;
         }
 
         .total-summary-card {
@@ -1989,6 +2155,36 @@
             justify-content: space-between;
             flex-wrap: wrap;
             gap: 20px;
+        }
+
+        .summary-card-item {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .summary-card-label {
+            font-size: 0.82rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        .summary-card-label.highlight {
+            color: var(--brand-primary);
+        }
+
+        .summary-card-val {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--brand-dark);
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .summary-card-val.highlight {
+            font-size: 2rem;
+            color: var(--brand-primary);
         }
 
         /* Toast Notifications */
@@ -2179,6 +2375,9 @@
             .share-invoice-card {
                 padding: 28px 24px;
             }
+            .shared-title {
+                font-size: 1.55rem;
+            }
         }
 
         @media (max-width: 860px) {
@@ -2240,6 +2439,202 @@
             .btn-topbar-action svg {
                 margin: 0;
             }
+
+            /* Public Share Mode - Mobile & Small Tablet Optimizations */
+            .public-share-wrapper {
+                padding: 16px 12px 40px 12px;
+            }
+            .share-invoice-card {
+                padding: 20px 16px;
+                border-radius: var(--radius-lg);
+                border-top-width: 6px;
+            }
+            .share-header-bar {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 12px;
+            }
+            .shared-title {
+                font-size: 1.35rem;
+            }
+            .shared-subtitle {
+                font-size: 0.88rem;
+            }
+            .share-print-btn {
+                width: 100%;
+                justify-content: center;
+                padding: 11px;
+            }
+            .shared-description-box {
+                padding: 12px 14px;
+                font-size: 0.86rem;
+            }
+
+            /* Responsive Mobile & Tablet Task Cards instead of cramped table */
+            .share-table-wrapper {
+                border: none;
+                background: transparent;
+                overflow: visible;
+                margin-top: 12px;
+            }
+            .share-table,
+            .share-table thead,
+            .share-table tbody,
+            .share-table th,
+            .share-table tr,
+            .share-table td {
+                display: block;
+                width: 100% !important;
+                box-sizing: border-box;
+            }
+            .share-table {
+                min-width: 0 !important;
+            }
+            .share-table thead {
+                display: none;
+            }
+            .share-task-row {
+                background: #ffffff;
+                border: 1px solid var(--border-color);
+                border-radius: var(--radius-md);
+                padding: 14px;
+                margin-bottom: 12px;
+                box-shadow: 0 2px 6px rgba(18, 70, 111, 0.04);
+            }
+            .share-task-row td {
+                border: none;
+                padding: 5px 0;
+            }
+            .share-task-row td.cell-task {
+                padding-bottom: 10px;
+                border-bottom: 1px dashed var(--border-color);
+                margin-bottom: 8px;
+            }
+            .share-task-row td:not(.cell-task) {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                font-size: 0.84rem;
+                padding: 5px 0;
+            }
+            .share-task-row td:not(.cell-task)::before {
+                content: attr(data-label);
+                font-weight: 600;
+                color: var(--text-muted);
+                font-size: 0.8rem;
+                text-transform: uppercase;
+                letter-spacing: 0.03em;
+            }
+            .company-project-header-row {
+                margin-top: 16px;
+                margin-bottom: 10px;
+            }
+            .company-project-header-cell {
+                border-radius: var(--radius-md);
+                border: 1px solid var(--border-color) !important;
+            }
+            .total-summary-card {
+                padding: 18px 16px;
+                flex-direction: column;
+                align-items: stretch;
+                gap: 14px;
+            }
+            .summary-card-val.highlight {
+                font-size: 1.65rem;
+            }
+
+            /* Dedicated Currency & Pricing Section Responsive (Tablet & Mobile) */
+            .project-currency-section {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 12px;
+                padding: 14px 16px;
+                box-sizing: border-box;
+            }
+            .currency-selector-group {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 8px;
+                width: 100%;
+            }
+            .currency-selector-label {
+                font-size: 0.82rem;
+                font-weight: 700;
+            }
+            .currency-pills {
+                display: grid;
+                grid-template-columns: repeat(3, 1fr);
+                width: 100%;
+                gap: 4px;
+                box-sizing: border-box;
+            }
+            .currency-pill-btn {
+                justify-content: center;
+                padding: 8px 6px;
+                font-size: 0.82rem;
+                min-height: 38px;
+            }
+            .currency-rate-setter {
+                width: 100%;
+                justify-content: space-between;
+                align-items: center;
+                padding-top: 10px;
+                border-top: 1px dashed var(--border-color);
+                gap: 10px;
+                box-sizing: border-box;
+            }
+            .currency-rate-info {
+                font-size: 0.84rem;
+            }
+            .currency-rate-info .rate-value {
+                font-size: 0.92rem;
+            }
+            .currency-rate-setter .btn {
+                padding: 7px 12px;
+                font-size: 0.8rem;
+                white-space: nowrap;
+            }
+
+            /* Responsive Task Item Header & Badges Break */
+            .task-header {
+                position: relative;
+                flex-direction: column;
+                align-items: stretch;
+                gap: 10px;
+                padding: 14px 16px;
+                padding-right: 44px;
+            }
+            .task-title-group {
+                width: 100%;
+            }
+            .task-title {
+                white-space: normal;
+                word-break: break-word;
+                font-size: 0.94rem;
+                line-height: 1.4;
+            }
+            .task-summary-badges {
+                width: 100%;
+                display: flex;
+                flex-wrap: wrap;
+                align-items: center;
+                gap: 6px;
+                padding-top: 8px;
+                border-top: 1px dashed var(--border-color);
+            }
+            .task-badge {
+                flex: 1 1 auto;
+                justify-content: center;
+                padding: 5px 8px;
+                font-size: 0.76rem;
+                min-height: 28px;
+                box-sizing: border-box;
+            }
+            .task-toggle-icon {
+                position: absolute;
+                top: 14px;
+                right: 14px;
+            }
         }
 
         @media (max-width: 640px) {
@@ -2248,15 +2643,6 @@
             }
             .form-row {
                 grid-template-columns: 1fr;
-            }
-            .task-header {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 8px;
-            }
-            .task-summary-badges {
-                width: 100%;
-                justify-content: space-between;
             }
             .hero-top-row {
                 flex-direction: column;
@@ -2267,19 +2653,34 @@
             .project-actions-bar .btn {
                 flex: 1;
             }
-            .public-share-wrapper {
-                padding: 16px 12px 36px 12px;
-            }
-            .share-invoice-card {
-                padding: 20px 14px;
-                border-radius: var(--radius-lg);
-            }
             .freelance-content-inner {
                 padding: 16px 12px;
             }
         }
 
         @media (max-width: 480px) {
+            .task-header {
+                padding: 12px 14px;
+                padding-right: 40px;
+                gap: 8px;
+            }
+            .task-summary-badges {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 6px;
+                width: 100%;
+            }
+            .task-summary-badges .task-badge:first-child {
+                grid-column: 1 / -1;
+            }
+            .task-badge {
+                font-size: 0.74rem;
+                padding: 4px 6px;
+            }
+            .task-toggle-icon {
+                top: 12px;
+                right: 12px;
+            }
             :root {
                 --topbar-height: 56px;
             }
@@ -2335,6 +2736,74 @@
                 width: 14px;
                 height: 14px;
             }
+
+            .public-share-wrapper {
+                padding: 12px 8px 32px 8px;
+            }
+            .share-invoice-card {
+                padding: 16px 12px;
+                border-radius: var(--radius-md);
+            }
+            .shared-title {
+                font-size: 1.18rem;
+            }
+            .share-badge-pill {
+                font-size: 0.72rem;
+                padding: 3px 9px;
+            }
+            .summary-card-val.highlight {
+                font-size: 1.45rem;
+            }
+            .company-project-header-flex {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 6px;
+            }
+
+            .project-currency-section {
+                padding: 12px 10px;
+                gap: 10px;
+                border-radius: var(--radius-sm);
+            }
+            .currency-pill-btn {
+                padding: 7px 3px;
+                font-size: 0.76rem;
+                gap: 3px;
+                min-height: 36px;
+            }
+            .currency-pill-btn .curr-flag {
+                font-size: 0.85rem;
+            }
+            .currency-rate-setter {
+                gap: 8px;
+                padding-top: 8px;
+            }
+            .currency-rate-info {
+                font-size: 0.78rem;
+                gap: 4px;
+            }
+            .currency-rate-info .rate-value {
+                font-size: 0.86rem;
+            }
+            .currency-rate-setter .btn {
+                padding: 6px 10px;
+                font-size: 0.78rem;
+                gap: 4px;
+            }
+        }
+
+        @media (max-width: 420px) {
+            #projectCurrencyPills,
+            .currency-pills {
+                grid-template-columns: 1fr;
+                gap: 5px;
+            }
+            .currency-pill-btn {
+                width: 100%;
+                justify-content: flex-start;
+                padding: 8px 12px;
+                font-size: 0.82rem;
+            }
         }
 
         @media (max-width: 360px) {
@@ -2348,6 +2817,16 @@
 
             .btn-topbar-action {
                 padding: 5px 6px;
+            }
+
+            .currency-rate-setter {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 6px;
+            }
+            .currency-rate-setter .btn {
+                width: 100%;
+                justify-content: center;
             }
         }
 
@@ -3016,41 +3495,41 @@
              ================================----------------------------- -->
         <main class="public-share-wrapper">
             <div class="share-invoice-card" id="publicShareContainer">
-                <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:16px; margin-bottom:20px;">
-                    <div>
+                <div class="share-header-bar">
+                    <div class="share-header-info">
                         <div class="share-badge-pill">
                             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
                             Verified Freelance Timesheet &amp; Invoice
                         </div>
-                        <h2 style="font-size:1.8rem; font-weight:800; color:var(--brand-dark); letter-spacing:-0.02em;" id="sharedTitle">
+                        <h2 class="shared-title" id="sharedTitle">
                             Loading Project Breakdown...
                         </h2>
-                        <p style="color:var(--text-muted); font-size:0.95rem; margin-top:4px;" id="sharedSubtitle"></p>
+                        <p class="shared-subtitle" id="sharedSubtitle"></p>
                     </div>
 
-                    <button type="button" class="btn btn-primary" onclick="window.print();">
+                    <button type="button" class="btn btn-primary share-print-btn" onclick="window.print();">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
                         <span>Print / Export PDF</span>
                     </button>
                 </div>
 
-                <div id="sharedDescription" style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:var(--radius-md); padding:16px 20px; font-size:0.92rem; color:#334155; margin-bottom:24px;"></div>
+                <div id="sharedDescription" class="shared-description-box"></div>
 
-                <h3 style="font-size:1.15rem; font-weight:700; color:var(--brand-dark); margin-bottom:12px; display:flex; align-items:center; gap:8px;">
+                <div class="shared-section-header">
                     <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4"></polyline><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>
-                    Completed Tasks &amp; Itemized Bill
-                </h3>
+                    <span>Completed Tasks &amp; Itemized Bill</span>
+                </div>
 
                 <div class="share-table-wrapper">
                     <table class="share-table">
                         <thead>
                             <tr>
-                                <th style="width:25%;">Task &amp; Description</th>
-                                <th style="width:15%;">Date</th>
-                                <th style="width:20%;">Start - End Time</th>
-                                <th style="width:15%;">Rate / Hr (تومان)</th>
+                                <th style="width:30%;">Task &amp; Description</th>
+                                <th style="width:14%;">Date</th>
+                                <th style="width:18%;">Start - End Time</th>
+                                <th style="width:14%;">Rate / Hr</th>
                                 <th style="width:10%;">Hours</th>
-                                <th style="width:15%; text-align:right;">Subtotal (تومان)</th>
+                                <th style="width:14%; text-align:right;">Subtotal</th>
                             </tr>
                         </thead>
                         <tbody id="sharedTasksTbody">
@@ -3060,13 +3539,13 @@
                 </div>
 
                 <div class="total-summary-card">
-                    <div>
-                        <div style="font-size:0.82rem; font-weight:700; color:var(--text-muted); text-transform:uppercase;"><?= __('overall_billable_hours') ?></div>
-                        <div style="font-size:1.5rem; font-weight:800; color:var(--brand-dark); font-family:'JetBrains Mono', monospace;" id="sharedTotalHours">0.00 hrs</div>
+                    <div class="summary-card-item">
+                        <div class="summary-card-label"><?= __('overall_billable_hours') ?></div>
+                        <div class="summary-card-val" id="sharedTotalHours">0.00 hrs</div>
                     </div>
-                    <div>
-                        <div style="font-size:0.82rem; font-weight:700; color:var(--brand-primary); text-transform:uppercase;"><?= __('grand_total_price') ?></div>
-                        <div style="font-size:2.1rem; font-weight:800; color:var(--brand-primary); font-family:'JetBrains Mono', monospace;" id="sharedTotalPrice">0 تومان</div>
+                    <div class="summary-card-item total-price-item">
+                        <div class="summary-card-label highlight"><?= __('grand_total_price') ?></div>
+                        <div class="summary-card-val highlight" id="sharedTotalPrice">0 تومان</div>
                     </div>
                 </div>
             </div>
@@ -3774,12 +4253,12 @@
             <!-- 4. Quick Actions -->
             <div class="float-menu-divider"></div>
             <div class="float-menu-group-label"><?= __('quick_actions') ?></div>
+            <button type="button" class="float-menu-item" onclick="toggleFloatMenu(false); openManageListModal();">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
+                <span><?= __('manage_companies_projects') ?></span>
+                <span class="float-menu-badge" style="background:#eaf2f8; color:#12466f;">List</span>
+            </button>
             <?php if ($isLoggedIn && !$isPublicMode): ?>
-                <button type="button" class="float-menu-item" onclick="toggleFloatMenu(false); openManageListModal();">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
-                    <span><?= __('manage_companies_projects') ?></span>
-                    <span class="float-menu-badge" style="background:#eaf2f8; color:#12466f;">List</span>
-                </button>
                 <button type="button" class="float-menu-item" onclick="toggleFloatMenu(false); openCreateCompanyModal();">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>
                     <span><?= __('add_new_company') ?></span>
@@ -3837,6 +4316,9 @@
         function openModal(id) {
             if (typeof toggleMobileSidebar === 'function') {
                 toggleMobileSidebar(false);
+            }
+            if (typeof toggleFloatMenu === 'function') {
+                toggleFloatMenu(false);
             }
             const el = document.getElementById(id);
             if (el) el.classList.add('open');
@@ -3948,16 +4430,22 @@
         function toggleMobileSidebar(show = null) {
             const sidebar = document.getElementById('appSidebar');
             const backdrop = document.getElementById('sidebarBackdrop');
-            if (!sidebar) return;
-            const willOpen = (show !== null) ? show : !sidebar.classList.contains('mobile-open');
-            if (willOpen) {
-                sidebar.classList.add('mobile-open');
-                if (backdrop) backdrop.classList.add('active');
-                document.body.classList.add('sidebar-open');
+            if (sidebar) {
+                const willOpen = (show !== null) ? show : !sidebar.classList.contains('mobile-open');
+                if (willOpen) {
+                    sidebar.classList.add('mobile-open');
+                    if (backdrop) backdrop.classList.add('active');
+                    document.body.classList.add('sidebar-open');
+                } else {
+                    sidebar.classList.remove('mobile-open');
+                    if (backdrop) backdrop.classList.remove('active');
+                    document.body.classList.remove('sidebar-open');
+                }
             } else {
-                sidebar.classList.remove('mobile-open');
-                if (backdrop) backdrop.classList.remove('active');
-                document.body.classList.remove('sidebar-open');
+                // If there is no sidebar (e.g. in Public Share mode or unauthenticated view), toggle the floating quick navigation menu
+                if (typeof toggleFloatMenu === 'function') {
+                    toggleFloatMenu(show);
+                }
             }
         }
 
@@ -4760,9 +5248,33 @@
         }
 
         // --- MANAGE COMPANIES & PROJECTS LIST MODAL HANDLERS ---
-        function openManageListModal() {
+        async function openManageListModal() {
+            const modalEl = document.getElementById('manageListModal');
+            if (!modalEl) {
+                const loginBtn = document.getElementById('btnOpenLoginModal');
+                if (loginBtn) {
+                    loginBtn.click();
+                } else {
+                    showToast('Please sign in as administrator to manage companies and projects.', 'info');
+                }
+                return;
+            }
+
             const searchInput = document.getElementById('manageListSearchInput');
             if (searchInput) searchInput.value = '';
+
+            if (!currentTreeData || currentTreeData.length === 0) {
+                try {
+                    const res = await fetch(`${API_BASE}?api_action=get_tree`);
+                    const json = await res.json();
+                    if (json.success && Array.isArray(json.data)) {
+                        currentTreeData = json.data;
+                    }
+                } catch (err) {
+                    console.error('Failed to load tree data for manage modal:', err);
+                }
+            }
+
             renderManageListModalContent('');
             openModal('manageListModal');
         }
@@ -5190,19 +5702,19 @@
 
                     const tbody = document.getElementById('sharedTasksTbody');
                     if (json.tasks.length === 0) {
-                        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:30px; color:var(--text-muted);">No tasks recorded for this project yet.</td></tr>`;
+                        tbody.innerHTML = `<tr class="share-task-row empty-row"><td colspan="6" style="text-align:center; padding:30px; color:var(--text-muted);">No tasks recorded for this project yet.</td></tr>`;
                     } else {
                         tbody.innerHTML = json.tasks.map(t => `
-                            <tr>
-                                <td>
-                                    <strong style="color:var(--brand-dark); font-size:0.94rem;">${escapeHtml(t.title)}</strong>
-                                    <div class="markdown-body" style="font-size:0.84rem; color:#475569; margin-top:4px;">${renderMarkdownText(t.description || '')}</div>
+                            <tr class="share-task-row">
+                                <td class="cell-task" data-label="Task & Description">
+                                    <strong class="task-row-title">${escapeHtml(t.title)}</strong>
+                                    <div class="markdown-body task-row-desc">${renderMarkdownText(t.description || '')}</div>
                                 </td>
-                                <td style="font-family:'JetBrains Mono', monospace; font-size:0.82rem; color:var(--text-muted);">${formatDateRange(t.start_date || t.task_date, t.end_date || t.start_date || t.task_date)}</td>
-                                <td style="font-family:'JetBrains Mono', monospace; font-size:0.82rem; color:var(--text-muted);">${formatTime(t.start_time)} &ndash; ${formatTime(t.end_time)}</td>
-                                <td style="font-family:'JetBrains Mono', monospace; font-size:0.84rem;">${formatRate(t.price_per_hour, pCurr)}</td>
-                                <td style="font-family:'JetBrains Mono', monospace; font-weight:700; color:var(--brand-primary);">${parseFloat(t.duration_hours).toFixed(2)}h</td>
-                                <td style="font-family:'JetBrains Mono', monospace; font-weight:800; color:var(--brand-primary); text-align:right; font-size:0.94rem;">${formatPrice(t.total_price, pCurr)}</td>
+                                <td class="cell-date" data-label="Date" style="font-family:'JetBrains Mono', monospace; font-size:0.82rem; color:var(--text-muted);">${formatDateRange(t.start_date || t.task_date, t.end_date || t.start_date || t.task_date)}</td>
+                                <td class="cell-time" data-label="Time" style="font-family:'JetBrains Mono', monospace; font-size:0.82rem; color:var(--text-muted);">${formatTime(t.start_time)} &ndash; ${formatTime(t.end_time)}</td>
+                                <td class="cell-rate" data-label="Rate / Hr" style="font-family:'JetBrains Mono', monospace; font-size:0.84rem;">${formatRate(t.price_per_hour, pCurr)}</td>
+                                <td class="cell-hours" data-label="Hours" style="font-family:'JetBrains Mono', monospace;"><span class="hours-badge">${parseFloat(t.duration_hours).toFixed(2)}h</span></td>
+                                <td class="cell-subtotal" data-label="Subtotal" style="font-family:'JetBrains Mono', monospace; text-align:right;"><span class="subtotal-badge">${formatPrice(t.total_price, pCurr)}</span></td>
                             </tr>
                         `).join('');
                     }
@@ -5235,27 +5747,33 @@
                     json.projects.forEach(p => {
                         const pCurr = p.currency || '$';
                         rowsHtml += `
-                            <tr style="background:#f1f5f9;">
-                                <td colspan="6" style="padding:10px 16px; font-weight:800; color:var(--brand-dark); font-size:0.92rem;">
-                                    Project: ${escapeHtml(p.title)} (Subtotal: ${formatPrice(p.total_price, pCurr)} &bull; ${p.total_hours.toFixed(2)} hrs)
+                            <tr class="company-project-header-row">
+                                <td colspan="6" class="company-project-header-cell">
+                                    <div class="company-project-header-flex">
+                                        <span class="company-project-title">Project: ${escapeHtml(p.title)}</span>
+                                        <span class="company-project-badges">
+                                            <span class="badge-subtotal">${formatPrice(p.total_price, pCurr)}</span>
+                                            <span class="badge-hours">${p.total_hours.toFixed(2)} hrs</span>
+                                        </span>
+                                    </div>
                                 </td>
                             </tr>
                         `;
                         if (p.tasks.length === 0) {
-                            rowsHtml += `<tr><td colspan="6" style="padding:12px 16px; color:var(--text-muted); font-size:0.84rem;">No tasks logged.</td></tr>`;
+                            rowsHtml += `<tr class="share-task-row empty-row"><td colspan="6" style="padding:14px 16px; color:var(--text-muted); font-size:0.84rem; text-align:center;">No tasks logged for this project.</td></tr>`;
                         } else {
                             p.tasks.forEach(t => {
                                 rowsHtml += `
-                                    <tr>
-                                        <td>
-                                            <strong style="color:var(--brand-dark); font-size:0.92rem;">${escapeHtml(t.title)}</strong>
-                                            <div class="markdown-body" style="font-size:0.84rem; color:#475569; margin-top:3px;">${renderMarkdownText(t.description || '')}</div>
+                                    <tr class="share-task-row">
+                                        <td class="cell-task" data-label="Task & Description">
+                                            <strong class="task-row-title">${escapeHtml(t.title)}</strong>
+                                            <div class="markdown-body task-row-desc">${renderMarkdownText(t.description || '')}</div>
                                         </td>
-                                        <td style="font-family:'JetBrains Mono', monospace; font-size:0.82rem; color:var(--text-muted);">${formatDateRange(t.start_date || t.task_date, t.end_date || t.start_date || t.task_date)}</td>
-                                        <td style="font-family:'JetBrains Mono', monospace; font-size:0.82rem; color:var(--text-muted);">${formatTime(t.start_time)} &ndash; ${formatTime(t.end_time)}</td>
-                                        <td style="font-family:'JetBrains Mono', monospace; font-size:0.84rem;">${formatRate(t.price_per_hour, pCurr)}</td>
-                                        <td style="font-family:'JetBrains Mono', monospace; font-weight:700; color:var(--brand-primary);">${parseFloat(t.duration_hours).toFixed(2)}h</td>
-                                        <td style="font-family:'JetBrains Mono', monospace; font-weight:800; color:var(--brand-primary); text-align:right;">${formatPrice(t.total_price, pCurr)}</td>
+                                        <td class="cell-date" data-label="Date" style="font-family:'JetBrains Mono', monospace; font-size:0.82rem; color:var(--text-muted);">${formatDateRange(t.start_date || t.task_date, t.end_date || t.start_date || t.task_date)}</td>
+                                        <td class="cell-time" data-label="Time" style="font-family:'JetBrains Mono', monospace; font-size:0.82rem; color:var(--text-muted);">${formatTime(t.start_time)} &ndash; ${formatTime(t.end_time)}</td>
+                                        <td class="cell-rate" data-label="Rate / Hr" style="font-family:'JetBrains Mono', monospace; font-size:0.84rem;">${formatRate(t.price_per_hour, pCurr)}</td>
+                                        <td class="cell-hours" data-label="Hours" style="font-family:'JetBrains Mono', monospace;"><span class="hours-badge">${parseFloat(t.duration_hours).toFixed(2)}h</span></td>
+                                        <td class="cell-subtotal" data-label="Subtotal" style="font-family:'JetBrains Mono', monospace; text-align:right;"><span class="subtotal-badge">${formatPrice(t.total_price, pCurr)}</span></td>
                                     </tr>
                                 `;
                             });
