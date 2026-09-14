@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -957,8 +957,306 @@
             font-size: 0.9rem;
             line-height: 1.6;
             color: #334155;
-            white-space: pre-wrap;
             margin-bottom: 16px;
+        }
+
+        /* -------------------------------------------------------------
+           MARKDOWN & EDITOR STYLING
+           ------------------------------------------------------------- */
+        .markdown-tabs {
+            display: inline-flex;
+            background: #f1f5f9;
+            border-radius: 8px;
+            padding: 2px;
+            border: 1px solid var(--border-color);
+        }
+
+        .markdown-tab-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 4px 12px;
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            background: transparent;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            font-family: inherit;
+        }
+
+        .markdown-tab-btn:hover {
+            color: var(--brand-primary);
+        }
+
+        .markdown-tab-btn.active {
+            background: #ffffff;
+            color: var(--brand-primary);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+        }
+
+        .markdown-toolbar {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            padding: 6px 8px;
+            background: #f8fafc;
+            border: 1px solid var(--border-color);
+            border-bottom: none;
+            border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+            flex-wrap: wrap;
+        }
+
+        .md-tool-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 3px 8px;
+            min-width: 26px;
+            height: 26px;
+            font-size: 0.78rem;
+            color: #475569;
+            background: #ffffff;
+            border: 1px solid #cbd5e1;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            font-family: inherit;
+        }
+
+        .md-tool-btn:hover {
+            background: #e2e8f0;
+            color: var(--brand-primary);
+            border-color: #94a3b8;
+        }
+
+        .md-tool-sep {
+            width: 1px;
+            height: 18px;
+            background: #cbd5e1;
+            margin: 0 3px;
+        }
+
+        .markdown-editor-input {
+            border-top-left-radius: 0 !important;
+            border-top-right-radius: 0 !important;
+            font-family: 'JetBrains Mono', 'Fira Code', Consolas, monospace !important;
+            font-size: 0.88rem !important;
+            line-height: 1.55 !important;
+        }
+
+        .markdown-preview-pane {
+            min-height: 120px;
+            max-height: 280px;
+            overflow-y: auto;
+            background: #ffffff;
+            border: 1px solid var(--border-color);
+            border-top-left-radius: 0 !important;
+            border-top-right-radius: 0 !important;
+            border-radius: 0 0 var(--radius-sm) var(--radius-sm);
+            padding: 14px 18px;
+            font-size: 0.9rem;
+            line-height: 1.6;
+            color: #334155;
+        }
+
+        /* Markdown Body Typography */
+        .markdown-body {
+            font-size: 0.9rem;
+            line-height: 1.65;
+            color: #1e293b;
+        }
+
+        .markdown-body h1, .markdown-body h2, .markdown-body h3, .markdown-body h4 {
+            color: var(--brand-dark);
+            margin: 12px 0 6px 0;
+            font-weight: 700;
+        }
+
+        .markdown-body h1 { font-size: 1.25rem; }
+        .markdown-body h2 { font-size: 1.15rem; }
+        .markdown-body h3 { font-size: 1.05rem; }
+        .markdown-body h4 { font-size: 0.95rem; }
+
+        .markdown-body p {
+            margin-bottom: 8px;
+        }
+
+        .markdown-body p:last-child {
+            margin-bottom: 0;
+        }
+
+        .markdown-body strong {
+            font-weight: 700;
+            color: #0f172a;
+        }
+
+        .markdown-body em {
+            font-style: italic;
+        }
+
+        .markdown-body a {
+            color: var(--brand-primary);
+            text-decoration: underline;
+            text-underline-offset: 2px;
+        }
+
+        .markdown-body a:hover {
+            color: var(--brand-accent);
+        }
+
+        .markdown-body ul, .markdown-body ol {
+            margin: 6px 0 10px 20px;
+            padding-left: 0;
+        }
+
+        .markdown-body li {
+            margin-bottom: 4px;
+        }
+
+        .markdown-body blockquote {
+            margin: 8px 0;
+            padding: 6px 14px;
+            border-left: 3.5px solid var(--brand-accent);
+            background: #f8fafc;
+            color: #475569;
+            border-radius: 0 6px 6px 0;
+            font-style: italic;
+        }
+
+        .markdown-body code.inline-code {
+            font-family: 'JetBrains Mono', Consolas, monospace;
+            font-size: 0.82rem;
+            background: #eaf2f8;
+            color: var(--brand-primary);
+            padding: 2px 6px;
+            border-radius: 4px;
+            border: 1px solid #d0e2f0;
+        }
+
+        .markdown-body hr {
+            border: none;
+            border-top: 1px solid #e2e8f0;
+            margin: 16px 0;
+        }
+
+        .markdown-body del {
+            color: #94a3b8;
+            text-decoration: line-through;
+        }
+
+        .markdown-body ul.task-list {
+            list-style: none;
+            padding-left: 4px;
+        }
+
+        .markdown-body li.task-list-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 4px;
+        }
+
+        .markdown-body li.task-list-item input[type="checkbox"] {
+            margin: 0;
+            cursor: default;
+        }
+
+        .markdown-body .table-responsive {
+            width: 100%;
+            overflow-x: auto;
+            margin: 10px 0;
+            border-radius: 6px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .markdown-body table.table-markdown {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.84rem;
+            background: #ffffff;
+            text-align: left;
+        }
+
+        .markdown-body table.table-markdown th {
+            background: #f1f5f9;
+            color: var(--brand-dark);
+            font-weight: 700;
+            padding: 8px 12px;
+            border-bottom: 2px solid #cbd5e1;
+            border-right: 1px solid #e2e8f0;
+            white-space: nowrap;
+        }
+
+        .markdown-body table.table-markdown th:last-child {
+            border-right: none;
+        }
+
+        .markdown-body table.table-markdown td {
+            padding: 7px 12px;
+            border-bottom: 1px solid #e2e8f0;
+            border-right: 1px solid #e2e8f0;
+            color: #334155;
+            vertical-align: middle;
+        }
+
+        .markdown-body table.table-markdown td:last-child {
+            border-right: none;
+        }
+
+        .markdown-body table.table-markdown tr:last-child td {
+            border-bottom: none;
+        }
+
+        .markdown-body table.table-markdown tr:nth-child(even) td {
+            background: #f8fafc;
+        }
+
+        .markdown-body table.table-markdown tr:hover td {
+            background: #f1f5f9;
+        }
+
+        .markdown-body pre {
+            position: relative;
+            background: #0f172a;
+            color: #f8fafc;
+            padding: 12px 16px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 10px 0;
+            font-family: 'JetBrains Mono', Consolas, monospace;
+            font-size: 0.84rem;
+            line-height: 1.5;
+        }
+
+        .markdown-body pre code {
+            font-family: inherit;
+            background: transparent;
+            padding: 0;
+            color: inherit;
+            border: none;
+        }
+
+        .copy-code-btn {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: rgba(255, 255, 255, 0.15);
+            color: #e2e8f0;
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 0.72rem;
+            cursor: pointer;
+            font-family: inherit;
+            transition: all 0.15s ease;
+        }
+
+        .copy-code-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            color: #ffffff;
         }
 
         .task-actions-row {
@@ -3255,8 +3553,33 @@
                         </div>
 
                         <div class="form-group" style="margin-top:16px;">
-                            <label for="taskDescription">Task Description &amp; Technical Notes *</label>
-                            <textarea id="taskDescription" class="form-control" rows="4" placeholder="Detailed summary of work completed, commits, or notes..."></textarea>
+                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                                <label for="taskDescription" style="margin-bottom:0; font-weight:600;">Task Description &amp; Technical Notes *</label>
+                                <div class="markdown-tabs">
+                                    <button type="button" class="markdown-tab-btn active" id="tabWriteBtn" onclick="switchTaskDescTab('write')">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
+                                        Write
+                                    </button>
+                                    <button type="button" class="markdown-tab-btn" id="tabPreviewBtn" onclick="switchTaskDescTab('preview')">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                                        Preview
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="markdown-toolbar" id="taskDescToolbar">
+                                <button type="button" class="md-tool-btn" onclick="insertMarkdownSyntax('**', '**', 'bold text')" title="Bold"><strong>B</strong></button>
+                                <button type="button" class="md-tool-btn" onclick="insertMarkdownSyntax('*', '*', 'italic text')" title="Italic"><em>I</em></button>
+                                <button type="button" class="md-tool-btn" onclick="insertMarkdownSyntax('### ', '', 'Heading 3')" title="Heading 3">H3</button>
+                                <button type="button" class="md-tool-btn" onclick="insertMarkdownSyntax('`', '`', 'code')" title="Inline Code">&lt;/&gt;</button>
+                                <button type="button" class="md-tool-btn" onclick="insertMarkdownSyntax('```\n', '\n```', 'code block')" title="Code Block">{ }</button>
+                                <button type="button" class="md-tool-btn" onclick="insertMarkdownSyntax('| Header 1 | Header 2 |\n|---|---|\n| Cell 1 | Cell 2 |\n', '', '')" title="Table">&#8862; Table</button>
+                                <button type="button" class="md-tool-btn" onclick="insertMarkdownSyntax('- ', '', 'List item')" title="Bullet List">&bull; List</button>
+                                <button type="button" class="md-tool-btn" onclick="insertMarkdownSyntax('1. ', '', 'Numbered item')" title="Numbered List">1. List</button>
+                                <button type="button" class="md-tool-btn" onclick="insertMarkdownSyntax('> ', '', 'Quote')" title="Blockquote">&ldquo; Quote</button>
+                                <button type="button" class="md-tool-btn" onclick="insertMarkdownSyntax('[', '](https://example.com)', 'link text')" title="Link">&#128279; Link</button>
+                            </div>
+                            <textarea id="taskDescription" class="form-control markdown-editor-input" rows="5" placeholder="Detailed summary of work completed, commits, or notes... (Markdown supported)"></textarea>
+                            <div id="taskDescriptionPreview" class="markdown-preview-pane markdown-body" style="display:none;"></div>
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -3938,9 +4261,9 @@
                                 </div>
                             </div>
 
-                            <div class="task-description-box">
-                                <strong style="display:block; margin-bottom:4px; font-size:0.76rem; text-transform:uppercase; color:var(--text-muted); letter-spacing:0.04em;">Description &amp; Notes:</strong>
-                                ${escapeHtml(t.description || 'No detailed description specified for this task.')}
+                            <div class="task-description-box markdown-body">
+                                <strong style="display:block; margin-bottom:6px; font-size:0.76rem; text-transform:uppercase; color:var(--text-muted); letter-spacing:0.04em;">Description &amp; Notes:</strong>
+                                ${renderMarkdownText(t.description || 'No detailed description specified for this task.')}
                             </div>
 
                             <div class="task-actions-row">
@@ -4658,6 +4981,7 @@
             document.getElementById('taskEndTime').value = '13:00';
             document.getElementById('taskStatus').value = 'completed';
             document.getElementById('taskDescription').value = '';
+            switchTaskDescTab('write');
 
             updateTaskCalculations();
             openModal('taskModal');
@@ -4698,6 +5022,7 @@
             document.getElementById('taskEndTime').value = task.end_time.substring(0, 5);
             document.getElementById('taskStatus').value = task.status;
             document.getElementById('taskDescription').value = task.description || '';
+            switchTaskDescTab('write');
 
             updateTaskCalculations();
             openModal('taskModal');
@@ -4854,7 +5179,7 @@
                             <tr>
                                 <td>
                                     <strong style="color:var(--brand-dark); font-size:0.94rem;">${escapeHtml(t.title)}</strong>
-                                    <div style="font-size:0.82rem; color:#475569; margin-top:4px;">${escapeHtml(t.description || '')}</div>
+                                    <div class="markdown-body" style="font-size:0.84rem; color:#475569; margin-top:4px;">${renderMarkdownText(t.description || '')}</div>
                                 </td>
                                 <td style="font-family:'JetBrains Mono', monospace; font-size:0.82rem; color:var(--text-muted);">${formatDateRange(t.start_date || t.task_date, t.end_date || t.start_date || t.task_date)}</td>
                                 <td style="font-family:'JetBrains Mono', monospace; font-size:0.82rem; color:var(--text-muted);">${formatTime(t.start_time)} &ndash; ${formatTime(t.end_time)}</td>
@@ -4907,7 +5232,7 @@
                                     <tr>
                                         <td>
                                             <strong style="color:var(--brand-dark); font-size:0.92rem;">${escapeHtml(t.title)}</strong>
-                                            <div style="font-size:0.82rem; color:#475569; margin-top:3px;">${escapeHtml(t.description || '')}</div>
+                                            <div class="markdown-body" style="font-size:0.84rem; color:#475569; margin-top:3px;">${renderMarkdownText(t.description || '')}</div>
                                         </td>
                                         <td style="font-family:'JetBrains Mono', monospace; font-size:0.82rem; color:var(--text-muted);">${formatDateRange(t.start_date || t.task_date, t.end_date || t.start_date || t.task_date)}</td>
                                         <td style="font-family:'JetBrains Mono', monospace; font-size:0.82rem; color:var(--text-muted);">${formatTime(t.start_time)} &ndash; ${formatTime(t.end_time)}</td>
@@ -4973,6 +5298,225 @@
             } catch (e) {
                 return timeStr;
             }
+        }
+
+        // --- Markdown Renderer & Interactive Editor Support ---
+        function renderMarkdownText(md) {
+            if (!md) return '';
+
+            // 1. Extract code blocks first
+            const codeBlocks = [];
+            let processed = String(md).replace(/```([a-zA-Z0-9_-]*)\r?\n([\s\S]*?)```/g, (match, lang, code) => {
+                const placeholder = `§§MDCODEBLOCK${codeBlocks.length}§§`;
+                const languageLabel = lang ? escapeHtml(lang) : 'code';
+                const escapedCode = escapeHtml(code.trimEnd());
+                codeBlocks.push(
+                    `<div class="code-block-wrapper">` +
+                    `<div class="code-block-header"><span>${languageLabel}</span><button type="button" class="copy-btn" onclick="copyCodeBlock(this, event)"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg> Copy</button></div>` +
+                    `<pre><code>${escapedCode}</code></pre>` +
+                    `</div>`
+                );
+                return placeholder;
+            });
+
+            // 2. Extract inline code with safe placeholder (no underscores or markdown chars)
+            const inlineCodes = [];
+            processed = processed.replace(/`([^`\r\n]+)`/g, (match, code) => {
+                const placeholder = `§§MDINLINECODE${inlineCodes.length}§§`;
+                inlineCodes.push(`<code class="inline-code">${escapeHtml(code)}</code>`);
+                return placeholder;
+            });
+
+            // 3. Escape all remaining raw HTML to prevent XSS
+            processed = escapeHtml(processed);
+
+            // 4. Markdown Tables (GFM)
+            processed = processed.replace(/(?:^|\n)(\|[^\n]+\|\r?\n\|[\s:\|-]+\|\r?\n(?:\|[^\n]+\|\r?\n?)+)/g, (match, tableBlock) => {
+                const lines = tableBlock.trim().split(/\r?\n/).map(l => l.trim()).filter(l => l.length > 0);
+                if (lines.length < 2) return match;
+
+                const headerLine = lines[0];
+                const alignLine = lines[1];
+
+                if (!/^\|?(\s*:?-+:?\s*\|?)+$/.test(alignLine)) return match;
+
+                const parseCells = (row) => {
+                    let trimmed = row;
+                    if (trimmed.startsWith('|')) trimmed = trimmed.substring(1);
+                    if (trimmed.endsWith('|')) trimmed = trimmed.substring(0, trimmed.length - 1);
+                    return trimmed.split('|').map(c => c.trim());
+                };
+
+                const alignCells = parseCells(alignLine).map(c => {
+                    const left = c.startsWith(':');
+                    const right = c.endsWith(':');
+                    if (left && right) return 'center';
+                    if (right) return 'right';
+                    if (left) return 'left';
+                    return 'left';
+                });
+
+                const headers = parseCells(headerLine);
+                let theadHtml = '<thead><tr>';
+                headers.forEach((h, i) => {
+                    const align = alignCells[i] || 'left';
+                    theadHtml += `<th style="text-align:${align};">${h}</th>`;
+                });
+                theadHtml += '</tr></thead>';
+
+                let tbodyHtml = '<tbody>';
+                for (let i = 2; i < lines.length; i++) {
+                    const cells = parseCells(lines[i]);
+                    tbodyHtml += '<tr>';
+                    cells.forEach((cell, idx) => {
+                        const align = alignCells[idx] || 'left';
+                        tbodyHtml += `<td style="text-align:${align};">${cell}</td>`;
+                    });
+                    tbodyHtml += '</tr>';
+                }
+                tbodyHtml += '</tbody>';
+
+                return `\n<div class="table-responsive"><table class="table-markdown">${theadHtml}${tbodyHtml}</table></div>\n`;
+            });
+
+            // 5. Headings (# Heading ... ###### Heading)
+            processed = processed.replace(/^######[ \t]+(.*$)/gim, '<h6>$1</h6>');
+            processed = processed.replace(/^#####[ \t]+(.*$)/gim, '<h5>$1</h5>');
+            processed = processed.replace(/^####[ \t]+(.*$)/gim, '<h4>$1</h4>');
+            processed = processed.replace(/^###[ \t]+(.*$)/gim, '<h3>$1</h3>');
+            processed = processed.replace(/^##[ \t]+(.*$)/gim, '<h2>$1</h2>');
+            processed = processed.replace(/^#[ \t]+(.*$)/gim, '<h1>$1</h1>');
+
+            // 6. Blockquotes (> quote)
+            processed = processed.replace(/^\>[ \t]+(.*$)/gim, '<blockquote>$1</blockquote>');
+
+            // 7. Horizontal Rules (---, ***, ___)
+            processed = processed.replace(/^(?:---|\*\*\*|___)\s*$/gim, '<hr>');
+
+            // 8. Bold & Italic (protecting words and placeholders)
+            processed = processed.replace(/\*\*\*(.*?)\*\*\*/g, '<strong><em>$1</em></strong>');
+            processed = processed.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+            processed = processed.replace(/___(.*?)___/g, '<strong><em>$1</em></strong>');
+            processed = processed.replace(/__(.*?)__/g, '<strong>$1</strong>');
+            processed = processed.replace(/\*([^\*\r\n]+)\*/g, '<em>$1</em>');
+            processed = processed.replace(/\b_([^_\r\n]+)_\b/g, '<em>$1</em>');
+
+            // 9. Strikethrough (~~text~~)
+            processed = processed.replace(/~~(.*?)~~/g, '<del>$1</del>');
+
+            // 10. Links [text](url)
+            processed = processed.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (match, text, url) => {
+                const cleanUrl = url.trim();
+                const isSafe = /^https?:\/\//i.test(cleanUrl) || cleanUrl.startsWith('/') || cleanUrl.startsWith('#');
+                if (isSafe) {
+                    return `<a href="${cleanUrl}" target="_blank" rel="noopener noreferrer">${text}</a>`;
+                }
+                return text;
+            });
+
+            // 11. Task Lists / Checkboxes
+            processed = processed.replace(/^[ \t]*[\-\*][ \t]+\[ \][ \t]+(.*$)/gim, '<li class="task-list-item"><input type="checkbox" disabled> $1</li>');
+            processed = processed.replace(/^[ \t]*[\-\*][ \t]+\[[xX]\][ \t]+(.*$)/gim, '<li class="task-list-item"><input type="checkbox" checked disabled> $1</li>');
+
+            // 12. Lists (Unordered & Ordered)
+            processed = processed.replace(/(?:^[ \t]*[\-\*][ \t]+(.*?)(?:\r?\n|$))+/gm, (match) => {
+                if (match.includes('<li class="task-list-item">')) {
+                    return `<ul class="task-list">${match}</ul>\n`;
+                }
+                const items = match.trim().split(/\r?\n/).map(line => {
+                    const itemContent = line.replace(/^[ \t]*[\-\*][ \t]+/, '');
+                    return `<li>${itemContent}</li>`;
+                }).join('');
+                return `<ul>${items}</ul>\n`;
+            });
+
+            processed = processed.replace(/(?:^[ \t]*\d+\.[ \t]+(.*?)(?:\r?\n|$))+/gm, (match) => {
+                const items = match.trim().split(/\r?\n/).map(line => {
+                    const itemContent = line.replace(/^[ \t]*\d+\.[ \t]+/, '');
+                    return `<li>${itemContent}</li>`;
+                }).join('');
+                return `<ol>${items}</ol>\n`;
+            });
+
+            // 13. Paragraphs and Line Breaks
+            processed = processed.replace(/\r?\n\r?\n/g, '<br><br>');
+            processed = processed.replace(/([^\>])\r?\n([^\<])/g, '$1<br>$2');
+
+            // 14. Restore inline code and code blocks
+            inlineCodes.forEach((codeHtml, idx) => {
+                processed = processed.split(`§§MDINLINECODE${idx}§§`).join(codeHtml);
+            });
+            codeBlocks.forEach((blockHtml, idx) => {
+                processed = processed.split(`§§MDCODEBLOCK${idx}§§`).join(blockHtml);
+            });
+
+            return processed;
+        }
+
+        function switchTaskDescTab(tab) {
+            const writeBtn = document.getElementById('tabWriteBtn');
+            const previewBtn = document.getElementById('tabPreviewBtn');
+            const toolbar = document.getElementById('taskDescToolbar');
+            const textarea = document.getElementById('taskDescription');
+            const preview = document.getElementById('taskDescriptionPreview');
+
+            if (!writeBtn || !previewBtn || !textarea || !preview) return;
+
+            if (tab === 'write') {
+                writeBtn.classList.add('active');
+                previewBtn.classList.remove('active');
+                if (toolbar) toolbar.style.display = 'flex';
+                textarea.style.display = 'block';
+                preview.style.display = 'none';
+                textarea.focus();
+            } else {
+                previewBtn.classList.add('active');
+                writeBtn.classList.remove('active');
+                if (toolbar) toolbar.style.display = 'none';
+                textarea.style.display = 'none';
+                preview.style.display = 'block';
+                const text = textarea.value.trim();
+                preview.innerHTML = text ? renderMarkdownText(text) : '<em style="color:#94a3b8; font-size:0.86rem;">No description to preview.</em>';
+            }
+        }
+
+        function insertMarkdownSyntax(prefix, suffix, defaultText) {
+            const textarea = document.getElementById('taskDescription');
+            if (!textarea) return;
+
+            const start = textarea.selectionStart;
+            const end = textarea.selectionEnd;
+            const text = textarea.value;
+            const selectedText = text.substring(start, end) || defaultText;
+            const replacement = prefix + selectedText + (suffix || '');
+
+            textarea.value = text.substring(0, start) + replacement + text.substring(end);
+            textarea.focus();
+            textarea.setSelectionRange(start + prefix.length, start + prefix.length + selectedText.length);
+        }
+
+        function copyCodeBlock(btn, event) {
+            if (event) {
+                event.stopPropagation();
+                event.preventDefault();
+            }
+            const wrapper = btn.closest('.code-block-wrapper');
+            if (!wrapper) return;
+            const codeEl = wrapper.querySelector('pre code');
+            if (!codeEl) return;
+
+            const textToCopy = codeEl.innerText || codeEl.textContent;
+            navigator.clipboard.writeText(textToCopy).then(() => {
+                const origHtml = btn.innerHTML;
+                btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg> Copied!`;
+                btn.classList.add('copied');
+                setTimeout(() => {
+                    btn.innerHTML = origHtml;
+                    btn.classList.remove('copied');
+                }, 2000);
+            }).catch(err => {
+                console.error('Failed to copy: ', err);
+            });
         }
 
         // Floating Quick Navigation Menu Controls
