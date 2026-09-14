@@ -4,7 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= $isPublicMode ? 'Timesheet & Project Breakdown' : 'Freelance Workspace & Task Management' ?> | Farshad Nabizadeh</title>
-    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <link rel="icon" type="image/png" href="assets/favicon.png?v=2">
+    <link rel="shortcut icon" href="favicon.ico?v=2">
+    <link rel="apple-touch-icon" href="assets/favicon.png?v=2">
     <link rel="stylesheet" href="assets/fonts.css">
     <link rel="stylesheet" href="assets/poppins.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -96,6 +98,19 @@
             line-height: 1.5;
             overflow-x: hidden;
             max-width: 100vw;
+            position: relative;
+        }
+
+        /* Background Light Particles Canvas */
+        .bg-particles-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0.65;
         }
 
         body.sidebar-open {
@@ -2922,8 +2937,10 @@
             font-weight: 600;
         }
     </style>
+    <link rel="stylesheet" href="assets/css/particles.css">
 </head>
 <body>
+    <div id="particles-js"></div>
 
     <!-- TOP HEADER -->
     <header class="app-topbar">
@@ -5575,5 +5592,7 @@
             }
         });
     </script>
+    <script src="assets/js/particles.min.js"></script>
+    <script src="assets/js/particles-init.js"></script>
 </body>
 </html>

@@ -1,10 +1,12 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?php echo $selectedCategory ? htmlspecialchars($selectedCategory) . ' – CS & Software Development Knowledge Repository' : 'Computer Science & Software Development Knowledge Repository'; ?></title>
-    <link rel="icon" type="image/png" href="https://uploads.neginsafareh-academy.ir/files/favicon_20260907_085955_27bd31cd.png">
+    <link rel="icon" type="image/png" href="assets/favicon.png?v=2">
+    <link rel="shortcut icon" href="favicon.ico?v=2">
+    <link rel="apple-touch-icon" href="assets/favicon.png?v=2">
     <link rel="stylesheet" href="assets/fonts.css">
     <link rel="stylesheet" href="assets/prism.min.css">
     <style>
@@ -63,6 +65,19 @@
             min-height: 100vh;
             display: flex;
             flex-direction: column;
+            position: relative;
+        }
+
+        /* Background Light Particles Canvas */
+        .bg-particles-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0.65;
         }
         /* Main page font color #1e3b4f */
         .category-card,
@@ -1843,8 +1858,10 @@
             color: var(--blue-600);
         }
     </style>
+    <link rel="stylesheet" href="assets/css/particles.css">
 </head>
 <body>
+<div id="particles-js"></div>
 <div class="conference-header">
     <?php if ($selectedCategory): ?>
         <h1><?php echo htmlspecialchars($selectedCategory); ?></h1>
@@ -3471,5 +3488,7 @@
         }
     })();
 </script>
+<script src="assets/js/particles.min.js"></script>
+<script src="assets/js/particles-init.js"></script>
 </body>
 </html>

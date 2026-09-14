@@ -1,10 +1,12 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Featured Projects &amp; Portfolio | Farshad Nabizade</title>
-    <link rel="icon" type="image/png" href="https://uploads.neginsafareh-academy.ir/files/favicon_20260907_085955_27bd31cd.png">
+    <link rel="icon" type="image/png" href="assets/favicon.png?v=2">
+    <link rel="shortcut icon" href="favicon.ico?v=2">
+    <link rel="apple-touch-icon" href="assets/favicon.png?v=2">
     <link rel="stylesheet" href="assets/fonts.css">
     <style>
         :root {
@@ -42,6 +44,19 @@
             color: var(--text-dark);
             line-height: 1.6;
             -webkit-font-smoothing: antialiased;
+            position: relative;
+        }
+
+        /* Background Light Particles Canvas */
+        .bg-particles-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0.65;
         }
 
         /* Top Header */
@@ -1109,8 +1124,10 @@
             }
         }
     </style>
+    <link rel="stylesheet" href="assets/css/particles.css">
 </head>
 <body>
+<div id="particles-js"></div>
 
 <div class="projects-header">
     <h1>Featured Projects &amp; Portfolio</h1>
@@ -1865,5 +1882,7 @@
     // Initial Render
     renderProjects(allProjects);
 </script>
+<script src="assets/js/particles.min.js"></script>
+<script src="assets/js/particles-init.js"></script>
 </body>
 </html>
