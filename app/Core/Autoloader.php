@@ -29,6 +29,12 @@ class Autoloader
             }
         });
 
+        // Preload core Lang helper
+        $langFile = __DIR__ . DIRECTORY_SEPARATOR . 'Lang.php';
+        if (file_exists($langFile)) {
+            require_once $langFile;
+        }
+
         self::$registered = true;
     }
 }
