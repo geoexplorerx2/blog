@@ -1,10 +1,12 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?php echo $selectedCategory ? htmlspecialchars($selectedCategory) . ' – CS & Software Development Knowledge Repository' : 'Computer Science & Software Development Knowledge Repository'; ?></title>
-    <link rel="icon" type="image/png" href="https://uploads.neginsafareh-academy.ir/files/favicon_20260907_085955_27bd31cd.png">
+    <link rel="icon" type="image/png" href="assets/favicon.png?v=2">
+    <link rel="shortcut icon" href="favicon.ico?v=2">
+    <link rel="apple-touch-icon" href="assets/favicon.png?v=2">
     <link rel="stylesheet" href="assets/fonts.css">
     <link rel="stylesheet" href="assets/prism.min.css">
     <style>
@@ -63,6 +65,19 @@
             min-height: 100vh;
             display: flex;
             flex-direction: column;
+            position: relative;
+        }
+
+        /* Background Light Particles Canvas */
+        .bg-particles-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0.65;
         }
         /* Main page font color #1e3b4f */
         .category-card,
@@ -1843,8 +1858,10 @@
             color: var(--blue-600);
         }
     </style>
+    <link rel="stylesheet" href="assets/css/particles.css">
 </head>
 <body>
+<div id="particles-js"></div>
 <div class="conference-header">
     <?php if ($selectedCategory): ?>
         <h1><?php echo htmlspecialchars($selectedCategory); ?></h1>
@@ -1882,23 +1899,23 @@
             <?php if (Auth::isLoggedIn()): ?>
             <button class="btn add-btn" id="addQuestionBtn">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-                Add Question
+                <?= __('add_question') ?>
             </button>
             <button class="btn" id="quickPasteBtn" title="Paste question/answer from clipboard &amp; open form" style="display:inline-flex; align-items:center; gap:0.4rem;">
                 <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg>
-                Paste &amp; Add
+                <?= __('paste_and_add') ?>
             </button>
             <?php endif; ?>
-            <button class="btn primary" id="expandAllBtn">Expand All</button>
-            <button class="btn" id="collapseAllBtn">Collapse All</button>
+            <button class="btn primary" id="expandAllBtn"><?= __('expand_all') ?></button>
+            <button class="btn" id="collapseAllBtn"><?= __('collapse_all') ?></button>
             <button class="btn" id="copyAllQaBtn" title="Copy all visible questions and answers in this category" style="display:inline-flex; align-items:center; gap:0.4rem;">
                 <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
-                Copy All Q&amp;A
+                <?= __('copy_all_qa') ?>
             </button>
             <span class="stats" id="stats"></span>
         </div>
         <div class="qa-list" id="qaList"></div>
-        <div class="no-results" id="noResults" style="display:none;">No matching questions found in this category.</div>
+        <div class="no-results" id="noResults" style="display:none;"><?= __('no_questions_found') ?></div>
     <?php else: ?>
         <?php if (Auth::isLoggedIn()): ?>
         <div class="data-management-grid">
@@ -1906,14 +1923,14 @@
                 <div>
                     <h3>
                         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
-                        Import File to Database
+                        <?= __('import_file_to_db') ?>
                     </h3>
                     <p>Upload a JSON or text file with question entries. Supports strict JSON and JavaScript-like object literals.</p>
                 </div>
                 <form method="post" enctype="multipart/form-data">
                     <div class="file-input-group">
                         <input type="file" name="jsonfile" accept=".json,.txt" required>
-                        <button type="submit" class="btn primary" style="padding: 0.55rem 1rem;">Import</button>
+                        <button type="submit" class="btn primary" style="padding: 0.55rem 1rem;"><?= __('import') ?></button>
                     </div>
                     <label class="checkbox-label">
                         <input type="checkbox" name="replace_existing" value="1">
@@ -1930,14 +1947,14 @@
                     </div>
                     <h3>
                         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
-                        Export Database to File
+                        <?= __('export_db_to_file') ?>
                     </h3>
                     <p>Export and download all stored questions and answers as a structured, formatted JSON file.</p>
                 </div>
                 <div>
                     <a href="index.php?export=json" class="btn export-btn" style="width: 100%; justify-content: center;">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
-                        Download All Questions (JSON)
+                        <?= __('download_all_questions') ?>
                     </a>
                 </div>
             </div>
@@ -1948,11 +1965,11 @@
         <div style="display: flex; justify-content: flex-end; margin-top: 1.5rem; margin-bottom: 20px; flex-wrap: wrap; gap: 0.5rem;">
             <button class="btn add-btn" id="addQuestionBtn">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-                Add Question
+                <?= __('add_question') ?>
             </button>
             <button class="btn add-btn" id="addCategoryBtn">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect><line x1="8" y1="6.5" x2="8" y2="6.5"></line></svg>
-                Add Category
+                <?= __('add_category') ?>
             </button>
         </div>
         <?php endif; ?>
@@ -1984,7 +2001,7 @@
                 <?php endforeach; ?>
             </div>
         <?php else: ?>
-            <div class="no-results">No questions in the database yet. Please import a JSON file.</div>
+            <div class="no-results"><?= __('no_questions_in_db') ?></div>
         <?php endif; ?>
     <?php endif; ?>
 </div>
@@ -3471,5 +3488,7 @@
         }
     })();
 </script>
+<script src="assets/js/particles.min.js"></script>
+<script src="assets/js/particles-init.js"></script>
 </body>
 </html>

@@ -1,10 +1,12 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?php echo htmlspecialchars($profile['full_name'] ?? 'Farshad Nabizade'); ?> – Resume</title>
-    <link rel="icon" type="image/png" href="https://uploads.neginsafareh-academy.ir/files/favicon_20260907_085955_27bd31cd.png">
+    <link rel="icon" type="image/png" href="assets/favicon.png?v=2">
+    <link rel="shortcut icon" href="favicon.ico?v=2">
+    <link rel="apple-touch-icon" href="assets/favicon.png?v=2">
     <link rel="stylesheet" href="assets/fonts.css">
     <style>
         :root {
@@ -53,6 +55,19 @@
             overflow-y: visible;
             display: flex;
             flex-direction: column;
+            position: relative;
+        }
+
+        /* Background Light Particles Canvas */
+        .bg-particles-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0.65;
         }
 
         /* Top Header */
@@ -1249,21 +1264,23 @@
             }
         }
     </style>
+    <link rel="stylesheet" href="assets/css/particles.css">
 </head>
 <body>
+<div id="particles-js"></div>
 
 <header class="profile-nav-header">
     <div class="profile-nav-container">
         <a href="profile.php" class="brand-link">
             <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
-            <span>Resume</span>
+            <span><?= __('resume') ?></span>
         </a>
 
         <ul class="nav-sections-links">
-            <li><a href="#about">About</a></li>
-            <li><a href="#skills">Skills</a></li>
-            <li><a href="#experience">Experience</a></li>
-            <li><a href="#education">Education</a></li>
+            <li><a href="#about"><?= __('about') ?></a></li>
+            <li><a href="#skills"><?= __('skills') ?></a></li>
+            <li><a href="#experience"><?= __('experience') ?></a></li>
+            <li><a href="#education"><?= __('education') ?></a></li>
         </ul>
     </div>
 </header>
@@ -1286,7 +1303,7 @@
                 </span>
                 <span class="meta-pill">
                     <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>
-                    <?php echo htmlspecialchars($profile['work_experience_years'] ?? 7); ?>+ Years Experience
+                    <?php echo htmlspecialchars($profile['work_experience_years'] ?? 7); ?>+ <?= __('years_experience') ?>
                 </span>
                 <a href="mailto:<?php echo htmlspecialchars($profile['email'] ?? 'geoexplorerx2@gmail.com'); ?>" class="meta-pill">
                     <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
@@ -1298,11 +1315,11 @@
                 </a>
                 <span class="meta-pill">
                     <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 14 14"></polyline></svg>
-                    Age: <?php echo htmlspecialchars($profile['age'] ?? 34); ?> Years
+                    <?= __('age') ?>: <?php echo htmlspecialchars($profile['age'] ?? 34); ?> Years
                 </span>
                 <span class="meta-pill">
                     <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
-                    Salary: <?php echo htmlspecialchars($profile['salary_expectation'] ?? '45 - 60M Tomans'); ?>
+                    <?= __('salary') ?>: <?php echo htmlspecialchars($profile['salary_expectation'] ?? '45 - 60M Tomans'); ?>
                 </span>
             </div>
         </div>
@@ -1313,7 +1330,7 @@
         <div class="section-header">
             <div class="section-header-left">
                 <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-                <h2 class="section-title">Executive Summary &amp; About Me</h2>
+                <h2 class="section-title"><?= __('executive_summary') ?></h2>
             </div>
         </div>
         <p class="about-text">
@@ -1326,7 +1343,7 @@
         <div class="section-header">
             <div class="section-header-left">
                 <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>
-                <h2 class="section-title">Technical Skills &amp; Domain Expertise</h2>
+                <h2 class="section-title"><?= __('technical_skills') ?></h2>
             </div>
         </div>
         <div class="skills-grid">
@@ -1355,7 +1372,7 @@
         <div class="section-header">
             <div class="section-header-left">
                 <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>
-                <h2 class="section-title">Professional Work Experience</h2>
+                <h2 class="section-title"><?= __('work_experience') ?></h2>
             </div>
         </div>
         <div class="timeline">
@@ -2004,5 +2021,7 @@
         }
     })();
 </script>
+<script src="assets/js/particles.min.js"></script>
+<script src="assets/js/particles-init.js"></script>
 </body>
 </html>

@@ -13,7 +13,7 @@ $technologies = is_array($footer['technologies'] ?? null) ? $footer['technologie
         <div style="display: flex; justify-content: flex-end; margin-bottom: 1.25rem;">
             <button type="button" class="btn-edit-footer" id="editFooterTriggerBtn" title="Edit or Manage Footer Sections">
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
-                <span>Edit Footer Sections</span>
+                <span><?= __('edit_footer_sections') ?></span>
             </button>
         </div>
         <?php endif; ?>
@@ -44,7 +44,7 @@ $technologies = is_array($footer['technologies'] ?? null) ? $footer['technologie
             <!-- Col 2: Platform Navigation -->
             <?php if (!empty($visible['nav'])): ?>
             <div class="footer-col">
-                <h4 class="footer-heading">Platform Hub</h4>
+                <h4 class="footer-heading"><?= __('platform_hub') ?></h4>
                 <ul class="footer-nav-list">
                     <?php foreach ($navLinks as $nl): ?>
                         <?php if (!empty($nl['label']) && !empty($nl['url'])): ?>
@@ -63,7 +63,7 @@ $technologies = is_array($footer['technologies'] ?? null) ? $footer['technologie
             <!-- Col 3: Core Technology Stack -->
             <?php if (!empty($visible['tech'])): ?>
             <div class="footer-col">
-                <h4 class="footer-heading">Technologies</h4>
+                <h4 class="footer-heading"><?= __('technologies') ?></h4>
                 <div class="footer-tech-cloud">
                     <?php foreach ($technologies as $t): ?>
                         <?php if (!empty($t)): ?>
@@ -77,7 +77,7 @@ $technologies = is_array($footer['technologies'] ?? null) ? $footer['technologie
             <!-- Col 4: Connect & Contact -->
             <?php if (!empty($visible['contact'])): ?>
             <div class="footer-col">
-                <h4 class="footer-heading">Connect &amp; Contact</h4>
+                <h4 class="footer-heading"><?= __('connect_contact') ?></h4>
                 <?php if (!empty($footer['contact_note'])): ?>
                     <p style="font-size: 0.85rem; color: #94a3b8; margin-bottom: 0.85rem;"><?php echo htmlspecialchars($footer['contact_note']); ?></p>
                 <?php endif; ?>
@@ -108,11 +108,11 @@ $technologies = is_array($footer['technologies'] ?? null) ? $footer['technologie
         <!-- Footer Bottom Bar -->
         <div class="footer-bottom-bar">
             <div class="footer-copyright">
-                &copy; <?php echo date('Y'); ?> <strong><?php echo htmlspecialchars($footer['brand_name'] ?? 'Farshad Nabizade'); ?></strong>. <?php echo htmlspecialchars($footer['copyright_text'] ?? 'All rights reserved.'); ?>
+                &copy; <?php echo date('Y'); ?> <strong><?php echo htmlspecialchars($footer['brand_name'] ?? 'Farshad Nabizade'); ?></strong>. <?php echo htmlspecialchars($footer['copyright_text'] ?? __('all_rights_reserved')); ?>
             </div>
             <button type="button" class="btn-footer-top" onclick="window.scrollTo({top: 0, behavior: 'smooth'})" title="Scroll to Top">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"></polyline></svg>
-                <span>Back to Top</span>
+                <span><?= __('back_to_top') ?></span>
             </button>
         </div>
     </div>
@@ -227,11 +227,11 @@ $technologies = is_array($footer['technologies'] ?? null) ? $footer['technologie
         <div class="modal-header">
             <h3 style="display:flex; align-items:center; gap:0.5rem;">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
-                Edit or Delete Footer Sections
+                <?= __('edit_footer_sections') ?>
             </h3>
             <button type="button" class="btn-header-quick-save" id="quickSaveFooterBtn" title="Quick Confirm &amp; Save">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                <span>Save</span>
+                <span><?= __('save') ?></span>
             </button>
             <button type="button" class="close-btn" id="closeFooterModalBtn">&times;</button>
         </div>
@@ -333,11 +333,11 @@ $technologies = is_array($footer['technologies'] ?? null) ? $footer['technologie
             <div class="modal-footer" style="display: flex; justify-content: flex-end; align-items: center; gap: 0.75rem; padding: 1.1rem 1.5rem; background: #f8fafc; border-top: 1px solid #e2e8f0; border-radius: 0 0 16px 16px;">
                 <button type="button" class="btn-footer-cancel" id="cancelFooterModalBtn" style="background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; padding: 0.65rem 1.25rem; border-radius: 8px; font-size: 0.9rem; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 0.4rem; font-family: inherit;">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-                    <span>Cancel</span>
+                    <span><?= __('cancel') ?></span>
                 </button>
                 <button type="submit" class="btn-footer-confirm" id="saveFooterSettingsBtn" style="background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%); color: #ffffff; border: none; padding: 0.65rem 1.4rem; border-radius: 8px; font-size: 0.9rem; font-weight: 700; cursor: pointer; box-shadow: 0 4px 14px rgba(2, 132, 199, 0.35); display: inline-flex; align-items: center; gap: 0.5rem; font-family: inherit;">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                    <span>Confirm &amp; Save Changes</span>
+                    <span><?= __('confirm_save') ?></span>
                 </button>
             </div>
         </form>

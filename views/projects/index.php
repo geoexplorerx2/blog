@@ -1,10 +1,12 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Featured Projects &amp; Portfolio | Farshad Nabizade</title>
-    <link rel="icon" type="image/png" href="https://uploads.neginsafareh-academy.ir/files/favicon_20260907_085955_27bd31cd.png">
+    <link rel="icon" type="image/png" href="assets/favicon.png?v=2">
+    <link rel="shortcut icon" href="favicon.ico?v=2">
+    <link rel="apple-touch-icon" href="assets/favicon.png?v=2">
     <link rel="stylesheet" href="assets/fonts.css">
     <style>
         :root {
@@ -42,6 +44,19 @@
             color: var(--text-dark);
             line-height: 1.6;
             -webkit-font-smoothing: antialiased;
+            position: relative;
+        }
+
+        /* Background Light Particles Canvas */
+        .bg-particles-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0.65;
         }
 
         /* Top Header */
@@ -1109,13 +1124,15 @@
             }
         }
     </style>
+    <link rel="stylesheet" href="assets/css/particles.css">
 </head>
 <body>
+<div id="particles-js"></div>
 
 <div class="projects-header">
-    <h1>Featured Projects &amp; Portfolio</h1>
-    <p style="font-style: italic; opacity: 0.95; font-size: 1.05rem; letter-spacing: 0.01em;">“Somewhere, something incredible is waiting to be known.”</p>
-    <div style="font-size: 0.85rem; color: #93c5fd; font-weight: 600; margin-top: 0.4rem; letter-spacing: 0.04em;">— Carl Edward Sagan</div>
+    <h1><?= __('featured_projects_title') ?></h1>
+    <p style="font-style: italic; opacity: 0.95; font-size: 1.05rem; letter-spacing: 0.01em;"><?= __('featured_projects_quote') ?></p>
+    <div style="font-size: 0.85rem; color: #93c5fd; font-weight: 600; margin-top: 0.4rem; letter-spacing: 0.04em;"><?= __('featured_projects_author') ?></div>
 </div>
 
 <div class="container">
@@ -1124,18 +1141,18 @@
         <div class="search-row">
             <div class="search-box">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-                <input type="text" id="projectSearchInput" placeholder="Search projects by name, company, role, or description...">
+                <input type="text" id="projectSearchInput" placeholder="<?= __('search_projects') ?>">
             </div>
             <?php if (Auth::isLoggedIn()): ?>
             <button type="button" class="btn-add-project" id="addProjectBtn">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>
-                <span>Add Project</span>
+                <span><?= __('add_project') ?></span>
             </button>
             <?php endif; ?>
         </div>
 
         <div class="tech-filter-bar" id="techFilterBar">
-            <button type="button" class="filter-btn active" data-tech="all">All Projects</button>
+            <button type="button" class="filter-btn active" data-tech="all"><?= __('all_projects') ?></button>
             <button type="button" class="filter-btn" data-tech="Next.js">Next.js</button>
             <button type="button" class="filter-btn" data-tech="React">React</button>
             <button type="button" class="filter-btn" data-tech="TypeScript">TypeScript</button>
@@ -1158,7 +1175,7 @@
 <div class="modal-overlay" id="projectModal">
     <div class="modal-card">
         <div class="modal-header">
-            <h3 id="projectModalTitle">Add New Project</h3>
+            <h3 id="projectModalTitle"><?= __('add_project') ?></h3>
             <button type="button" class="close-btn" id="closeProjectModalBtn">&times;</button>
         </div>
         <form id="projectForm">
@@ -1166,7 +1183,7 @@
                 <input type="hidden" id="p_id" value="">
 
                 <div class="form-group">
-                    <label for="p_title">Project Title <span style="color:#ef4444;">*</span></label>
+                    <label for="p_title"><?= __('project_title') ?> <span style="color:#ef4444;">*</span></label>
                     <input type="text" id="p_title" required placeholder="e.g. BazarGah Marketplace Platform">
                 </div>
 
@@ -1206,7 +1223,7 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="p_description">Project Overview &amp; Description <span style="color:#ef4444;">*</span></label>
+                    <label for="p_description"><?= __('description_and_goals') ?> <span style="color:#ef4444;">*</span></label>
                     <textarea id="p_description" rows="3" required placeholder="Describe the goal, architectural foundation, and impact of the project..."></textarea>
                 </div>
 
@@ -1216,13 +1233,13 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="p_highlights">Key Deliverables &amp; Achievements (One per line)</label>
+                    <label for="p_highlights"><?= __('key_deliverables') ?> (One per line)</label>
                     <textarea id="p_highlights" rows="4" placeholder="• Designed modular component architecture&#10;• Reduced latency by 45% with Redis caching&#10;• Integrated automated payment verification"></textarea>
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn-link-action" id="cancelProjectModalBtn">Cancel</button>
-                <button type="submit" class="btn-add-project" id="saveProjectBtn">Save Project</button>
+                <button type="button" class="btn-link-action" id="cancelProjectModalBtn"><?= __('cancel') ?></button>
+                <button type="submit" class="btn-add-project" id="saveProjectBtn"><?= __('save_project') ?></button>
             </div>
         </form>
     </div>
@@ -1865,5 +1882,7 @@
     // Initial Render
     renderProjects(allProjects);
 </script>
+<script src="assets/js/particles.min.js"></script>
+<script src="assets/js/particles-init.js"></script>
 </body>
 </html>

@@ -4,7 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= $isPublicMode ? 'Timesheet & Project Breakdown' : 'Freelance Workspace & Task Management' ?> | Farshad Nabizadeh</title>
-    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <link rel="icon" type="image/png" href="assets/favicon.png?v=2">
+    <link rel="shortcut icon" href="favicon.ico?v=2">
+    <link rel="apple-touch-icon" href="assets/favicon.png?v=2">
     <link rel="stylesheet" href="assets/fonts.css">
     <link rel="stylesheet" href="assets/poppins.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -96,6 +98,19 @@
             line-height: 1.5;
             overflow-x: hidden;
             max-width: 100vw;
+            position: relative;
+        }
+
+        /* Background Light Particles Canvas */
+        .bg-particles-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0.65;
         }
 
         body.sidebar-open {
@@ -2922,8 +2937,10 @@
             font-weight: 600;
         }
     </style>
+    <link rel="stylesheet" href="assets/css/particles.css">
 </head>
 <body>
+    <div id="particles-js"></div>
 
     <!-- TOP HEADER -->
     <header class="app-topbar">
@@ -2946,19 +2963,19 @@
         <nav class="topbar-nav-menu">
             <a href="index.php" class="topbar-nav-link" title="Questions & Knowledge Base">
                 <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
-                <span>Questions Base</span>
+                <span><?= __('questions_base') ?></span>
             </a>
             <a href="projects.php" class="topbar-nav-link" title="Projects Portfolio">
                 <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>
-                <span>Projects Portfolio</span>
+                <span><?= __('projects_portfolio') ?></span>
             </a>
             <a href="freelance.php" class="topbar-nav-link active" title="Freelance Hub (Current)">
                 <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>
-                <span>Freelance Hub</span>
+                <span><?= __('freelance_hub') ?></span>
             </a>
             <a href="profile.php" class="topbar-nav-link" title="Resume & Experience">
                 <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
-                <span>Resume &amp; CV</span>
+                <span><?= __('resume_cv') ?></span>
             </a>
         </nav>
 
@@ -2966,28 +2983,28 @@
             <?php if ($isLoggedIn): ?>
                 <span class="topbar-user-badge" title="Authenticated as <?= htmlspecialchars(Auth::getCurrentUser()) ?>">
                     <span class="user-status-dot"></span>
-                    <span class="topbar-user-text"><span class="user-prefix">Logged in as </span><strong><?= htmlspecialchars(Auth::getCurrentUser()) ?></strong></span>
+                    <span class="topbar-user-text"><span class="user-prefix"><?= __('logged_in_as') ?> </span><strong><?= htmlspecialchars(Auth::getCurrentUser()) ?></strong></span>
                 </span>
                 <button type="button" class="btn btn-secondary btn-sm btn-topbar-action" onclick="openManageListModal()" title="List to Manage Companies & Projects">
                     <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
-                    <span class="btn-text">Manage List</span>
+                    <span class="btn-text"><?= __('manage_list') ?></span>
                 </button>
                 <button type="button" class="btn btn-primary btn-sm btn-topbar-action" id="btnOpenAddCompany" title="Create New Company">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-                    <span class="btn-text">New Company</span>
+                    <span class="btn-text"><?= __('new_company') ?></span>
                 </button>
                 <a href="freelance.php?action=logout" class="btn btn-secondary btn-sm btn-topbar-action" title="Sign Out">
                     <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
-                    <span class="btn-text">Logout</span>
+                    <span class="btn-text"><?= __('logout') ?></span>
                 </a>
             <?php else: ?>
                 <a href="projects.php" class="btn btn-secondary btn-sm btn-topbar-action" title="Projects Portfolio">
                     <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>
-                    <span class="btn-text">Projects</span>
+                    <span class="btn-text"><?= __('projects') ?></span>
                 </a>
                 <button type="button" class="btn btn-primary btn-sm btn-topbar-action" id="btnOpenLoginModal" title="Freelancer Login">
                     <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
-                    <span class="btn-text">Freelancer Login</span>
+                    <span class="btn-text"><?= __('freelancer_signin_title') ?></span>
                 </button>
             <?php endif; ?>
         </div>
@@ -3044,11 +3061,11 @@
 
                 <div class="total-summary-card">
                     <div>
-                        <div style="font-size:0.82rem; font-weight:700; color:var(--text-muted); text-transform:uppercase;">Overall Billable Hours</div>
+                        <div style="font-size:0.82rem; font-weight:700; color:var(--text-muted); text-transform:uppercase;"><?= __('overall_billable_hours') ?></div>
                         <div style="font-size:1.5rem; font-weight:800; color:var(--brand-dark); font-family:'JetBrains Mono', monospace;" id="sharedTotalHours">0.00 hrs</div>
                     </div>
                     <div>
-                        <div style="font-size:0.82rem; font-weight:700; color:var(--brand-primary); text-transform:uppercase;">Grand Total Price (مبلغ کل)</div>
+                        <div style="font-size:0.82rem; font-weight:700; color:var(--brand-primary); text-transform:uppercase;"><?= __('grand_total_price') ?></div>
                         <div style="font-size:2.1rem; font-weight:800; color:var(--brand-primary); font-family:'JetBrains Mono', monospace;" id="sharedTotalPrice">0 تومان</div>
                     </div>
                 </div>
@@ -3065,8 +3082,8 @@
                     <div style="width:54px; height:54px; border-radius:var(--radius-md); background:var(--brand-gradient); color:#ffffff; display:inline-flex; align-items:center; justify-content:center; margin-bottom:12px; box-shadow:0 6px 16px rgba(18, 70, 111, 0.25);">
                         <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
                     </div>
-                    <h2 style="font-size:1.4rem; font-weight:800; color:var(--brand-dark);">Freelancer Sign In</h2>
-                    <p style="font-size:0.86rem; color:var(--text-muted); margin-top:4px;">Log in to access companies, projects, and hourly tasks</p>
+                    <h2 style="font-size:1.4rem; font-weight:800; color:var(--brand-dark);"><?= __('freelancer_signin_title') ?></h2>
+                    <p style="font-size:0.86rem; color:var(--text-muted); margin-top:4px;"><?= __('freelancer_signin_sub') ?></p>
                 </div>
 
                 <form id="standaloneLoginForm">
@@ -3079,7 +3096,7 @@
                         <input type="password" id="loginPass" class="form-control" required placeholder="Enter password">
                     </div>
                     <button type="submit" class="btn btn-primary" style="width:100%; padding:12px; margin-top:8px;">
-                        <span>Sign In</span>
+                        <span><?= __('sign_in') ?></span>
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
                     </button>
                 </form>
@@ -3102,7 +3119,7 @@
                 <div class="sidebar-header">
                     <h2>
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
-                        Companies &amp; Projects
+                        <?= __('companies_and_projects') ?>
                     </h2>
                     <div style="display:flex; align-items:center; gap:4px;">
                         <button type="button" class="btn btn-ghost btn-sm" id="btnSidebarManageList" onclick="toggleMobileSidebar(false); openManageListModal();" title="Manage Companies & Projects (List / Delete / Edit)">
@@ -3121,24 +3138,24 @@
                 <div class="sidebar-nav-section">
                     <div class="sidebar-nav-header">
                         <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
-                        <span>Platform Pages</span>
+                        <span><?= __('platform_pages') ?></span>
                     </div>
                     <div class="sidebar-nav-grid">
                         <a href="index.php" class="sidebar-nav-tab" title="Questions & Knowledge Base">
                             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
-                            <span>Questions</span>
+                            <span><?= __('questions') ?></span>
                         </a>
                         <a href="projects.php" class="sidebar-nav-tab" title="Projects Portfolio">
                             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>
-                            <span>Projects</span>
+                            <span><?= __('projects') ?></span>
                         </a>
                         <a href="freelance.php" class="sidebar-nav-tab active" title="Freelance Hub (Active)">
                             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>
-                            <span>Freelance</span>
+                            <span><?= __('freelance') ?></span>
                         </a>
                         <a href="profile.php" class="sidebar-nav-tab" title="Resume & Experience">
                             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
-                            <span>Resume</span>
+                            <span><?= __('resume') ?></span>
                         </a>
                     </div>
                 </div>
@@ -3146,7 +3163,7 @@
                 <div class="sidebar-search">
                     <div class="search-input-wrapper">
                         <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-                        <input type="text" id="filterProjectsInput" class="search-input" placeholder="Search companies or projects...">
+                        <input type="text" id="filterProjectsInput" class="search-input" placeholder="<?= __('search_placeholder') ?>">
                     </div>
                 </div>
 
@@ -3196,22 +3213,22 @@
                         <div class="project-actions-bar">
                             <button type="button" class="btn btn-primary" id="btnCreateTask">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-                                <span>Create Task</span>
+                                <span><?= __('create_task') ?></span>
                             </button>
 
                             <button type="button" class="btn btn-secondary" id="btnShareProject">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
-                                <span>Share Link</span>
+                                <span><?= __('share_link') ?></span>
                             </button>
 
                             <button type="button" class="btn btn-secondary" id="btnEditProject">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
-                                <span>Edit Project</span>
+                                <span><?= __('edit_project') ?></span>
                             </button>
 
                             <button type="button" class="btn btn-danger" id="btnDeleteProject">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
-                                <span>Delete Project</span>
+                                <span><?= __('delete_project') ?></span>
                             </button>
                         </div>
                     </div>
@@ -3221,32 +3238,32 @@
                         <div class="currency-selector-group">
                             <span class="currency-selector-label">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="6" x2="12" y2="18"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>
-                                <span>Currency (واحد پول):</span>
+                                <span><?= __('currency_label') ?></span>
                             </span>
                             <div class="currency-pills" id="projectCurrencyPills">
                                 <button type="button" class="currency-pill-btn active" data-currency="$" onclick="handleCurrencySelect('$')" title="Set currency to US Dollar ($)">
                                     <span class="curr-flag">💵</span>
-                                    <span>Dollar ($)</span>
+                                    <span><?= __('dollar') ?></span>
                                 </button>
                                 <button type="button" class="currency-pill-btn" data-currency="تومان" onclick="handleCurrencySelect('تومان')" title="Set currency to Iranian Toman (تومان)">
                                     <span class="curr-flag">🇮🇷</span>
-                                    <span>Toman (تومان)</span>
+                                    <span><?= __('toman') ?></span>
                                 </button>
                                 <button type="button" class="currency-pill-btn" data-currency="€" onclick="handleCurrencySelect('€')" title="Set currency to Euro (€)">
                                     <span class="curr-flag">💶</span>
-                                    <span>Euro (€)</span>
+                                    <span><?= __('euro') ?></span>
                                 </button>
                             </div>
                         </div>
 
                         <div class="currency-rate-setter">
                             <span class="currency-rate-info">
-                                <span class="rate-label">Hourly Rate:</span>
+                                <span class="rate-label"><?= __('hourly_rate') ?>:</span>
                                 <strong class="rate-value" id="currencySectionRateDisplay">$0.00 / hr</strong>
                             </span>
                             <button type="button" class="btn btn-secondary btn-sm" onclick="openSetRateModal()" title="Set or adjust hourly rate according to selected currency">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
-                                <span>Set Price (تنظیم نرخ)</span>
+                                <span><?= __('set_price') ?></span>
                             </button>
                         </div>
                     </div>
@@ -3258,7 +3275,7 @@
                                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4"></polyline><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>
                             </div>
                             <div class="stat-meta">
-                                <div class="stat-label">Total Tasks</div>
+                                <div class="stat-label"><?= __('total_tasks') ?></div>
                                 <div class="stat-value" id="statTaskCount">0</div>
                             </div>
                         </div>
@@ -3268,7 +3285,7 @@
                                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
                             </div>
                             <div class="stat-meta">
-                                <div class="stat-label">Total Hours</div>
+                                <div class="stat-label"><?= __('total_hours') ?></div>
                                 <div class="stat-value" id="statTotalHours">0.00h</div>
                             </div>
                         </div>
@@ -3278,7 +3295,7 @@
                                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
                             </div>
                             <div class="stat-meta">
-                                <div class="stat-label">Hourly Rate (نرخ ساعتی)</div>
+                                <div class="stat-label"><?= __('hourly_rate') ?></div>
                                 <div class="stat-value" id="statHourlyRate">0 تومان / ساعت</div>
                             </div>
                         </div>
@@ -3288,7 +3305,7 @@
                                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"></rect><line x1="2" y1="10" x2="22" y2="10"></line></svg>
                             </div>
                             <div class="stat-meta">
-                                <div class="stat-label">Total Price (مبلغ کل)</div>
+                                <div class="stat-label"><?= __('total_price') ?></div>
                                 <div class="stat-value" id="statTotalPrice">0 تومان</div>
                             </div>
                         </div>
@@ -3302,16 +3319,16 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
                         </svg>
                     </div>
-                    <h4>Select a Company Project</h4>
-                    <p>Choose a project from the left sidebar to view logged tasks, track billable hours, and generate client share links.</p>
+                    <h4><?= __('select_project_title') ?></h4>
+                    <p><?= __('select_project_sub') ?></p>
                     <div class="empty-state-actions" style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin-top:16px;">
                         <button type="button" class="btn-minimal-primary" onclick="openCreateCompanyModal()">
                             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-                            <span>Add New Company</span>
+                            <span><?= __('add_new_company') ?></span>
                         </button>
                         <button type="button" class="btn-minimal-secondary" onclick="openManageListModal()">
                             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
-                            <span>Manage Companies &amp; Projects</span>
+                            <span><?= __('manage_companies_projects') ?></span>
                         </button>
                     </div>
                 </div>
@@ -3321,13 +3338,13 @@
                     <div class="tasks-container-header">
                         <h3>
                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
-                            Project Tasks Breakdown
+                            <?= __('project_tasks_breakdown') ?>
                         </h3>
 
                         <div class="tasks-filter-bar">
-                            <button type="button" class="filter-btn active" data-filter="all">All Tasks</button>
-                            <button type="button" class="filter-btn" data-filter="completed">Completed</button>
-                            <button type="button" class="filter-btn" data-filter="in_progress">In Progress</button>
+                            <button type="button" class="filter-btn active" data-filter="all"><?= __('all_tasks') ?></button>
+                            <button type="button" class="filter-btn" data-filter="completed"><?= __('completed') ?></button>
+                            <button type="button" class="filter-btn" data-filter="in_progress"><?= __('in_progress') ?></button>
                         </div>
                     </div>
 
@@ -3357,7 +3374,7 @@
         <div class="modal-backdrop" id="companyModal">
             <div class="modal-box">
                 <div class="modal-header">
-                    <h3 id="companyModalTitle">Create New Company</h3>
+                    <h3 id="companyModalTitle"><?= __('create_new_company') ?></h3>
                     <button type="button" class="modal-close-btn" onclick="closeModal('companyModal')">
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
                     </button>
@@ -3366,27 +3383,27 @@
                     <div class="modal-body">
                         <input type="hidden" id="companyId" value="">
                         <div class="form-group">
-                            <label for="companyName">Company / Client Name *</label>
+                            <label for="companyName"><?= __('company_client_name') ?></label>
                             <input type="text" id="companyName" class="form-control" required placeholder="e.g. Acme Corporation">
                         </div>
                         <div class="form-row">
                             <div class="form-group">
-                                <label for="companyClientName">Contact Person</label>
+                                <label for="companyClientName"><?= __('contact_person') ?></label>
                                 <input type="text" id="companyClientName" class="form-control" placeholder="e.g. John Doe">
                             </div>
                             <div class="form-group">
-                                <label for="companyClientEmail">Contact Email</label>
+                                <label for="companyClientEmail"><?= __('contact_email') ?></label>
                                 <input type="email" id="companyClientEmail" class="form-control" placeholder="client@example.com">
                             </div>
                         </div>
                         <div class="form-group">
-                            <label for="companyColor">Brand Accent Color</label>
+                            <label for="companyColor"><?= __('brand_accent_color') ?></label>
                             <input type="color" id="companyColor" class="form-control" style="height:42px; padding:3px;" value="#12466f">
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" onclick="closeModal('companyModal')">Cancel</button>
-                        <button type="submit" class="btn btn-primary" id="btnSaveCompany">Save Company</button>
+                        <button type="button" class="btn btn-secondary" onclick="closeModal('companyModal')"><?= __('cancel') ?></button>
+                        <button type="submit" class="btn btn-primary" id="btnSaveCompany"><?= __('save_company') ?></button>
                     </div>
                 </form>
             </div>
@@ -3396,7 +3413,7 @@
         <div class="modal-backdrop" id="projectModal">
             <div class="modal-box">
                 <div class="modal-header">
-                    <h3 id="projectModalTitle">Create Project</h3>
+                    <h3 id="projectModalTitle"><?= __('create_project') ?></h3>
                     <button type="button" class="modal-close-btn" onclick="closeModal('projectModal')">
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
                     </button>
@@ -3405,20 +3422,20 @@
                     <div class="modal-body">
                         <input type="hidden" id="projectId" value="">
                         <div class="form-group">
-                            <label for="projectCompanySelect">Company *</label>
+                            <label for="projectCompanySelect"><?= __('company_selection') ?></label>
                             <select id="projectCompanySelect" class="form-control" required></select>
                         </div>
                         <div class="form-group">
-                            <label for="projectTitle">Project Title *</label>
+                            <label for="projectTitle"><?= __('project_title') ?></label>
                             <input type="text" id="projectTitle" class="form-control" required placeholder="e.g. E-Commerce Platform Redesign">
                         </div>
                         <div class="form-row">
                             <div class="form-group">
-                                <label for="projectCurrency">Currency (واحد پول) *</label>
+                                <label for="projectCurrency"><?= __('currency_label') ?> *</label>
                                 <select id="projectCurrency" class="form-control" onchange="handleProjectModalCurrencyChange(this.value)">
-                                    <option value="$">💵 US Dollar ($ USD)</option>
-                                    <option value="تومان">🇮🇷 Iranian Toman (تومان)</option>
-                                    <option value="€">💶 Euro (€ EUR)</option>
+                                    <option value="$">💵 <?= __('dollar') ?></option>
+                                    <option value="تومان">🇮🇷 <?= __('toman') ?></option>
+                                    <option value="€">💶 <?= __('euro') ?></option>
                                 </select>
                             </div>
                             <div class="form-group">
@@ -3427,21 +3444,21 @@
                             </div>
                         </div>
                         <div class="form-group">
-                            <label for="projectStatus">Project Status</label>
+                            <label for="projectStatus"><?= __('project_status') ?></label>
                             <select id="projectStatus" class="form-control">
-                                <option value="in_progress">In Progress</option>
-                                <option value="completed">Completed</option>
-                                <option value="on_hold">On Hold</option>
+                                <option value="in_progress"><?= __('in_progress') ?></option>
+                                <option value="completed"><?= __('completed') ?></option>
+                                <option value="on_hold"><?= __('on_hold') ?></option>
                             </select>
                         </div>
                         <div class="form-group">
-                            <label for="projectDescription">Description &amp; Goals</label>
+                            <label for="projectDescription"><?= __('description_and_goals') ?></label>
                             <textarea id="projectDescription" class="form-control" rows="3" placeholder="Brief details about the project requirements..."></textarea>
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" onclick="closeModal('projectModal')">Cancel</button>
-                        <button type="submit" class="btn btn-primary" id="btnSaveProject">Save Project</button>
+                        <button type="button" class="btn btn-secondary" onclick="closeModal('projectModal')"><?= __('cancel') ?></button>
+                        <button type="submit" class="btn btn-primary" id="btnSaveProject"><?= __('save_project') ?></button>
                     </div>
                 </form>
             </div>
@@ -3495,7 +3512,7 @@
         <div class="modal-backdrop" id="taskModal">
             <div class="modal-box">
                 <div class="modal-header">
-                    <h3 id="taskModalTitle">Create Task</h3>
+                    <h3 id="taskModalTitle"><?= __('create_task') ?></h3>
                     <button type="button" class="modal-close-btn" onclick="closeModal('taskModal')">
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
                     </button>
@@ -3505,64 +3522,64 @@
                         <input type="hidden" id="taskId" value="">
                         
                         <div class="form-group">
-                            <label for="taskTitle">Task Name / Deliverable *</label>
+                            <label for="taskTitle"><?= __('task_name_deliverable') ?></label>
                             <input type="text" id="taskTitle" class="form-control" required placeholder="e.g. Build GraphQL API &amp; Auth Middleware">
                         </div>
 
                         <div class="form-row">
                             <div class="form-group">
-                                <label for="taskStartDate">Start Date *</label>
+                                <label for="taskStartDate"><?= __('start_date') ?></label>
                                 <input type="date" id="taskStartDate" class="form-control" required value="<?= date('Y-m-d') ?>">
                             </div>
                             <div class="form-group">
-                                <label for="taskEndDate">End Date *</label>
+                                <label for="taskEndDate"><?= __('end_date') ?></label>
                                 <input type="date" id="taskEndDate" class="form-control" required value="<?= date('Y-m-d') ?>">
                             </div>
                         </div>
 
                         <div class="form-row">
                             <div class="form-group">
-                                <label for="taskStartTime">Start Time *</label>
+                                <label for="taskStartTime"><?= __('start_time') ?></label>
                                 <input type="time" step="any" id="taskStartTime" class="form-control" required value="09:00">
                             </div>
                             <div class="form-group">
-                                <label for="taskEndTime">End Time *</label>
+                                <label for="taskEndTime"><?= __('end_time') ?></label>
                                 <input type="time" step="any" id="taskEndTime" class="form-control" required value="13:00">
                             </div>
                         </div>
 
                         <div class="form-row">
                             <div class="form-group">
-                                <label for="taskStatus">Task Status</label>
+                                <label for="taskStatus"><?= __('project_status') ?></label>
                                 <select id="taskStatus" class="form-control">
-                                    <option value="completed">Completed</option>
-                                    <option value="in_progress">In Progress</option>
-                                    <option value="pending">Pending</option>
+                                    <option value="completed"><?= __('completed') ?></option>
+                                    <option value="in_progress"><?= __('in_progress') ?></option>
+                                    <option value="pending"><?= __('pending') ?></option>
                                 </select>
                             </div>
                             <div class="form-group">
-                                <label for="taskPricePerHour" id="taskPricePerHourLabel">Price Per Hour *</label>
+                                <label for="taskPricePerHour" id="taskPricePerHourLabel"><?= __('price_per_hour') ?></label>
                                 <input type="number" step="any" min="0" id="taskPricePerHour" class="form-control" required value="50" placeholder="e.g. 50">
                             </div>
                         </div>
 
                         <!-- Live Calculated Duration and Total Price preview -->
                         <div class="calc-preview-bar">
-                            <span>Computed Duration: <strong id="calcDurationPreview">4.00 hrs</strong></span>
-                            <span>Total Price: <strong id="calcPricePreview">0 تومان</strong></span>
+                            <span><?= __('computed_duration') ?> <strong id="calcDurationPreview">4.00 hrs</strong></span>
+                            <span><?= __('total_price') ?>: <strong id="calcPricePreview">0 تومان</strong></span>
                         </div>
 
                         <div class="form-group" style="margin-top:16px;">
                             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-                                <label for="taskDescription" style="margin-bottom:0; font-weight:600;">Task Description &amp; Technical Notes *</label>
+                                <label for="taskDescription" style="margin-bottom:0; font-weight:600;"><?= __('task_description_label') ?></label>
                                 <div class="markdown-tabs">
                                     <button type="button" class="markdown-tab-btn active" id="tabWriteBtn" onclick="switchTaskDescTab('write')">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
-                                        Write
+                                        <?= __('write') ?>
                                     </button>
                                     <button type="button" class="markdown-tab-btn" id="tabPreviewBtn" onclick="switchTaskDescTab('preview')">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
-                                        Preview
+                                        <?= __('preview') ?>
                                     </button>
                                 </div>
                             </div>
@@ -3583,8 +3600,8 @@
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" onclick="closeModal('taskModal')">Cancel</button>
-                        <button type="submit" class="btn btn-primary" id="btnSaveTask">Save Task</button>
+                        <button type="button" class="btn btn-secondary" onclick="closeModal('taskModal')"><?= __('cancel') ?></button>
+                        <button type="submit" class="btn btn-primary" id="btnSaveTask"><?= __('save_task') ?></button>
                     </div>
                 </form>
             </div>
@@ -3596,7 +3613,7 @@
                 <div class="modal-header">
                     <h3>
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
-                        Share Project Timesheet &amp; Invoice
+                        <?= __('timesheet_and_invoice') ?>
                     </h3>
                     <button type="button" class="modal-close-btn" onclick="closeModal('shareModal')">
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
@@ -3611,8 +3628,8 @@
                         <label>1. Project Share Link (Current Project Tasks + Total Price)</label>
                         <div style="display:flex; gap:8px;">
                             <input type="text" id="shareProjectUrlInput" class="form-control" readonly style="background:#f8fafc;">
-                            <button type="button" class="btn btn-primary btn-sm" onclick="copyShareLink('shareProjectUrlInput')">Copy</button>
-                            <a href="#" id="shareProjectPreviewBtn" target="_blank" class="btn btn-secondary btn-sm" title="Preview Public Link">Open</a>
+                            <button type="button" class="btn btn-primary btn-sm" onclick="copyShareLink('shareProjectUrlInput')"><?= __('copy') ?></button>
+                            <a href="#" id="shareProjectPreviewBtn" target="_blank" class="btn btn-secondary btn-sm" title="Preview Public Link"><?= __('open') ?></a>
                         </div>
                     </div>
 
@@ -3620,13 +3637,13 @@
                         <label>2. Company All-Projects Share Link (All Projects + Grand Total)</label>
                         <div style="display:flex; gap:8px;">
                             <input type="text" id="shareCompanyUrlInput" class="form-control" readonly style="background:#f8fafc;">
-                            <button type="button" class="btn btn-primary btn-sm" onclick="copyShareLink('shareCompanyUrlInput')">Copy</button>
-                            <a href="#" id="shareCompanyPreviewBtn" target="_blank" class="btn btn-secondary btn-sm" title="Preview Company Report">Open</a>
+                            <button type="button" class="btn btn-primary btn-sm" onclick="copyShareLink('shareCompanyUrlInput')"><?= __('copy') ?></button>
+                            <a href="#" id="shareCompanyPreviewBtn" target="_blank" class="btn btn-secondary btn-sm" title="Preview Company Report"><?= __('open') ?></a>
                         </div>
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" onclick="closeModal('shareModal')">Close</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('shareModal')"><?= __('close') ?></button>
                 </div>
             </div>
         </div>
@@ -3637,7 +3654,7 @@
                 <div class="modal-header">
                     <h3>
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
-                        Manage Companies &amp; Projects
+                        <?= __('manage_companies_projects') ?>
                     </h3>
                     <button type="button" class="modal-close-btn" onclick="closeModal('manageListModal')">
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
@@ -3646,24 +3663,24 @@
                 <div class="modal-body" style="padding:20px 24px; max-height: calc(85vh - 130px); overflow-y: auto;">
                     <div class="manage-toolbar">
                         <div class="manage-search-input">
-                            <input type="text" id="manageListSearchInput" class="form-control" placeholder="Search companies or projects..." oninput="filterManageModalList(this.value)">
+                            <input type="text" id="manageListSearchInput" class="form-control" placeholder="<?= __('search_placeholder') ?>" oninput="filterManageModalList(this.value)">
                         </div>
                         <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
                             <button type="button" class="btn btn-primary btn-sm" onclick="openCreateCompanyModal()">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-                                <span>Add Company</span>
+                                <span><?= __('add_company') ?></span>
                             </button>
                             <button type="button" class="btn btn-secondary btn-sm" onclick="openCreateProjectModal()">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-                                <span>Add Project</span>
+                                <span><?= __('add_project') ?></span>
                             </button>
                             <button type="button" class="btn btn-secondary btn-sm" onclick="seedDemoData()" title="Import demo sample companies & projects">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
-                                <span>Import Demo</span>
+                                <span><?= __('import_demo') ?></span>
                             </button>
                             <button type="button" class="btn btn-danger btn-sm" onclick="deleteAllCompanies()" title="Permanently delete all companies, projects, and tasks">
                                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
-                                <span>Delete All</span>
+                                <span><?= __('delete_all') ?></span>
                             </button>
                         </div>
                     </div>
@@ -3675,7 +3692,7 @@
                 </div>
                 <div class="modal-footer" style="background:#f8fafc; border-top:1px solid var(--border-color); padding:12px 24px;">
                     <span style="font-size:0.84rem; color:var(--text-muted); margin-right:auto;" id="manageListSummaryText"></span>
-                    <button type="button" class="btn btn-secondary" onclick="closeModal('manageListModal')">Close</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('manageListModal')"><?= __('close') ?></button>
                 </div>
             </div>
         </div>
@@ -3695,19 +3712,19 @@
         <div class="float-menu-header">
             <div class="float-menu-title">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
-                <span>Navigation &amp; Controls</span>
+                <span><?= __('navigation_controls') ?></span>
             </div>
             <button type="button" class="modal-close-btn" id="floatMenuCloseBtn" style="color: white; border: none; background: transparent; font-size: 1.4rem; cursor: pointer; display: flex; align-items: center; justify-content: center; width: 28px; height: 28px;">&times;</button>
         </div>
 
         <div class="float-menu-body">
             <!-- 1. Admin Status Section -->
-            <div class="float-menu-group-label">Admin Status</div>
+            <div class="float-menu-group-label"><?= __('admin_status') ?></div>
             <?php if ($isLoggedIn): ?>
                 <div style="display:flex; align-items:center; gap:0.5rem; padding:0.55rem 0.75rem; background:rgba(34,197,94,0.1); border:1px solid rgba(34,197,94,0.3); border-radius:8px; margin:0 0.15rem;">
                     <span style="width:8px; height:8px; border-radius:50%; background:#22c55e; box-shadow:0 0 6px #22c55e; flex-shrink:0;"></span>
                     <span style="font-size:0.82rem; font-weight:600; color:#15803d;">Admin: <strong><?= htmlspecialchars(Auth::getCurrentUser() ?? 'admin') ?></strong></span>
-                    <span class="float-menu-badge" style="background:#dcfce7; color:#166534; margin-left:auto;">Online</span>
+                    <span class="float-menu-badge" style="background:#dcfce7; color:#166534; margin-left:auto;"><?= __('online') ?></span>
                 </div>
             <?php else: ?>
                 <div style="display:flex; align-items:center; gap:0.5rem; padding:0.55rem 0.75rem; background:rgba(100,116,139,0.08); border:1px solid rgba(100,116,139,0.2); border-radius:8px; margin:0 0.15rem;">
@@ -3718,68 +3735,68 @@
 
             <!-- 2. Authentication Section -->
             <div class="float-menu-divider"></div>
-            <div class="float-menu-group-label">Authentication</div>
+            <div class="float-menu-group-label"><?= __('authentication') ?></div>
             <?php if ($isLoggedIn): ?>
                 <a href="freelance.php?action=logout" class="float-menu-item" style="color:#dc2626; text-decoration:none;">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:#ef4444;"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
-                    <span>Logout (Admin)</span>
-                    <span class="float-menu-badge" style="background:#fee2e2; color:#b91c1c;">Exit</span>
+                    <span><?= __('logout') ?></span>
+                    <span class="float-menu-badge" style="background:#fee2e2; color:#b91c1c;"><?= __('exit') ?></span>
                 </a>
             <?php else: ?>
                 <a href="freelance.php" class="float-menu-item" style="color:#0284c7; text-decoration:none;">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:#0284c7;"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
-                    <span>Admin Login</span>
-                    <span class="float-menu-badge" style="background:#e0f2fe; color:#0369a1;">Sign In</span>
+                    <span><?= __('log_in') ?></span>
+                    <span class="float-menu-badge" style="background:#e0f2fe; color:#0369a1;"><?= __('sign_in') ?></span>
                 </a>
             <?php endif; ?>
 
             <!-- 3. Navigation Links -->
             <div class="float-menu-divider"></div>
-            <div class="float-menu-group-label">Pages &amp; Navigation</div>
+            <div class="float-menu-group-label"><?= __('pages_navigation') ?></div>
             <a href="index.php" class="float-menu-item">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
-                <span>Questions Base</span>
+                <span><?= __('questions_base') ?></span>
             </a>
             <a href="projects.php" class="float-menu-item">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>
-                <span>Projects Portfolio</span>
+                <span><?= __('projects_portfolio') ?></span>
             </a>
             <a href="freelance.php" class="float-menu-item" style="background:var(--brand-light); color:var(--brand-primary); font-weight:700;">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>
-                <span>Freelance Hub</span>
-                <span class="float-menu-badge" style="background:var(--brand-primary); color:white;">Active</span>
+                <span><?= __('freelance_hub') ?></span>
+                <span class="float-menu-badge" style="background:var(--brand-primary); color:white;"><?= __('active') ?></span>
             </a>
             <a href="profile.php" class="float-menu-item">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
-                <span>Resume &amp; CV</span>
+                <span><?= __('resume_cv') ?></span>
             </a>
 
             <!-- 4. Quick Actions -->
             <div class="float-menu-divider"></div>
-            <div class="float-menu-group-label">Quick Actions</div>
+            <div class="float-menu-group-label"><?= __('quick_actions') ?></div>
             <?php if ($isLoggedIn && !$isPublicMode): ?>
                 <button type="button" class="float-menu-item" onclick="toggleFloatMenu(false); openManageListModal();">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
-                    <span>Manage Companies &amp; Projects</span>
+                    <span><?= __('manage_companies_projects') ?></span>
                     <span class="float-menu-badge" style="background:#eaf2f8; color:#12466f;">List</span>
                 </button>
                 <button type="button" class="float-menu-item" onclick="toggleFloatMenu(false); openCreateCompanyModal();">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>
-                    <span>Add New Company</span>
+                    <span><?= __('add_new_company') ?></span>
                 </button>
                 <button type="button" class="float-menu-item" id="floatCreateTaskBtn" onclick="toggleFloatMenu(false); if(activeProjectId) { openCreateTaskModal(); } else { showToast('Please select a project first', 'info'); }">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-                    <span>Log New Task</span>
+                    <span><?= __('log_new_task') ?></span>
                 </button>
                 <button type="button" class="float-menu-item" onclick="toggleFloatMenu(false); const fBtn = document.getElementById('editFooterTriggerBtn'); if(fBtn) fBtn.click();">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
-                    <span>Edit Footer Sections</span>
+                    <span><?= __('edit_footer_sections') ?></span>
                     <span class="float-menu-badge" style="background:#e0f2fe; color:#0369a1;">Config</span>
                 </button>
             <?php endif; ?>
             <button type="button" class="float-menu-item" onclick="toggleFloatMenu(false); window.print();">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
-                <span>Print Page</span>
+                <span><?= __('print_page') ?></span>
             </button>
             <button type="button" class="float-menu-item" onclick="toggleFloatMenu(false); window.scrollTo({ top: 0, behavior: 'smooth' });">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"></polyline></svg>
@@ -5575,5 +5592,7 @@
             }
         });
     </script>
+    <script src="assets/js/particles.min.js"></script>
+    <script src="assets/js/particles-init.js"></script>
 </body>
 </html>
