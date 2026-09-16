@@ -381,6 +381,8 @@
             color: var(--navy-800);
             width: 100%;
             line-height: 1.45;
+            max-height: 6.5em;
+            overflow-y: auto;
         }
         .action-btn {
             background: transparent;
@@ -416,7 +418,8 @@
             border-top: 1px solid transparent;
         }
         .qa-item.open .qa-answer {
-            max-height: 5000px;
+            max-height: 60vh;
+            overflow-y: auto;
             border-top-color: var(--border);
             padding: 1.25rem 2.25rem;
         }
