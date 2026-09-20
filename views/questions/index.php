@@ -2574,6 +2574,7 @@
         if (noResults) noResults.style.display = 'none';
         qaList.style.display = 'block';
 
+        const fragment = document.createDocumentFragment();
         items.forEach((item, index) => {
             if (!item) return;
             const div = document.createElement('div');
@@ -2630,18 +2631,29 @@
                     ` : ''}
                 </div>
             `;
-            qaList.appendChild(div);
+            fragment.appendChild(div);
         });
+        qaList.appendChild(fragment);
         updateStats(items.length);
         triggerHighlighting(qaList);
     }
 
     function filterQuestions(query) {
         const q = (query || '').toLowerCase().trim();
-        if (!q) return qaData || [];
-        return (qaData || []).filter(item => {
-            return (item.question || '').toLowerCase().includes(q) || (item.answer || '').toLowerCase().includes(q);
+        if (!qaList) return;
+        const wraps = qaList.querySelectorAll('.qa-item-wrap');
+        let visibleCount = 0;
+        wraps.forEach(wrap => {
+            const id = wrap.querySelector('.qa-item')?.dataset.id;
+            const item = (qaData || []).find(it => it && it.id == id);
+            const questionText = item ? item.question : (wrap.querySelector('.item-question-text')?.innerText || '');
+            const answerText = item ? item.answer : (wrap.querySelector('.item-answer-text')?.innerText || '');
+            const match = !q || questionText.toLowerCase().includes(q) || answerText.toLowerCase().includes(q);
+            wrap.style.display = match ? '' : 'none';
+            if (match) visibleCount++;
         });
+        if (noResults) noResults.style.display = (visibleCount === 0 && wraps.length > 0) ? 'block' : 'none';
+        updateStats(visibleCount);
     }
 
     function toggleItem(itemElement) {
@@ -2870,7 +2882,10 @@
                             answer_html: result.answer_html
                         };
                         qaData.unshift(newItem);
-                        renderList(filterQuestions(searchInput.value));
+                        renderList(qaData);
+                        if (searchInput && searchInput.value) {
+                            filterQuestions(searchInput.value);
+                        }
                         showToast('Added successfully!', 'success');
                     }
                     closeModal();
@@ -3049,7 +3064,7 @@
     }
 
     if (searchInput) {
-        searchInput.addEventListener('input', (e) => renderList(filterQuestions(e.target.value)));
+        searchInput.addEventListener('input', (e) => filterQuestions(e.target.value));
     }
 
     const copyAllQaBtn = document.getElementById('copyAllQaBtn');
@@ -3061,7 +3076,11 @@
     const pasteAnswerBtn = document.getElementById('pasteAnswerBtn');
 
     function copyAllCategoryQuestions(btn = null) {
-        const visibleItems = filterQuestions(searchInput ? searchInput.value : '');
+        const q = (searchInput ? searchInput.value : '').toLowerCase().trim();
+        const visibleItems = (qaData || []).filter(item => {
+            if (!item) return false;
+            return !q || (item.question || '').toLowerCase().includes(q) || (item.answer || '').toLowerCase().includes(q);
+        });
         if (!visibleItems || visibleItems.length === 0) {
             showToast('No questions to copy.', 'error');
             return;
