@@ -2581,8 +2581,8 @@
             div.dataset.index = index;
 
             div.innerHTML = `
-                <div class="qa-item" data-id="${item.id}">
-                    <div class="qa-question" role="button" tabindex="0" aria-expanded="false">
+                <div class="qa-item open" data-id="${item.id}">
+                    <div class="qa-question" role="button" tabindex="0" aria-expanded="true">
                         <div class="qa-header-left">
                             <h3 class="item-question-text">${item.question_html || formatContent(item.question || '')}</h3>
                         </div>
