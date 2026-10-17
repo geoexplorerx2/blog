@@ -1150,19 +1150,6 @@
             </button>
             <?php endif; ?>
         </div>
-
-        <div class="tech-filter-bar" id="techFilterBar">
-            <button type="button" class="filter-btn active" data-tech="all"><?= __('all_projects') ?></button>
-            <button type="button" class="filter-btn" data-tech="Next.js">Next.js</button>
-            <button type="button" class="filter-btn" data-tech="React">React</button>
-            <button type="button" class="filter-btn" data-tech="TypeScript">TypeScript</button>
-            <button type="button" class="filter-btn" data-tech="Laravel">Laravel</button>
-            <button type="button" class="filter-btn" data-tech="PHP">PHP</button>
-            <button type="button" class="filter-btn" data-tech="Tailwind CSS">Tailwind CSS</button>
-            <button type="button" class="filter-btn" data-tech="Redux Toolkit">Redux Toolkit</button>
-            <button type="button" class="filter-btn" data-tech="Redis">Redis</button>
-            <button type="button" class="filter-btn" data-tech="MySQL">MySQL</button>
-        </div>
     </div>
 
     <!-- Projects Grid Container -->
