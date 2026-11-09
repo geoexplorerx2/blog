@@ -335,25 +335,59 @@
         .qa-item {
             width: 100%;
             background: var(--card-bg);
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            box-shadow: var(--shadow);
+            border: 1px solid var(--m-border);
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(10, 37, 64, 0.04);
+            position: relative;
             overflow: hidden;
-            transition: border-color 0.2s, box-shadow 0.2s;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+        .qa-item::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            width: 4px;
+            background: transparent;
+            transition: background 0.2s ease;
+            z-index: 2;
         }
         .qa-item:hover {
-            border-color: var(--blue-500);
-            box-shadow: var(--shadow-hover);
+            border-color: #cbd5e1;
+            box-shadow: 0 4px 16px rgba(10, 37, 64, 0.08);
+        }
+        .qa-item.open {
+            border-color: #c7dff0;
+            box-shadow: 0 6px 20px rgba(10, 37, 64, 0.08);
+        }
+        .qa-item.open::before {
+            background: linear-gradient(180deg, var(--blue-500) 0%, var(--navy-700) 100%);
         }
         .qa-question {
             display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            gap: 0.75rem;
-            padding: 1rem 2.25rem;
+            align-items: center;
+            width: 100%;
+            padding: 1.15rem 1.75rem;
             cursor: pointer;
             user-select: none;
-            background: linear-gradient(to right, var(--blue-50), white);
+            background: var(--card-bg);
+            transition: background 0.2s ease, border-color 0.2s ease, padding 0.2s ease;
+            outline: none;
+        }
+        .qa-question:hover {
+            background: var(--blue-50);
+        }
+        .qa-item.open .qa-question {
+            background: linear-gradient(90deg, #f4f8fc 0%, #ffffff 100%);
+            border-bottom: 1px solid var(--border);
+        }
+        .qa-item.open .qa-question:hover {
+            background: linear-gradient(90deg, #edf4fa 0%, #fafdff 100%);
+        }
+        .qa-question:focus-visible {
+            outline: 2px solid var(--blue-500);
+            outline-offset: -2px;
         }
         .qa-header-left {
             display: block;
@@ -361,28 +395,20 @@
             min-width: 0;
             box-sizing: border-box;
         }
-        .qa-id-badge {
-            font-size: 0.75rem;
-            font-weight: 700;
-            background: var(--blue-100);
-            color: var(--navy-800);
-            border: 1px solid var(--blue-200);
-            padding: 0.25rem 0.55rem;
-            border-radius: 4px;
-            white-space: nowrap;
-            margin-top: 0.15rem;
-            flex-shrink: 0;
-        }
-        .qa-question h3 {
+        .qa-question h3,
+        .item-question-text {
             font-family: var(--font-heading);
             font-size: 1.05rem;
             font-weight: 600;
             margin: 0;
-            color: var(--navy-800);
+            color: var(--navy-900);
             width: 100%;
-            line-height: 1.45;
-            max-height: 6.5em;
-            overflow-y: auto;
+            line-height: 1.55;
+            word-break: break-word;
+            transition: color 0.15s ease;
+        }
+        .qa-question:hover .item-question-text {
+            color: var(--blue-600);
         }
         .action-btn {
             background: transparent;
@@ -965,12 +991,11 @@
                 padding-top: 0.25rem;
             }
             .qa-question {
-                padding: 0.85rem 1rem;
-                gap: 0.5rem;
+                padding: 0.95rem 1.15rem;
             }
             .item-question-text {
                 font-size: 0.98rem;
-                line-height: 1.4;
+                line-height: 1.45;
             }
             .qa-answer {
                 padding: 0 1rem;
@@ -1048,14 +1073,10 @@
                 height: 170px;
             }
             .qa-question {
-                padding: 0.75rem 0.85rem;
-            }
-            .qa-id-badge {
-                font-size: 0.7rem;
-                padding: 0.15rem 0.4rem;
+                padding: 0.85rem 1rem;
             }
             .item-question-text {
-                font-size: 0.92rem;
+                font-size: 0.93rem;
             }
             .action-btn {
                 padding: 0.4rem;
@@ -1754,35 +1775,6 @@
             border-color: var(--m-danger);
             background: var(--m-danger-soft);
         }
-        .qa-header-actions {
-            display: flex;
-            align-items: center;
-            gap: 0.35rem;
-            flex-shrink: 0;
-        }
-        .copy-btn-header {
-            opacity: 0.7;
-            transition: all 0.2s ease;
-            padding: 0.25rem 0.55rem;
-            border-radius: 6px;
-            font-size: 0.78rem;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.35rem;
-            background: var(--m-surface);
-            border: 1px solid var(--m-border);
-            color: var(--m-text-muted);
-            cursor: pointer;
-            font-family: inherit;
-            font-weight: 500;
-        }
-        .qa-item:hover .copy-btn-header,
-        .copy-btn-header:hover {
-            opacity: 1;
-            color: var(--blue-600);
-            border-color: var(--blue-200);
-            background: var(--blue-50);
-        }
         .qa-answer-footer {
             display: flex;
             flex-wrap: wrap;
@@ -1814,7 +1806,6 @@
             transform: translateY(-1px);
         }
         .qa-subcopy-btn.copied,
-        .copy-btn-header.copied,
         .action-btn.copied {
             background: #dcfce7 !important;
             border-color: #86efac !important;
@@ -2177,6 +2168,16 @@
     const apiEndpoint = <?php echo json_encode($_SERVER['SCRIPT_NAME'] ?? 'index.php'); ?>;
     let qaData = <?php echo $questionsJson ?? '[]'; ?>;
     let pendingAction = null;
+    const I18N = {
+        copy: <?php echo json_encode(__('copy')); ?>,
+        copied: <?php echo json_encode(__('copied')); ?>,
+        copy_question: <?php echo json_encode(__('copy_question')); ?>,
+        copy_answer: <?php echo json_encode(__('copy_answer')); ?>,
+        copy_qa: <?php echo json_encode(__('copy_qa')); ?>,
+        edit: <?php echo json_encode(__('edit')); ?>,
+        delete: <?php echo json_encode(__('delete')); ?>,
+        toggle_question: <?php echo json_encode(__('toggle_question')); ?>
+    };
 
     // Toast Container & Function
     const toastContainer = document.getElementById('toastContainer');
@@ -2591,42 +2592,42 @@
                     <div class="qa-answer">
                         <div class="item-answer-text">${item.answer_html || formatContent(item.answer || '')}</div>
                         <div class="qa-answer-footer">
-                            <button type="button" class="qa-subcopy-btn copy-q-btn" data-id="${item.id}" title="Copy Question only">
+                            <button type="button" class="qa-subcopy-btn copy-q-btn" data-id="${item.id}" title="${I18N.copy_question}">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
-                                <span>Copy Question</span>
+                                <span>${I18N.copy_question}</span>
                             </button>
-                            <button type="button" class="qa-subcopy-btn copy-a-btn" data-id="${item.id}" title="Copy Answer only">
+                            <button type="button" class="qa-subcopy-btn copy-a-btn" data-id="${item.id}" title="${I18N.copy_answer}">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
-                                <span>Copy Answer</span>
+                                <span>${I18N.copy_answer}</span>
                             </button>
-                            <button type="button" class="qa-subcopy-btn copy-qa-btn" data-id="${item.id}" title="Copy Question &amp; Answer">
+                            <button type="button" class="qa-subcopy-btn copy-qa-btn" data-id="${item.id}" title="${I18N.copy_qa}">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
-                                <span>Copy Q&amp;A</span>
+                                <span>${I18N.copy_qa}</span>
                             </button>
                         </div>
                     </div>
                 </div>
                 <div class="qa-item-actions">
-                    <button type="button" class="action-btn copy-q-btn" title="Copy Question" data-id="${item.id}">
+                    <button type="button" class="action-btn copy-q-btn" title="${I18N.copy_question}" data-id="${item.id}">
                         <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
-                        <span>Copy Question</span>
+                        <span>${I18N.copy_question}</span>
                     </button>
-                    <button type="button" class="action-btn copy-a-btn" title="Copy Answer" data-id="${item.id}">
+                    <button type="button" class="action-btn copy-a-btn" title="${I18N.copy_answer}" data-id="${item.id}">
                         <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
-                        <span>Copy Answer</span>
+                        <span>${I18N.copy_answer}</span>
                     </button>
-                    <button type="button" class="action-btn copy-qa-btn" title="Copy Question &amp; Answer" data-id="${item.id}">
+                    <button type="button" class="action-btn copy-qa-btn" title="${I18N.copy_qa}" data-id="${item.id}">
                         <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
-                        <span>Copy Q&amp;A</span>
+                        <span>${I18N.copy_qa}</span>
                     </button>
                     ${isAuthenticated ? `
-                    <button type="button" class="action-btn edit-btn" title="Edit Question" data-id="${item.id}" aria-label="Edit Question">
+                    <button type="button" class="action-btn edit-btn" title="${I18N.edit}" data-id="${item.id}" aria-label="${I18N.edit}">
                         <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
-                        <span>Edit</span>
+                        <span>${I18N.edit}</span>
                     </button>
-                    <button type="button" class="action-btn delete-btn" title="Delete Question" data-id="${item.id}" aria-label="Delete Question">
+                    <button type="button" class="action-btn delete-btn" title="${I18N.delete}" data-id="${item.id}" aria-label="${I18N.delete}">
                         <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
-                        <span>Delete</span>
+                        <span>${I18N.delete}</span>
                     </button>
                     ` : ''}
                 </div>
@@ -3223,9 +3224,19 @@
                 deleteQuestion(id);
                 return;
             }
-            if (e.target.closest('.copy-code-btn') || e.target.closest('.qa-answer-footer') || e.target.closest('.qa-header-actions') || e.target.closest('.qa-item-actions')) return;
+            if (e.target.closest('.copy-code-btn') || e.target.closest('.qa-answer-footer') || e.target.closest('button') || e.target.closest('.qa-item-actions')) return;
             const questionDiv = e.target.closest('.qa-question');
             if (questionDiv) toggleItem(questionDiv.parentElement);
+        });
+
+        qaList.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                const questionDiv = e.target.closest('.qa-question');
+                if (questionDiv && !e.target.closest('button')) {
+                    e.preventDefault();
+                    toggleItem(questionDiv.parentElement);
+                }
+            }
         });
     }
 
