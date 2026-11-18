@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?php echo htmlspecialchars($profile['full_name'] ?? 'Farshad Nabizade'); ?> – Resume</title>
+    <title><?php echo htmlspecialchars($profile['full_name'] ?? 'Farshad Nabizade'); ?> – <?= __('resume') ?></title>
     <link rel="icon" type="image/png" href="assets/favicon.png?v=2">
     <link rel="shortcut icon" href="favicon.ico?v=2">
     <link rel="apple-touch-icon" href="assets/favicon.png?v=2">
@@ -230,6 +230,18 @@
             color: var(--navy-900);
             margin-bottom: 0.35rem;
             letter-spacing: -0.02em;
+        }
+
+        .timeline-stack {
+            font-size: 0.82rem;
+            color: var(--navy-800);
+            font-family: var(--font-mono);
+            background: #f1f5f9;
+            border: 1px solid #e2e8f0;
+            padding: 0.25rem 0.6rem;
+            border-radius: 4px;
+            margin-bottom: 0.75rem;
+            display: inline-block;
         }
 
         .hero-headline {
@@ -1294,7 +1306,7 @@
         </div>
         <div class="hero-info">
             <h1><?php echo htmlspecialchars($profile['full_name'] ?? 'Farshad Nabizade'); ?></h1>
-            <div class="hero-headline"><?php echo htmlspecialchars($profile['headline'] ?? 'Full-Stack Web Developer'); ?></div>
+            <div class="hero-headline"><?php echo htmlspecialchars($profile['headline'] ?? 'Full-Stack & Systems Engineer'); ?></div>
             
             <div class="hero-meta-grid">
                 <span class="meta-pill">
@@ -1305,32 +1317,42 @@
                     <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>
                     <?php echo htmlspecialchars($profile['work_experience_years'] ?? 7); ?>+ <?= __('years_experience') ?>
                 </span>
-                <a href="mailto:<?php echo htmlspecialchars($profile['email'] ?? 'geoexplorerx2@gmail.com'); ?>" class="meta-pill">
+                <a href="mailto:<?php echo htmlspecialchars($profile['email'] ?? 'farshadnabizadeh1993@gmail.com'); ?>" class="meta-pill">
                     <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
-                    <?php echo htmlspecialchars($profile['email'] ?? 'geoexplorerx2@gmail.com'); ?>
+                    <?php echo htmlspecialchars($profile['email'] ?? 'farshadnabizadeh1993@gmail.com'); ?>
                 </a>
-                <a href="tel:<?php echo htmlspecialchars($profile['phone'] ?? '09218124475'); ?>" class="meta-pill">
+                <a href="tel:<?php echo htmlspecialchars($profile['phone'] ?? '+98 921 812 4475'); ?>" class="meta-pill">
                     <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
-                    <?php echo htmlspecialchars($profile['phone'] ?? '09218124475'); ?>
+                    <?php echo htmlspecialchars($profile['phone'] ?? '+98 921 812 4475'); ?>
                 </a>
-                <span class="meta-pill">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 14 14"></polyline></svg>
-                    <?= __('age') ?>: <?php echo htmlspecialchars($profile['age'] ?? 34); ?> Years
-                </span>
-                <span class="meta-pill">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
-                    <?= __('salary') ?>: <?php echo htmlspecialchars($profile['salary_expectation'] ?? '45 - 60M Tomans'); ?>
-                </span>
+                <?php if (!empty($profile['github'])): ?>
+                <a href="<?php echo htmlspecialchars($profile['github']); ?>" target="_blank" rel="noopener noreferrer" class="meta-pill">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path></svg>
+                    <span><?php echo htmlspecialchars(str_replace(['https://', 'http://'], '', $profile['github'])); ?></span>
+                </a>
+                <?php endif; ?>
+                <?php if (!empty($profile['linkedin'])): ?>
+                <a href="<?php echo htmlspecialchars($profile['linkedin']); ?>" target="_blank" rel="noopener noreferrer" class="meta-pill">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path><rect x="2" y="9" width="4" height="12"></rect><circle cx="4" cy="4" r="2"></circle></svg>
+                    <span><?php echo htmlspecialchars(str_replace(['https://', 'http://'], '', $profile['linkedin'])); ?></span>
+                </a>
+                <?php endif; ?>
+                <?php if (!empty($profile['website'])): ?>
+                <a href="<?php echo htmlspecialchars($profile['website']); ?>" target="_blank" rel="noopener noreferrer" class="meta-pill">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10z"></path></svg>
+                    <span><?php echo htmlspecialchars(str_replace(['https://', 'http://'], '', $profile['website'])); ?></span>
+                </a>
+                <?php endif; ?>
             </div>
         </div>
     </section>
 
-    <!-- About Me -->
+    <!-- Engineering Profile -->
     <section class="section-card">
         <div class="section-header">
             <div class="section-header-left">
                 <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-                <h2 class="section-title"><?= __('executive_summary') ?></h2>
+                <h2 class="section-title"><?= __('engineering_profile') ?></h2>
             </div>
         </div>
         <p class="about-text">
@@ -1338,12 +1360,12 @@
         </p>
     </section>
 
-    <!-- Technical Skills Matrix -->
+    <!-- Technical Stack Matrix -->
     <section class="section-card" id="skills">
         <div class="section-header">
             <div class="section-header-left">
                 <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>
-                <h2 class="section-title"><?= __('technical_skills') ?></h2>
+                <h2 class="section-title"><?= __('technical_stack') ?></h2>
             </div>
         </div>
         <div class="skills-grid">
@@ -1372,7 +1394,7 @@
         <div class="section-header">
             <div class="section-header-left">
                 <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>
-                <h2 class="section-title"><?= __('work_experience') ?></h2>
+                <h2 class="section-title"><?= __('production_experience') ?></h2>
             </div>
         </div>
         <div class="timeline">
@@ -1391,6 +1413,11 @@
                                     <span class="period-badge"><?php echo htmlspecialchars($exp['period']); ?></span>
                                 <?php endif; ?>
                             </div>
+                            <?php if (!empty($exp['stack'])): ?>
+                                <div class="timeline-stack">
+                                    <strong><?= __('stack') ?>:</strong> <?php echo htmlspecialchars($exp['stack']); ?>
+                                </div>
+                            <?php endif; ?>
                             <?php if (!empty($exp['responsibilities']) && is_array($exp['responsibilities'])): ?>
                                 <ul class="timeline-bullets">
                                     <?php foreach ($exp['responsibilities'] as $resp): ?>
@@ -1405,40 +1432,40 @@
         </div>
     </section>
 
-    <!-- 2 Column Details: Education & Certifications, Languages & Software -->
+    <!-- 2 Column Details: Education & Credentials, Languages -->
     <div class="details-two-col" id="education">
-        <!-- Education & Certifications -->
+        <!-- Education & Infrastructure Credentials -->
         <section class="section-card">
             <div class="section-header">
                 <div class="section-header-left">
                     <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"></path><path d="M6 12v5c3 3 9 3 12 0v-5"></path></svg>
-                    <h2 class="section-title">Education &amp; Certifications</h2>
+                    <h2 class="section-title"><?= __('education_credentials') ?></h2>
                 </div>
             </div>
             <div class="edu-grid">
                 <!-- Academic Degree -->
                 <div class="edu-item-card">
                     <div>
-                        <div class="edu-item-title"><?php echo htmlspecialchars($profile['education_degree'] ?? 'Bachelor: Computer Engineering'); ?></div>
-                        <div class="edu-item-inst"><?php echo htmlspecialchars($profile['education_school'] ?? 'IAU'); ?></div>
+                        <div class="edu-item-title"><?php echo htmlspecialchars($profile['education_degree'] ?? 'B.Sc. in Computer Engineering'); ?></div>
+                        <div class="edu-item-inst"><?php echo htmlspecialchars($profile['education_school'] ?? 'Islamic Azad University (IAU)'); ?></div>
                     </div>
                     <div class="edu-item-meta">
-                        <span>Period: <?php echo htmlspecialchars($profile['education_years'] ?? '2016 - 2019'); ?></span>
-                        <span>GPA: <strong><?php echo htmlspecialchars($profile['education_gpa'] ?? '16.4'); ?></strong></span>
+                        <span><?= __('period') ?>: <?php echo htmlspecialchars($profile['education_years'] ?? '2016 – 2019'); ?></span>
+                        <span><?= __('gpa') ?>: <strong><?php echo htmlspecialchars($profile['education_gpa'] ?? '16.4 / 20'); ?></strong></span>
                     </div>
                 </div>
 
-                <!-- Training Courses -->
+                <!-- Professional Credentials / Courses -->
                 <?php if (is_array($courses)): ?>
                     <?php foreach ($courses as $c): ?>
                         <div class="edu-item-card">
                             <div>
-                                <div class="edu-item-title"><?php echo htmlspecialchars($c['title'] ?? 'Training'); ?><?php if (!empty($c['title'])): ?> Certification<?php endif; ?></div>
-                                <div class="edu-item-inst">Institute: <?php echo htmlspecialchars($c['institute'] ?? 'N/A'); ?></div>
+                                <div class="edu-item-title"><?php echo htmlspecialchars($c['title'] ?? 'Certification'); ?></div>
+                                <div class="edu-item-inst"><?php echo htmlspecialchars($c['institute'] ?? 'Tehran Institute of Technology (TIT)'); ?><?php if (!empty($c['focus'])): ?> &bull; <span style="color:#64748b;"><?php echo htmlspecialchars($c['focus']); ?></span><?php endif; ?></div>
                             </div>
                             <div class="edu-item-meta">
-                                <?php if (!empty($c['duration'])): ?><span>Duration: <?php echo htmlspecialchars($c['duration']); ?></span><?php endif; ?>
-                                <?php if (!empty($c['year'])): ?><span>Year: <?php echo htmlspecialchars($c['year']); ?></span><?php endif; ?>
+                                <?php if (!empty($c['duration'])): ?><span><?= __('duration') ?>: <?php echo htmlspecialchars($c['duration']); ?></span><?php endif; ?>
+                                <?php if (!empty($c['year'])): ?><span><?= __('year') ?>: <?php echo htmlspecialchars($c['year']); ?></span><?php endif; ?>
                             </div>
                         </div>
                     <?php endforeach; ?>
@@ -1446,17 +1473,17 @@
             </div>
         </section>
 
-        <!-- Languages & Software Competencies -->
+        <!-- Languages & Competencies -->
         <section class="section-card">
             <div class="section-header">
                 <div class="section-header-left">
                     <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1 4-10z"></path></svg>
-                    <h2 class="section-title">Languages &amp; Software</h2>
+                    <h2 class="section-title"><?= __('languages_software') ?></h2>
                 </div>
             </div>
             
             <div style="margin-bottom: 1.25rem;">
-                <h3 style="font-size: 0.95rem; font-weight: 700; color: var(--navy-800); margin-bottom: 0.5rem;">Languages</h3>
+                <h3 style="font-size: 0.95rem; font-weight: 700; color: var(--navy-800); margin-bottom: 0.5rem;"><?= __('languages') ?></h3>
                 <div style="display: flex; gap: 0.6rem; flex-wrap: wrap;">
                     <?php foreach ($languages as $l): ?>
                         <div class="skill-tag" style="padding: 0.4rem 0.8rem; font-size: 0.88rem; background: var(--bg);">
@@ -1467,8 +1494,9 @@
                 </div>
             </div>
 
+            <?php if (!empty($software)): ?>
             <div>
-                <h3 style="font-size: 0.95rem; font-weight: 700; color: var(--navy-800); margin-bottom: 0.5rem;">Productivity Software</h3>
+                <h3 style="font-size: 0.95rem; font-weight: 700; color: var(--navy-800); margin-bottom: 0.5rem;"><?= __('productivity_software') ?></h3>
                 <div style="display: flex; gap: 0.6rem; flex-wrap: wrap;">
                     <?php foreach ($software as $s): ?>
                         <div class="skill-tag" style="padding: 0.4rem 0.8rem; font-size: 0.88rem; background: var(--bg);">
@@ -1478,136 +1506,146 @@
                     <?php endforeach; ?>
                 </div>
             </div>
+            <?php endif; ?>
         </section>
     </div>
 
 </main>
 
 <!-- Edit Resume Modal -->
+<!-- Edit Resume Modal -->
 <div class="modal-overlay" id="editResumeModal">
     <div class="modal-card">
         <div class="modal-header">
-            <h3>Edit Resume Information</h3>
+            <h3><?= __('edit_resume_modal_title') ?></h3>
             <button type="button" class="close-btn" id="closeEditModalBtn">&times;</button>
         </div>
         <form id="editResumeForm">
             <div class="modal-body">
                 <div class="form-grid-2">
                     <div class="form-group">
-                        <label for="f_fullName">Full Name</label>
+                        <label for="f_fullName"><?= __('full_name') ?></label>
                         <input type="text" id="f_fullName" value="<?php echo htmlspecialchars($profile['full_name'] ?? ''); ?>" required>
                     </div>
                     <div class="form-group">
-                        <label for="f_headline">Headline / Title</label>
+                        <label for="f_headline"><?= __('headline_title') ?></label>
                         <input type="text" id="f_headline" value="<?php echo htmlspecialchars($profile['headline'] ?? ''); ?>" required>
                     </div>
                 </div>
 
                 <div class="form-grid-2">
                     <div class="form-group">
-                        <label for="f_email">Email</label>
+                        <label for="f_email"><?= __('email') ?></label>
                         <input type="email" id="f_email" value="<?php echo htmlspecialchars($profile['email'] ?? ''); ?>">
                     </div>
                     <div class="form-group">
-                        <label for="f_phone">Phone / Mobile</label>
+                        <label for="f_phone"><?= __('phone_mobile') ?></label>
                         <input type="text" id="f_phone" value="<?php echo htmlspecialchars($profile['phone'] ?? ''); ?>">
                     </div>
                 </div>
 
                 <div class="form-grid-2">
                     <div class="form-group">
-                        <label for="f_address">Location Address</label>
+                        <label for="f_address"><?= __('location_address') ?></label>
                         <input type="text" id="f_address" value="<?php echo htmlspecialchars($profile['address'] ?? ''); ?>">
                     </div>
                     <div class="form-group">
-                        <label for="f_salary">Salary Expectation</label>
-                        <input type="text" id="f_salary" value="<?php echo htmlspecialchars($profile['salary_expectation'] ?? ''); ?>">
+                        <label for="f_expYears"><?= __('work_experience_years_num') ?></label>
+                        <input type="number" id="f_expYears" value="<?php echo htmlspecialchars($profile['work_experience_years'] ?? 7); ?>">
                     </div>
                 </div>
 
                 <div class="form-grid-2">
                     <div class="form-group">
-                        <label for="f_age">Age</label>
-                        <input type="number" id="f_age" value="<?php echo htmlspecialchars($profile['age'] ?? 34); ?>">
+                        <label for="f_github"><?= __('github') ?></label>
+                        <input type="text" id="f_github" value="<?php echo htmlspecialchars($profile['github'] ?? ''); ?>">
                     </div>
                     <div class="form-group">
-                        <label for="f_expYears">Work Experience (Years)</label>
-                        <input type="number" id="f_expYears" value="<?php echo htmlspecialchars($profile['work_experience_years'] ?? 7); ?>">
+                        <label for="f_linkedin"><?= __('linkedin') ?></label>
+                        <input type="text" id="f_linkedin" value="<?php echo htmlspecialchars($profile['linkedin'] ?? ''); ?>">
                     </div>
                 </div>
 
                 <div class="form-group">
-                    <label for="f_aboutMe">Executive Summary &amp; About Me</label>
+                    <label for="f_website"><?= __('website') ?></label>
+                    <input type="text" id="f_website" value="<?php echo htmlspecialchars($profile['website'] ?? ''); ?>">
+                </div>
+
+                <div class="form-group">
+                    <label for="f_aboutMe"><?= __('engineering_profile') ?></label>
                     <textarea id="f_aboutMe" rows="4"><?php echo htmlspecialchars($profile['about_me'] ?? ''); ?></textarea>
                 </div>
 
                 <div class="form-grid-2">
                     <div class="form-group">
-                        <label for="f_eduDegree">Degree</label>
+                        <label for="f_eduDegree"><?= __('degree') ?></label>
                         <input type="text" id="f_eduDegree" value="<?php echo htmlspecialchars($profile['education_degree'] ?? ''); ?>">
                     </div>
                     <div class="form-group">
-                        <label for="f_eduSchool">University / Institute</label>
+                        <label for="f_eduSchool"><?= __('university_institute') ?></label>
                         <input type="text" id="f_eduSchool" value="<?php echo htmlspecialchars($profile['education_school'] ?? ''); ?>">
                     </div>
                 </div>
 
                 <div class="form-grid-2">
                     <div class="form-group">
-                        <label for="f_eduYears">Education Period</label>
+                        <label for="f_eduYears"><?= __('education_period') ?></label>
                         <input type="text" id="f_eduYears" value="<?php echo htmlspecialchars($profile['education_years'] ?? ''); ?>">
                     </div>
                     <div class="form-group">
-                        <label for="f_eduGpa">GPA</label>
+                        <label for="f_eduGpa"><?= __('gpa') ?></label>
                         <input type="text" id="f_eduGpa" value="<?php echo htmlspecialchars($profile['education_gpa'] ?? ''); ?>">
                     </div>
                 </div>
 
                 <div class="form-group">
-                    <label for="f_skillsJson">Technical Skills Matrix (JSON Format)</label>
+                    <label for="f_skillsJson"><?= __('skills_matrix_json') ?></label>
                     <textarea id="f_skillsJson" class="code-area" rows="6"><?php echo htmlspecialchars(json_encode($skills, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE)); ?></textarea>
                 </div>
 
                 <div class="form-group">
-                    <label for="f_expJson">Work Experience Timeline (JSON Format)</label>
+                    <label for="f_expJson"><?= __('experience_timeline_json') ?></label>
                     <textarea id="f_expJson" class="code-area" rows="8"><?php echo htmlspecialchars(json_encode($experiences, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE)); ?></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="f_coursesJson"><?= __('credentials_json') ?></label>
+                    <textarea id="f_coursesJson" class="code-area" rows="6"><?php echo htmlspecialchars(json_encode($courses, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE)); ?></textarea>
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn-nav outline" id="cancelEditModalBtn" style="color: var(--navy-800); border-color: var(--border);">Cancel</button>
-                <button type="submit" class="btn-nav primary" id="saveResumeBtn">Save Changes</button>
+                <button type="button" class="btn-nav outline" id="cancelEditModalBtn" style="color: var(--navy-800); border-color: var(--border);"><?= __('cancel') ?></button>
+                <button type="submit" class="btn-nav primary" id="saveResumeBtn"><?= __('save_changes') ?></button>
             </div>
         </form>
     </div>
 </div>
-
 <!-- Admin Login Modal -->
 <div class="modal-overlay" id="loginModal">
     <div class="modal-card modal-auth-card">
         <div class="modal-header">
-            <h3>Administrator Authentication</h3>
+            <h3><?= __('administrator_login') ?></h3>
             <button type="button" class="close-btn" id="closeLoginModalBtn">&times;</button>
         </div>
         <form id="loginForm">
             <div class="modal-body">
                 <div id="loginAlert" style="display:none; background:#fee2e2; color:#b91c1c; padding:0.6rem; border-radius:6px; font-size:0.85rem;"></div>
                 <div class="form-group">
-                    <label for="loginUsername">Username</label>
-                    <input type="text" id="loginUsername" placeholder="Enter username" value="admin" required>
+                    <label for="loginUsername"><?= __('username') ?></label>
+                    <input type="text" id="loginUsername" placeholder="admin" value="admin" required>
                 </div>
                 <div class="form-group">
-                    <label for="loginPassword">Password</label>
-                    <input type="password" id="loginPassword" placeholder="Enter password" required>
+                    <label for="loginPassword"><?= __('password') ?></label>
+                    <input type="password" id="loginPassword" placeholder="••••••••" required>
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn-nav outline" id="cancelLoginModalBtn" style="color: var(--navy-800); border-color: var(--border);">Cancel</button>
-                <button type="submit" class="btn-nav primary" id="submitLoginBtn">Log In</button>
+                <button type="button" class="btn-nav outline" id="cancelLoginModalBtn" style="color: var(--navy-800); border-color: var(--border);"><?= __('cancel') ?></button>
+                <button type="submit" class="btn-nav primary" id="submitLoginBtn"><?= __('sign_in') ?></button>
             </div>
         </form>
     </div>
 </div>
-
 <div class="toast-container" id="toastContainer"></div>
 
 <?php renderGlobalFooter(); ?>
@@ -1810,109 +1848,107 @@
     <div class="float-menu-header">
         <div class="float-menu-title">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
-            <span>Navigation &amp; Controls</span>
+            <span><?= __('navigation_controls') ?></span>
         </div>
         <button type="button" class="close-btn" id="floatMenuCloseBtn" style="color: white; font-size: 1.25rem;">&times;</button>
     </div>
 
     <div class="float-menu-body">
         <!-- 1. Admin Status Section (FIRST) -->
-        <div class="float-menu-group-label">Admin Status</div>
+        <div class="float-menu-group-label"><?= __('admin_status') ?></div>
         <?php if (Auth::isLoggedIn()): ?>
             <div style="display:flex; align-items:center; gap:0.5rem; padding:0.55rem 0.75rem; background:rgba(34,197,94,0.1); border:1px solid rgba(34,197,94,0.3); border-radius:8px; margin:0 0.15rem;">
                 <span style="width:8px; height:8px; border-radius:50%; background:#22c55e; box-shadow:0 0 6px #22c55e; flex-shrink:0;"></span>
-                <span style="font-size:0.82rem; font-weight:600; color:#15803d;">Admin: <strong><?php echo htmlspecialchars(Auth::getCurrentUser() ?? 'admin'); ?></strong></span>
-                <span class="float-menu-badge" style="background:#dcfce7; color:#166534; margin-left:auto;">Online</span>
+                <span style="font-size:0.82rem; font-weight:600; color:#15803d;"><?= __('admin_label') ?>: <strong><?php echo htmlspecialchars(Auth::getCurrentUser() ?? 'admin'); ?></strong></span>
+                <span class="float-menu-badge" style="background:#dcfce7; color:#166534; margin-left:auto;"><?= __('admin_online') ?></span>
             </div>
         <?php else: ?>
             <div style="display:flex; align-items:center; gap:0.5rem; padding:0.55rem 0.75rem; background:rgba(100,116,139,0.08); border:1px solid rgba(100,116,139,0.2); border-radius:8px; margin:0 0.15rem;">
                 <span style="width:8px; height:8px; border-radius:50%; background:#94a3b8; flex-shrink:0;"></span>
-                <span style="font-size:0.82rem; font-weight:500; color:#475569;">Session: <strong>Guest (Read Only)</strong></span>
+                <span style="font-size:0.82rem; font-weight:500; color:#475569;"><?= __('session_guest') ?></span>
             </div>
         <?php endif; ?>
 
         <!-- 2. Authentication Section -->
         <div class="float-menu-divider"></div>
-        <div class="float-menu-group-label">Authentication</div>
+        <div class="float-menu-group-label"><?= __('authentication') ?></div>
         <?php if (Auth::isLoggedIn()): ?>
             <button type="button" class="float-menu-item" id="floatHeaderLogoutBtn" style="color:#dc2626;">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:#ef4444;"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
-                <span>Logout (Admin)</span>
-                <span class="float-menu-badge" style="background:#fee2e2; color:#b91c1c;">Exit</span>
+                <span><?= __('logout_admin') ?></span>
+                <span class="float-menu-badge" style="background:#fee2e2; color:#b91c1c;"><?= __('exit') ?></span>
             </button>
         <?php else: ?>
             <button type="button" class="float-menu-item" id="floatHeaderLoginBtn" style="color:#0284c7;">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:#0284c7;"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
-                <span>Admin Login</span>
-                <span class="float-menu-badge" style="background:#e0f2fe; color:#0369a1;">Sign In</span>
+                <span><?= __('admin_login') ?></span>
+                <span class="float-menu-badge" style="background:#e0f2fe; color:#0369a1;"><?= __('sign_in') ?></span>
             </button>
         <?php endif; ?>
 
-        <!-- 3. Resume Actions (from cv-section.png) -->
+        <!-- 3. Navigation Actions -->
         <div class="float-menu-divider"></div>
-        <div class="float-menu-group-label">Navigation &amp; Actions</div>
+        <div class="float-menu-group-label"><?= __('quick_actions') ?></div>
         <a href="projects.php" class="float-menu-item">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>
-            <span>Projects Showcase</span>
-            <span class="float-menu-badge" style="background:#e0f2fe; color:#0369a1;">Portfolio</span>
+            <span><?= __('projects_showcase') ?></span>
+            <span class="float-menu-badge" style="background:#e0f2fe; color:#0369a1;"><?= __('portfolio') ?></span>
         </a>
         <a href="freelance.php" class="float-menu-item">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>
-            <span>Freelance Hub</span>
-            <span class="float-menu-badge" style="background:#eaf2f8; color:#12466f;">Tasks</span>
+            <span><?= __('freelance_hub') ?></span>
+            <span class="float-menu-badge" style="background:#eaf2f8; color:#12466f;"><?= __('total_tasks') ?></span>
         </a>
         <a href="index.php" class="float-menu-item">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
-            <span>Questions Base</span>
+            <span><?= __('questions_base') ?></span>
         </a>
         <?php if (Auth::isLoggedIn()): ?>
         <button type="button" class="float-menu-item" id="floatEditResumeBtn" style="color:#059669;">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:#10b981;"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
-            <span>Edit Resume</span>
-            <span class="float-menu-badge" style="background:#d1fae5; color:#065f46;">Admin</span>
+            <span><?= __('edit_resume') ?></span>
+            <span class="float-menu-badge" style="background:#d1fae5; color:#065f46;"><?= __('admin_label') ?></span>
         </button>
         <button type="button" class="float-menu-item" id="floatEditFooterBtn">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
-            <span>Edit Footer Sections</span>
-            <span class="float-menu-badge" style="background:#e0f2fe; color:#0369a1;">Config</span>
+            <span><?= __('edit_footer_sections') ?></span>
+            <span class="float-menu-badge" style="background:#e0f2fe; color:#0369a1;"><?= __('edit') ?></span>
         </button>
         <?php endif; ?>
         <button type="button" class="float-menu-item" id="floatPrintBtn" style="color:#0369a1;">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:#0284c7;"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
-            <span>Print / PDF</span>
-            <span class="float-menu-badge" style="background:#e0f2fe; color:#0369a1;">Export</span>
+            <span><?= __('print_pdf_export') ?></span>
+            <span class="float-menu-badge" style="background:#e0f2fe; color:#0369a1;"><?= __('export') ?></span>
         </button>
 
-        <!-- 4. Section Shortcuts (from cv-section.png) -->
+        <!-- 4. Section Shortcuts -->
         <div class="float-menu-divider"></div>
-        <div class="float-menu-group-label">Section Jump</div>
+        <div class="float-menu-group-label"><?= __('section_jump') ?></div>
         <a href="#about" class="float-menu-item" id="shortcutAbout">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-            <span>About</span>
+            <span><?= __('about') ?></span>
         </a>
         <a href="#skills" class="float-menu-item" id="shortcutSkills">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>
-            <span>Skills</span>
+            <span><?= __('skills') ?></span>
         </a>
         <a href="#experience" class="float-menu-item" id="shortcutExperience">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>
-            <span>Experience</span>
+            <span><?= __('experience') ?></span>
         </a>
         <a href="#education" class="float-menu-item" id="shortcutEducation">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"></path><path d="M6 12v5c3 3 9 3 12 0v-5"></path></svg>
-            <span>Education</span>
+            <span><?= __('education') ?></span>
         </a>
 
         <!-- 5. Controls -->
         <div class="float-menu-divider"></div>
         <button type="button" class="float-menu-item" id="floatScrollTopBtn">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"></polyline></svg>
-            <span>Back to Top</span>
+            <span><?= __('back_to_top') ?></span>
         </button>
     </div>
-</div>
-
-<script>
+</div><script>
     // Initialize Float Menu Elements safely
     (function() {
         const floatFab = document.getElementById('floatMenuFab');
