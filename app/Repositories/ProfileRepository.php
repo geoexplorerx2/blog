@@ -26,23 +26,24 @@ class ProfileRepository extends BaseRepository implements ProfileRepositoryInter
         $db->exec("CREATE TABLE IF NOT EXISTS profile (
             id INT AUTO_INCREMENT PRIMARY KEY,
             full_name VARCHAR(255) DEFAULT 'Farshad Nabizade',
-            headline VARCHAR(255) DEFAULT 'Full-Stack Web Developer',
-            email VARCHAR(255) DEFAULT '',
-            phone VARCHAR(50) DEFAULT '',
-            address VARCHAR(255) DEFAULT '',
+            headline VARCHAR(255) DEFAULT 'Full-Stack & Systems Engineer',
+            email VARCHAR(255) DEFAULT 'farshadnabizadeh1993@gmail.com',
+            phone VARCHAR(50) DEFAULT '+98 921 812 4475',
+            address VARCHAR(255) DEFAULT 'Tehran, Iran',
             age INT DEFAULT 34,
             gender VARCHAR(50) DEFAULT 'Male',
             marital_status VARCHAR(50) DEFAULT 'Single',
             military_status VARCHAR(50) DEFAULT 'Exempted',
             work_experience_years INT DEFAULT 7,
             salary_expectation VARCHAR(100) DEFAULT '45 - 60 Million Tomans',
-            education_degree VARCHAR(255) DEFAULT 'Bachelor: Computer Engineering',
-            education_school VARCHAR(255) DEFAULT 'IAU',
-            education_years VARCHAR(100) DEFAULT '2016 - 2019',
-            education_gpa VARCHAR(50) DEFAULT '16.4',
+            education_degree VARCHAR(255) DEFAULT 'B.Sc. in Computer Engineering',
+            education_school VARCHAR(255) DEFAULT 'Islamic Azad University (IAU)',
+            education_years VARCHAR(100) DEFAULT '2016 – 2019',
+            education_gpa VARCHAR(50) DEFAULT '16.4 / 20',
             about_me TEXT DEFAULT NULL,
-            github VARCHAR(255) DEFAULT '',
-            linkedin VARCHAR(255) DEFAULT '',
+            github VARCHAR(255) DEFAULT 'https://github.com/farshadnabizadeh',
+            linkedin VARCHAR(255) DEFAULT 'https://linkedin.com/in/farshad-nabizadeh-37457b215',
+            website VARCHAR(255) DEFAULT 'https://blog.sibmlm.ir',
             skills JSON DEFAULT NULL,
             experiences JSON DEFAULT NULL,
             courses JSON DEFAULT NULL,
@@ -50,6 +51,15 @@ class ProfileRepository extends BaseRepository implements ProfileRepositoryInter
             software JSON DEFAULT NULL,
             updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+
+        try {
+            $cols = $db->query("SHOW COLUMNS FROM profile LIKE 'website'")->fetchAll();
+            if (empty($cols)) {
+                $db->exec("ALTER TABLE profile ADD COLUMN website VARCHAR(255) DEFAULT 'https://blog.sibmlm.ir' AFTER linkedin");
+            }
+        } catch (PDOException $e) {
+            // column check / migration fallback
+        }
     }
 
     public function getProfile(): ?Profile
@@ -65,28 +75,29 @@ class ProfileRepository extends BaseRepository implements ProfileRepositoryInter
             return new Profile(
                 (int)$row['id'],
                 $row['full_name'] ?? 'Farshad Nabizade',
-                $row['headline'] ?? 'Full-Stack Web Developer',
-                $row['email'] ?? '',
-                $row['phone'] ?? '',
-                $row['address'] ?? '',
+                $row['headline'] ?? 'Full-Stack & Systems Engineer',
+                $row['email'] ?? 'farshadnabizadeh1993@gmail.com',
+                $row['phone'] ?? '+98 921 812 4475',
+                $row['address'] ?? 'Tehran, Iran',
                 (int)($row['age'] ?? 34),
                 $row['gender'] ?? 'Male',
                 $row['marital_status'] ?? 'Single',
                 $row['military_status'] ?? 'Exempted',
                 (int)($row['work_experience_years'] ?? 7),
                 $row['salary_expectation'] ?? '45 - 60 Million Tomans',
-                $row['education_degree'] ?? 'Bachelor: Computer Engineering',
-                $row['education_school'] ?? 'IAU',
-                $row['education_years'] ?? '2016 - 2019',
-                $row['education_gpa'] ?? '16.4',
+                $row['education_degree'] ?? 'B.Sc. in Computer Engineering',
+                $row['education_school'] ?? 'Islamic Azad University (IAU)',
+                $row['education_years'] ?? '2016 – 2019',
+                $row['education_gpa'] ?? '16.4 / 20',
                 $row['about_me'] ?? '',
-                $row['github'] ?? '',
-                $row['linkedin'] ?? '',
+                $row['github'] ?? 'https://github.com/farshadnabizadeh',
+                $row['linkedin'] ?? 'https://linkedin.com/in/farshad-nabizadeh-37457b215',
                 !empty($row['skills']) ? (is_array($row['skills']) ? $row['skills'] : (json_decode($row['skills'], true) ?: [])) : [],
                 !empty($row['experiences']) ? (is_array($row['experiences']) ? $row['experiences'] : (json_decode($row['experiences'], true) ?: [])) : [],
                 !empty($row['courses']) ? (is_array($row['courses']) ? $row['courses'] : (json_decode($row['courses'], true) ?: [])) : [],
                 !empty($row['languages']) ? (is_array($row['languages']) ? $row['languages'] : (json_decode($row['languages'], true) ?: [])) : [],
                 !empty($row['software']) ? (is_array($row['software']) ? $row['software'] : (json_decode($row['software'], true) ?: [])) : [],
+                $row['website'] ?? 'https://blog.sibmlm.ir',
                 $row['updated_at'] ?? null
             );
         } catch (PDOException $e) {
@@ -117,23 +128,24 @@ class ProfileRepository extends BaseRepository implements ProfileRepositoryInter
         $existing = $this->getRawProfileData() ?: [];
 
         $fullName = trim($data['full_name'] ?? ($existing['full_name'] ?? 'Farshad Nabizade'));
-        $headline = trim($data['headline'] ?? ($existing['headline'] ?? 'Full-Stack Web Developer'));
-        $email = trim($data['email'] ?? ($existing['email'] ?? ''));
-        $phone = trim($data['phone'] ?? ($existing['phone'] ?? ''));
-        $address = trim($data['address'] ?? ($existing['address'] ?? ''));
+        $headline = trim($data['headline'] ?? ($existing['headline'] ?? 'Full-Stack & Systems Engineer'));
+        $email = trim($data['email'] ?? ($existing['email'] ?? 'farshadnabizadeh1993@gmail.com'));
+        $phone = trim($data['phone'] ?? ($existing['phone'] ?? '+98 921 812 4475'));
+        $address = trim($data['address'] ?? ($existing['address'] ?? 'Tehran, Iran'));
         $age = isset($data['age']) && is_numeric($data['age']) ? (int)$data['age'] : (int)($existing['age'] ?? 34);
         $gender = trim($data['gender'] ?? ($existing['gender'] ?? 'Male'));
         $maritalStatus = trim($data['marital_status'] ?? ($existing['marital_status'] ?? 'Single'));
         $militaryStatus = trim($data['military_status'] ?? ($existing['military_status'] ?? 'Exempted'));
         $workExpYears = isset($data['work_experience_years']) && is_numeric($data['work_experience_years']) ? (int)$data['work_experience_years'] : (int)($existing['work_experience_years'] ?? 7);
         $salaryExpectation = trim($data['salary_expectation'] ?? ($existing['salary_expectation'] ?? '45 - 60 Million Tomans'));
-        $eduDegree = trim($data['education_degree'] ?? ($existing['education_degree'] ?? 'Bachelor: Computer Engineering'));
-        $eduSchool = trim($data['education_school'] ?? ($existing['education_school'] ?? 'IAU'));
-        $eduYears = trim($data['education_years'] ?? ($existing['education_years'] ?? '2016 - 2019'));
-        $eduGpa = trim($data['education_gpa'] ?? ($existing['education_gpa'] ?? '16.4'));
+        $eduDegree = trim($data['education_degree'] ?? ($existing['education_degree'] ?? 'B.Sc. in Computer Engineering'));
+        $eduSchool = trim($data['education_school'] ?? ($existing['education_school'] ?? 'Islamic Azad University (IAU)'));
+        $eduYears = trim($data['education_years'] ?? ($existing['education_years'] ?? '2016 – 2019'));
+        $eduGpa = trim($data['education_gpa'] ?? ($existing['education_gpa'] ?? '16.4 / 20'));
         $aboutMe = trim($data['about_me'] ?? ($existing['about_me'] ?? ''));
-        $github = trim($data['github'] ?? ($existing['github'] ?? ''));
-        $linkedin = trim($data['linkedin'] ?? ($existing['linkedin'] ?? ''));
+        $github = trim($data['github'] ?? ($existing['github'] ?? 'https://github.com/farshadnabizadeh'));
+        $linkedin = trim($data['linkedin'] ?? ($existing['linkedin'] ?? 'https://linkedin.com/in/farshad-nabizadeh-37457b215'));
+        $website = trim($data['website'] ?? ($existing['website'] ?? 'https://blog.sibmlm.ir'));
 
         $skills = isset($data['skills']) 
             ? (is_array($data['skills']) ? json_encode($data['skills'], JSON_UNESCAPED_UNICODE) : (string)$data['skills'])
@@ -175,6 +187,7 @@ class ProfileRepository extends BaseRepository implements ProfileRepositoryInter
                 about_me = :about_me,
                 github = :github,
                 linkedin = :linkedin,
+                website = :website,
                 skills = :skills,
                 experiences = :experiences,
                 courses = :courses,
@@ -202,6 +215,7 @@ class ProfileRepository extends BaseRepository implements ProfileRepositoryInter
                 ':about_me' => $aboutMe,
                 ':github' => $github,
                 ':linkedin' => $linkedin,
+                ':website' => $website,
                 ':skills' => $skills,
                 ':experiences' => $experiences,
                 ':courses' => $courses,
@@ -213,12 +227,12 @@ class ProfileRepository extends BaseRepository implements ProfileRepositoryInter
                 full_name, headline, email, phone, address, age, gender,
                 marital_status, military_status, work_experience_years, salary_expectation,
                 education_degree, education_school, education_years, education_gpa,
-                about_me, github, linkedin, skills, experiences, courses, languages, software
+                about_me, github, linkedin, website, skills, experiences, courses, languages, software
             ) VALUES (
                 :full_name, :headline, :email, :phone, :address, :age, :gender,
                 :marital_status, :military_status, :work_experience_years, :salary_expectation,
                 :education_degree, :education_school, :education_years, :education_gpa,
-                :about_me, :github, :linkedin, :skills, :experiences, :courses, :languages, :software
+                :about_me, :github, :linkedin, :website, :skills, :experiences, :courses, :languages, :software
             )");
 
             return $insert->execute([
@@ -240,6 +254,7 @@ class ProfileRepository extends BaseRepository implements ProfileRepositoryInter
                 ':about_me' => $aboutMe,
                 ':github' => $github,
                 ':linkedin' => $linkedin,
+                ':website' => $website,
                 ':skills' => $skills,
                 ':experiences' => $experiences,
                 ':courses' => $courses,
